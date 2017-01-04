@@ -1,14 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal;
 
@@ -20,9 +19,9 @@ public class DatastoreCacheManager
 {
     private static DatastoreCacheManager instance = new DatastoreCacheManager();
     
-    private final LocalCache<String, Boolean> topicsCache;
+    private final LocalCache<String, Boolean> channelsCache;
     private final LocalCache<String, Boolean> metricsCache;
-    private final LocalCache<String, Boolean> assetsCache;
+    private final LocalCache<String, Boolean> clientsCache;
 
     private DatastoreCacheManager()
     {
@@ -33,9 +32,9 @@ public class DatastoreCacheManager
         // TODO set expiration to happen frequently because the reset cache method will not get
         // called from service clients any more
         // TODO wrap the caches into a Statically accessible method
-        topicsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
+        channelsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
         metricsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
-        assetsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
+        clientsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
     }
 
     public static DatastoreCacheManager getInstance()
@@ -43,15 +42,15 @@ public class DatastoreCacheManager
         return instance;
     }
     
-    public LocalCache<String, Boolean> getTopicsCache(){
-       return topicsCache;
+    public LocalCache<String, Boolean> getChannelsCache(){
+       return channelsCache;
     }
     
     public LocalCache<String, Boolean> getMetricsCache(){
        return metricsCache;
     }
     
-    public LocalCache<String, Boolean> getAssetsCache(){
-       return assetsCache;
+    public LocalCache<String, Boolean> getClientsCache(){
+       return clientsCache;
     }
 }

@@ -1,19 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal;
 
 import org.eclipse.kapua.service.datastore.model.Storable;
-import org.eclipse.kapua.service.datastore.model.query.MessageFetchStyle;
+import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.SortDirection;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorableQuery;
@@ -27,7 +26,7 @@ public abstract class AbstractStorableQuery<S extends Storable> implements Stora
     private int               indexOffset;
     private boolean           askTotalCount = false;
     private SortDirection     sortStyle     = SortDirection.DESC;
-    private MessageFetchStyle fetchStyle    = MessageFetchStyle.METADATA_HEADERS_PAYLOAD;
+    private StorableFetchStyle fetchStyle    = StorableFetchStyle.SOURCE_FULL;
 
 
     public AbstractStorableQuery()
@@ -102,13 +101,13 @@ public abstract class AbstractStorableQuery<S extends Storable> implements Stora
     }
 
     @Override
-    public MessageFetchStyle getFetchStyle()
+    public StorableFetchStyle getFetchStyle()
     {
         return this.fetchStyle;
     }
 
     @Override
-    public void setFetchStyle(MessageFetchStyle fetchStyle)
+    public void setFetchStyle(StorableFetchStyle fetchStyle)
     {
         this.fetchStyle = fetchStyle;
     }

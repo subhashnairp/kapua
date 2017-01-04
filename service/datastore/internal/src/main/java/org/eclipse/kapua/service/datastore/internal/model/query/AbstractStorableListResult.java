@@ -1,14 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
@@ -21,7 +20,7 @@ import org.eclipse.kapua.service.datastore.model.StorableListResult;
 public class AbstractStorableListResult<E extends Storable> extends ArrayList<E> implements StorableListResult<E>
 {
     private Object  nextKey;
-    private Integer totalCount;
+    private Long totalCount;
 
     public AbstractStorableListResult()
     {
@@ -35,7 +34,7 @@ public class AbstractStorableListResult<E extends Storable> extends ArrayList<E>
         this.totalCount = null;
     }
 
-    public AbstractStorableListResult(Object nextKeyOffset, Integer totalCount)
+    public AbstractStorableListResult(Object nextKeyOffset, Long totalCount)
     {
         this(nextKeyOffset);
         this.totalCount = totalCount;
@@ -46,7 +45,7 @@ public class AbstractStorableListResult<E extends Storable> extends ArrayList<E>
         return nextKey;
     }
 
-    public Integer getTotalCount()
+    public Long getTotalCount()
     {
         return totalCount;
     }

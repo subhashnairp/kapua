@@ -1,31 +1,32 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDatastoreException;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilderException;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsQueryConversionException;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsUtils;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageBuilder;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageObjectBuilder;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageQueryConverter;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.PredicateConverter;
 import org.eclipse.kapua.service.datastore.internal.model.MessageListResultImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
-import org.eclipse.kapua.service.datastore.model.Message;
+import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.MessageListResult;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -61,41 +62,41 @@ public class EsMessageDAO
         return this;
     }
 
-    public static EsMessageDAO connection(Client client)
-        throws UnknownHostException
+    public static EsMessageDAO client(Client client)
     {
         EsMessageDAO esMessageDAO = new EsMessageDAO();
-        esMessageDAO.esTypeDAO = EsTypeDAO.connection(client);
+        esMessageDAO.esTypeDAO = EsTypeDAO.client(client);
         return esMessageDAO;
     }
 
-    public EsMessageDAO instance(String indexName, String typeName)
+    public EsMessageDAO index(String indexName)
     {
-        this.esTypeDAO.instance(indexName, typeName);
+        this.esTypeDAO.type(indexName, EsSchema.MESSAGE_TYPE_NAME);
         return this;
     }
 
-    public UpdateRequest getUpsertReq(String id, Map<String, Object> esAsset)
+    public UpdateRequest getUpsertReq(String id, Map<String, Object> esClient)
     {
-        return this.esTypeDAO.getUpsertRequest(id, esAsset);
+        return this.esTypeDAO.getUpsertRequest(id, esClient);
     }
 
-    public UpdateRequest getUpsertReq(String id, XContentBuilder esAsset)
+    public UpdateRequest getUpsertReq(String id, XContentBuilder esClient)
     {
-        return this.esTypeDAO.getUpsertRequest(id, esAsset);
+        return this.esTypeDAO.getUpsertRequest(id, esClient);
     }
 
-    public UpdateResponse upsert(String id, XContentBuilder esAsset)
+    public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
-        return this.esTypeDAO.upsert(id, esAsset);
+        return this.esTypeDAO.upsert(id, esClient);
     }
 
-    public UpdateResponse upsert(String id, Map<String, Object> esAsset)
+    public UpdateResponse upsert(String id, Map<String, Object> esClient)
     {
-        return this.esTypeDAO.upsert(id, esAsset);
+        return this.esTypeDAO.upsert(id, esClient);
     }
 
-    public void deleteByQuery(MessageQuery query) throws KapuaException
+    public void deleteByQuery(MessageQuery query) 
+    		throws EsQueryConversionException 
     {
         PredicateConverter pc = new PredicateConverter();
         this.esTypeDAO.deleteByQuery(pc.toElasticsearchQuery(query.getPredicate()));
@@ -224,7 +225,10 @@ public class EsMessageDAO
 //        this.esTypeDAO.deleteByQuery(boolQuery);
 //    }
 
-    public MessageListResult query(MessageQuery query) throws Exception
+    public MessageListResult query(MessageQuery query) 
+    		throws EsQueryConversionException, 
+    			   EsClientUnavailableException, 
+    			   EsObjectBuilderException 
     {
         MessageQueryImpl localQuery = new MessageQueryImpl();
         localQuery.copy(query);
@@ -240,41 +244,42 @@ public class EsMessageDAO
 
         int i = 0;
         int searchHitsSize = searchHits.getHits().length;
-        List<Message> messages = new ArrayList<Message>();
-        MessageBuilder msgBuilder = new MessageBuilder();
+        List<DatastoreMessage> messages = new ArrayList<DatastoreMessage>();
+        MessageObjectBuilder msgBuilder = new MessageObjectBuilder();
         for(SearchHit searchHit:searchHits.getHits()) {
             if (i < query.getLimit()) {
-                Message message = msgBuilder.build(searchHit, query.getFetchStyle()).getMessage();
+                DatastoreMessage message = msgBuilder.build(searchHit, query.getFetchStyle()).getMessage();
                 messages.add(message);
             }
             i++;
         }
         
-        // TODO check equivalence with CX with Pierantonio
+        // TODO check equivalence with CX
         // TODO what is this nextKey
         Object nextKey = null;
         if (searchHitsSize > query.getLimit()) {
-            Message lastMessage = msgBuilder.build(searchHits.getHits()[searchHitsSize-1], query.getFetchStyle()).getMessage();
+            DatastoreMessage lastMessage = msgBuilder.build(searchHits.getHits()[searchHitsSize-1], query.getFetchStyle()).getMessage();
             nextKey = lastMessage.getTimestamp().getTime();
         }
 
         // TODO verifiy total count
-        long totalCount = 0;
+        Long totalCount = null;
         if (query.isAskTotalCount()) {
             // totalCount = MessageDAO.findByTopicCount(keyspace, topic, start, end); 
             totalCount = searchHits.getTotalHits();
         }
         
-        if (totalCount > Integer.MAX_VALUE)
-            throw new Exception("Total hits exceeds integer max value");
+        if (totalCount != null && totalCount > Integer.MAX_VALUE)
+            throw new RuntimeException("Total hits exceeds integer max value");
         
-        MessageListResultImpl result = new MessageListResultImpl(nextKey, (int)totalCount);
+        MessageListResultImpl result = new MessageListResultImpl(nextKey, totalCount);
         result.addAll(messages);
         return result;
     }
 
-    public long count(MessageQuery query)
-        throws Exception
+    public long count(MessageQuery query) 
+    		throws EsQueryConversionException, 
+    			   EsClientUnavailableException
     {
         MessageQueryConverter converter = new MessageQueryConverter();
         SearchRequestBuilder builder = converter.toSearchRequestBuilder(esTypeDAO.getIndexName(), esTypeDAO.getTypeName(), query);

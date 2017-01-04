@@ -23,6 +23,13 @@ import java.util.TimeZone;
  *
  */
 public class KapuaDateUtils {
+	
+    public static final long    SEC_MILLIS       = 1000;
+    public static final long    MIN_SECS         = 60;
+    public static final long    HOUR_MINS        = 60;
+    public static final long    DAY_HOURS        = 24;
+    public static final long    DAY_SECS         = DAY_HOURS * HOUR_MINS * MIN_SECS;
+    public static final long    DAY_MILLIS       = DAY_SECS * SEC_MILLIS;
 
     /**
      * Get the Kapua {@link Locale}

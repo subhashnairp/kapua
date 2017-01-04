@@ -16,9 +16,7 @@ import org.apache.camel.spi.UriEndpoint;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.message.CamelKapuaMessage;
 import org.eclipse.kapua.locator.KapuaLocator;
-import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
 import org.eclipse.kapua.service.datastore.MessageStoreService;
-import org.eclipse.kapua.service.datastore.model.MessageCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +43,6 @@ public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMes
     private Timer metricStorageDataSaveTime;
 
     private MessageStoreService    messageStoreService    = KapuaLocator.getInstance().getService(MessageStoreService.class);
-    private DatastoreObjectFactory datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
 
     public DataStorageMessageProcessor()
     {
@@ -72,8 +69,7 @@ public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMes
         // data messages
         try {
             Context metricStorageDataSaveTimeContext = metricStorageDataSaveTime.time();
-            MessageCreator mc = datastoreObjectFactory.newMessageCreator();
-            messageStoreService.store(message.getMessage().getScopeId(), mc);
+            messageStoreService.store(message.getMessage().getScopeId(), message.getMessage());
             metricStorageDataSaveTimeContext.stop();
         }
         catch (KapuaException e) {

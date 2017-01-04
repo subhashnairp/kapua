@@ -1,14 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
@@ -18,32 +17,37 @@ import java.util.Set;
 
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.IdsPredicate;
-import org.eclipse.kapua.service.datastore.model.query.StorableField;
 
 public class IdsPredicateImpl implements IdsPredicate
 {
-    private StorableField   field;
+    private String type;
     private Set<StorableId> idSet = new HashSet<StorableId>();
 
     public IdsPredicateImpl()
     {
     }
 
-    public IdsPredicateImpl(StorableField field, Collection<StorableId> ids)
+    public IdsPredicateImpl(String type)
     {
-        this.field = field;
+    	this();
+        this.type = type;
+    }
+
+    public IdsPredicateImpl(String type, Collection<StorableId> ids)
+    {
+        this(type);
         this.idSet.addAll(ids);
     }
 
     @Override
-    public StorableField getField()
+    public String getType()
     {
-        return this.field;
+        return this.type;
     }
 
-    public IdsPredicate setField(StorableField field)
+    public IdsPredicate setType(String type)
     {
-        this.field = field;
+        this.type = type;
         return this;
     }
 

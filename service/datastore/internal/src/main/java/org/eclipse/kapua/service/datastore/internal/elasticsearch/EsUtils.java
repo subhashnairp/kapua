@@ -1,14 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
@@ -133,20 +132,20 @@ public class EsUtils {
 		EsUtils.checkIdxAliasName(index);
 	}
 	
-	public static String normalizedIndexAliasName(String alias) {
+	public static String normalizeIndexAliasName(String alias) {
 		String aliasName = normalizeIndexName(alias);
 		aliasName = aliasName.replace("-", "_");
 		return aliasName;
 	}
 	
-	public static String getAnyIndexName(String accountName) {
+	public static String getDataIndexName(String accountName) {
 		String actualName = EsUtils.normalizedIndexName(accountName);
 		actualName = String.format("%s-*", actualName);
 		return actualName;
 	}
 	
-	public static String getActualIndexName(String accountName, long timestamp) {
-		String actualName = EsUtils.normalizedIndexName(accountName);
+	public static String getDataIndexName(String baseName, long timestamp) {
+		String actualName = EsUtils.normalizedIndexName(baseName);
 		Calendar cal = KapuaDateUtils.getKapuaCalendar();
 		cal.setTimeInMillis(timestamp);
 		int year = cal.get(Calendar.YEAR);
@@ -155,8 +154,8 @@ public class EsUtils {
 		return actualName;
 	}
 
-	public static String getActualKapuaIndexName(String accountName, long timestamp) {
-		String actualName = EsUtils.normalizedIndexName(accountName);
+	public static String getKapuaIndexName(String baseName) {
+		String actualName = EsUtils.normalizedIndexName(baseName);
 		actualName = String.format(".%s", actualName);
 		return actualName;
 	}
@@ -167,19 +166,16 @@ public class EsUtils {
 		return indexName;
 	}
 
-	/**
-	 * @param name metric name in es format
-	 * @param type metric type in es type
-	 * @return
-	 * @throws ParseException
-	 */
-	public static String getMetricValueQualifier(String name, String type) throws ParseException {
+	public static String getMetricValueQualifier(String name, String type) 
+	{
 		String shortType = EsUtils.getEsTypeAcronym(type);
 		return String.format("%s.%s", name, shortType);
 	}
 
-	public static String getEsTypeFromValue(Object value) {
-		assert value != null : "Metric value must not be null";
+	public static String getEsTypeFromValue(Object value) 
+	{	
+		if (value == null)
+			throw new NullPointerException("Metric value must not be null");
 		
 		if (value instanceof String)
 			return ES_TYPE_STRING;
@@ -208,8 +204,8 @@ public class EsUtils {
 		throw new IllegalArgumentException(String.format("Metric value type for "));
 	}
 	
-	public static String getEsTypeAcronym(String esType) throws ParseException {
-		
+	public static String getEsTypeAcronym(String esType) 
+	{
 		if (esType.equals("string"))
 			return ES_TYPE_SHORT_STRING;
 		
@@ -332,7 +328,8 @@ public class EsUtils {
         throw new IllegalArgumentException(String.format("Unknown type [%s]", esType));
     }
 
-	public static Object convertToKapuaObject(String type, String value) throws ParseException {
+	public static Object convertToKapuaObject(String type, String value) 
+	{
 		
 		if (type.equals("string"))
 			return value;
@@ -352,15 +349,19 @@ public class EsUtils {
 		if (type.equals("boolean"))
 			return value == null ? null : Boolean.parseBoolean(value);
 		
-		if (type.equals("date")) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-			simpleDateFormat.setTimeZone(KapuaDateUtils.getKapuaTimeZone());
-			SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			simpleDateFormat2.setTimeZone(KapuaDateUtils.getKapuaTimeZone());
+		if (type.equals("date")) {			
 			try {
-				return value == null ? null : simpleDateFormat.parse(value);
+				SimpleDateFormat simplWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+				simplWithMillis.setTimeZone(KapuaDateUtils.getKapuaTimeZone());
+				return value == null ? null : simplWithMillis.parse(value);
 			} catch (ParseException exc) {
-				return value == null ? null : simpleDateFormat2.parse(value);
+				try {
+					SimpleDateFormat simpleWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+					simpleWithoutMillis.setTimeZone(KapuaDateUtils.getKapuaTimeZone());
+					return value == null ? null : simpleWithoutMillis.parse(value);
+				} catch (ParseException e) {
+					throw new IllegalArgumentException(String.format("Unknown data format [%s]", value));
+				}
 			}
 		}
 		
@@ -371,8 +372,8 @@ public class EsUtils {
 		throw new IllegalArgumentException(String.format("Unknown type [%s]", type));
 	}
 
-	public static Object convertToEsObject(String type, String value) throws ParseException {
-		
+	public static Object convertToEsObject(String type, String value) 
+	{	
 		if (type.equals("string") || type.equals("str"))
 			return value;
 		
@@ -392,8 +393,12 @@ public class EsUtils {
 			return value == null ? null : Boolean.parseBoolean(value);
 		
 		if (type.equals("date") || type.equals("dte")) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-			return value == null ? null : simpleDateFormat.parse(value);
+			try {
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+				return value == null ? null : simpleDateFormat.parse(value);
+			} catch (ParseException e) {
+				throw new IllegalArgumentException(String.format("Unknown date format [%s]", value));
+			}
 		}
 		
 		if (type.equals("binary") || type.equals("bin")) {

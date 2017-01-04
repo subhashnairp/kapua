@@ -45,7 +45,7 @@ import org.eclipse.kapua.service.authorization.domain.Domain;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
-import org.eclipse.kapua.service.datastore.DatastoreDomain;
+import org.eclipse.kapua.service.datastore.internal.DatastoreDomain;
 import org.eclipse.kapua.service.device.registry.internal.DeviceDomain;
 import org.eclipse.kapua.service.user.User;
 import org.eclipse.kapua.service.user.UserService;

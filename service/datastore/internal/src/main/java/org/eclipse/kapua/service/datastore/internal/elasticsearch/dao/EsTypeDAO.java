@@ -1,14 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ *  
  * Contributors:
  *     Eurotech - initial API and implementation
- *
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
@@ -33,7 +32,9 @@ import org.elasticsearch.search.sort.SortOrder;
 
 public class EsTypeDAO
 {
-
+	private static final String CLIENT_UNDEFINED_MSG = "ES client must be not null";
+	private static final String INVALID_DOCUMENT_ID_MSG = "Document id must be not empty %s";
+	
     private Client        client;
 
     private String        indexName;
@@ -62,7 +63,6 @@ public class EsTypeDAO
     public EsTypeDAO setListener(EsDaoListener eventListener)
         throws EsDatastoreException
     {
-
         if (this.eventListener != null && this.eventListener != eventListener)
             throw new EsDatastoreException("Listener already set. Use unset to uregister the previuos listener.");
 
@@ -73,7 +73,6 @@ public class EsTypeDAO
     public EsTypeDAO unsetListener(EsDaoListener eventListener)
         throws EsDatastoreException
     {
-
         if (this.eventListener != null && this.eventListener != eventListener)
             throw new EsDatastoreException("Listener cannot be unset. The provided listener does not match.");
 
@@ -81,86 +80,85 @@ public class EsTypeDAO
         return this;
     }
 
-    public static EsTypeDAO connection(Client client)
+    public static EsTypeDAO client(Client client)
     {
         EsTypeDAO esTypeDAO = new EsTypeDAO();
         esTypeDAO.client = client;
         return esTypeDAO;
     }
 
-    public EsTypeDAO instance(String indexName, String typeName)
+    public EsTypeDAO type(String indexName, String typeName)
     {
         this.indexName = indexName;
         this.typeName = typeName;
         return this;
     }
 
-    public String insert(XContentBuilder esAsset)
+    public String insert(XContentBuilder esClient)
     {
-
-        assert this.client != null : "ES client must be not null";
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
         long timeout = EsUtils.getQueryTimeout();
 
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName).source(esAsset);
+        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName).source(esClient);
         IndexResponse response = this.client.index(idxRequest).actionGet(TimeValue.timeValueMillis(timeout));
         return response.getId();
     }
 
-    public UpdateResponse update(String id, XContentBuilder esAsset)
+    public UpdateResponse update(String id, XContentBuilder esClient)
     {
-
-        assert this.client != null : "ES client must be not null";
-        assert id != null : "ES client must be not null";
-        assert !id.isEmpty() : "Document id must be not empty";
-
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
         long timeout = EsUtils.getQueryTimeout();
 
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esAsset);
+        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         UpdateResponse response = this.client.update(updRequest)
                                              .actionGet(TimeValue.timeValueMillis(timeout));
         return response;
     }
 
-    public UpdateRequest getUpsertRequest(String id, Map<String, Object> esAsset)
+    public UpdateRequest getUpsertRequest(String id, Map<String, Object> esClient)
     {
-
-        assert this.client != null : "ES client must be not null";
-
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esAsset);
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esAsset);
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
+        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
+        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         updRequest.upsert(idxRequest);
         return updRequest;
     }
 
-    public UpdateRequest getUpsertRequest(String id, XContentBuilder esAsset)
+    public UpdateRequest getUpsertRequest(String id, XContentBuilder esClient)
     {
-
-        assert this.client != null : "ES client must be not null";
-
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esAsset);
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esAsset);
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
+        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
+        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         updRequest.upsert(idxRequest);
         return updRequest;
     }
 
-    public UpdateResponse upsert(String id, XContentBuilder esAsset)
+    public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
-
-        assert this.client != null : "ES client must be not null";
-
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
         long timeout = EsUtils.getQueryTimeout();
 
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esAsset);
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esAsset);
+        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
+        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         UpdateResponse response = this.client.update(updRequest.upsert(idxRequest)).actionGet(TimeValue.timeValueMillis(timeout));
         return response;
     }
 
     public UpdateResponse upsert(String id, Map<String, Object> esMessage)
     {
-
-        assert this.client != null : "ES client must be not null";
-
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+    	
         long timeout = EsUtils.getQueryTimeout();
 
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esMessage);
@@ -171,7 +169,6 @@ public class EsTypeDAO
 
     public void deleteByQuery(QueryBuilder query)
     {
-
         TimeValue queryTimeout = TimeValue.timeValueMillis(EsUtils.getQueryTimeout());
         TimeValue scrollTimeout = TimeValue.timeValueMillis(EsUtils.getScrollTimeout());
 
@@ -217,9 +214,8 @@ public class EsTypeDAO
 
     public BulkResponse bulk(BulkRequest bulkRequest)
     {
-
-        assert this.client != null : "ES client must be not null";
-        assert bulkRequest != null : "Bulk request list must not be null";
+    	if (this.client == null)
+    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
 
         long timeout = EsUtils.getQueryTimeout();
 
