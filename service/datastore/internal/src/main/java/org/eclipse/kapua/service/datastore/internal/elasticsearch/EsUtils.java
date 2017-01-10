@@ -96,22 +96,6 @@ public class EsUtils {
 		return fullName == null ? null : fullName.split(Pattern.quote("."));
 	}
 	
-	public static Client getEsClient(String hostname, int port) throws UnknownHostException {
-		return getEsClient(hostname, port, "elasticsearch");
-	}
-
-	public static Client getEsClient(String hostname, int port, String clustername) throws UnknownHostException {
-		
-		Settings settings = Settings.settingsBuilder()
-		        .put("cluster.name", clustername).build();
-		
-		InetSocketTransportAddress ita = 
-				new InetSocketTransportAddress(InetAddress.getByName(hostname), port);
-		Client esClient = TransportClient.builder().settings(settings).build().addTransportAddress(ita);
-		
-		return esClient;
-	}
-	
 	public static void checkIdxAliasName(String alias) {		
 		if (alias == null || alias.isEmpty())
 			throw new IllegalArgumentException(String.format("Alias name cannot be %s", alias == null ? "null" : "empty"));

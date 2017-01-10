@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-import java.net.UnknownHostException;
-import java.util.Map;
-
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettingKey;
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettings;
 import org.elasticsearch.client.Client;
@@ -26,57 +23,30 @@ public class ElasticsearchClient {
 	@SuppressWarnings("unused")
 	private static final Logger   s_logger = LoggerFactory.getLogger(ElasticsearchClient.class);
 	
-	private static final int DEFAULT_PORT = 9300; 
-	
-	private static Client client;
+	private static ElasticsearchClientProvider clientProvider;
 
-	public synchronized static Client getInstance() 
-			throws EsClientUnavailableException 
+	public synchronized static Client getInstance()
+		throws EsClientUnavailableException
 	{
-		if (client == null) 
+		if (clientProvider == null) 
 		{
 	        DatastoreSettings config = DatastoreSettings.getInstance();
-	        Map<String, String> map = config.getMap(String.class, DatastoreSettingKey.ELASTICSEARCH_NODES, "[0-9]+");
-	        String[] esNodes = new String[] {};
-	        if (map != null)
-	            esNodes = map.values().toArray(new String[] {});
-	        
-	        if (esNodes == null || esNodes.length == 0)
-	        	throw new EsClientUnavailableException("No elasticsearch nodes found");
-	        
-	        String[] nodeParts = getNodeParts(esNodes[0]);
-	        String esHost = null;
-	        int esPort = DEFAULT_PORT;
-	        
-	        if (nodeParts.length > 0)
-	            esHost = nodeParts[0];
-	        
-	        if (nodeParts.length > 1) {
-	        	try {
-	        		Integer.parseInt(nodeParts[1]);
-	        	} catch (NumberFormatException e) {
-	        		throw new EsClientUnavailableException("Could not parse elasticsearch port: " + nodeParts[1]);
-	        	}
-	        }
-	        
-	        Client theClient = null;
+	        String clientProvidername = config.getString(DatastoreSettingKey.ELASTICSEARCH_CLIENT_PROVIDER);
+			ClassLoader classLoader = ElasticsearchClient.class.getClassLoader();
+
 			try {
-				theClient = EsUtils.getEsClient(esHost, esPort, config.getString(DatastoreSettingKey.ELASTICSEARCH_CLUSTER));
-			} catch (UnknownHostException e) {
-				throw new EsClientUnavailableException("Unknown elasticsearch node host", e);
+				boolean initialize = true;
+				Class<?> clazz = Class.forName(clientProvidername, !initialize, classLoader);
+				clientProvider = (ElasticsearchClientProvider) clazz.newInstance();
+			} catch (ClassNotFoundException e) {
+				throw new EsClientUnavailableException("Client Provider can't be created", e);
+			} catch (InstantiationException e) {
+				throw new EsClientUnavailableException("Client Provider can't be created", e);
+			} catch (IllegalAccessException e) {
+				throw new EsClientUnavailableException("Client Provider can't be created", e);
 			}
-			
-			client = theClient;
 		}
-		return client;
-	}
-	
-	private static String[] getNodeParts(String node)
-	{
-	    if (node==null)
-	        return new String[] {};
-	    
-	    String[] split = node.split(":");
-	    return split;
+		
+		return clientProvider.getClient();
 	}
 }

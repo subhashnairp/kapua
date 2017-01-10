@@ -17,6 +17,7 @@ public enum DatastoreSettingKey implements SettingKey
 {
 
     ELASTICSEARCH ("datastore.elasticsearch"),
+    ELASTICSEARCH_CLIENT_PROVIDER ("datastore.elasticsearch.client.provider"),
     ELASTICSEARCH_NODES ("datastore.elasticsearch.node"),
     ELASTICSEARCH_CLUSTER("datastore.elasticsearch.cluster"),
     ELASTICSEARCH_TOPIC_MAX_DEPTH("datastore.elasticsearch.topic.max.depth"),

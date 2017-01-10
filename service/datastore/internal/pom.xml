@@ -77,6 +77,13 @@
             <artifactId>kapua-test</artifactId>
             <scope>test</scope>
         </dependency>
+		<!-- jna is required to run a elasticsearch instance in embedded mode -->
+		<dependency>
+		    <groupId>net.java.dev.jna</groupId>
+		    <artifactId>jna</artifactId>
+		    <version>4.1.0</version>
+            <scope>test</scope>
+		</dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>

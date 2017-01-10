@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 public class DatastoreJAXBContextProvider implements JAXBContextProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatastoreJAXBContextProvider.class);
+    @SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(DatastoreJAXBContextProvider.class);
 
     private JAXBContext context;
 
@@ -56,7 +57,7 @@ public class DatastoreJAXBContextProvider implements JAXBContextProvider
                 context = JAXBContextFactory.createContext(classes, null);
             }
             catch (JAXBException jaxbException) {
-                logger.warn("Error creating JAXBContext, tests will fail!");
+                throw KapuaException.internalError(jaxbException, "Error creating JAXBContext, tests will fail!");
             }
         }
         return context;
