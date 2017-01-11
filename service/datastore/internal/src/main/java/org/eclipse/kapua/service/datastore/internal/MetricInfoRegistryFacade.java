@@ -35,7 +35,6 @@ import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl
 import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MetricInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
-import org.eclipse.kapua.service.datastore.model.MetricInfoCreator;
 import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
@@ -63,7 +62,7 @@ public class MetricInfoRegistryFacade
 		this.metadataUpdateSync = new Object();
 	}
 
-	public StorableId store(KapuaId scopeId, MetricInfoCreator metricInfoCreator) 
+	public StorableId upstore(KapuaId scopeId, MetricInfo metricInfo) 
 			throws KapuaIllegalArgumentException, 
 				   EsDocumentBuilderException, 
 				   EsClientUnavailableException, 
@@ -72,10 +71,10 @@ public class MetricInfoRegistryFacade
 		//
 		// Argument Validation
 		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(metricInfoCreator, "metricInfoCreator");
-		ArgumentValidator.notNull(metricInfoCreator.getLastMessageTimestamp(), "metricInfoCreator.lastMessageTimestamp");
+		ArgumentValidator.notNull(metricInfo, "metricInfoCreator");
+		ArgumentValidator.notNull(metricInfo.getLastMessageTimestamp(), "metricInfoCreator.lastMessageTimestamp");
         
-		String metricInfoId = MetricInfoXContentBuilder.getOrCreateId(null, metricInfoCreator);
+		String metricInfoId = MetricInfoXContentBuilder.getOrDeriveId(metricInfo.getId(), metricInfo);
 
 		// Store channel. Look up channel in the cache, and cache it if it doesn't exist
 		if (!DatastoreCacheManager.getInstance().getMetricsCache().get(metricInfoId)) {
@@ -90,12 +89,12 @@ public class MetricInfoRegistryFacade
 					UpdateResponse response = null;
 					try 
 					{
-						Metadata metadata = this.mediator.getMetadata(scopeId, metricInfoCreator.getLastMessageTimestamp().getTime());
+						Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getLastMessageTimestamp().getTime());
 						String kapuaIndexName = metadata.getKapuaIndexName();
 
 						response = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
 											 .index(metadata.getKapuaIndexName())
-											 .upsert(metricInfoCreator);
+											 .upsert(metricInfo);
 						
 						metricInfoId = response.getId();
 						
@@ -114,7 +113,7 @@ public class MetricInfoRegistryFacade
 		return new StorableIdImpl(metricInfoId);
 	}
 
-	public StorableId[] store(KapuaId scopeId, MetricInfoCreator[] metricInfoCreators) 
+	public StorableId[] upstore(KapuaId scopeId, MetricInfo[] metricInfos) 
 			throws KapuaIllegalArgumentException, 
 				   EsDocumentBuilderException, 
 				   EsClientUnavailableException, 
@@ -123,25 +122,25 @@ public class MetricInfoRegistryFacade
 		//
 		// Argument Validation
 		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(metricInfoCreators, "metricInfoCreator");
+		ArgumentValidator.notNull(metricInfos, "metricInfoCreator");
 
         // Create a bulk request
 		BulkRequest bulkRequest = new BulkRequest();
-		for (MetricInfoCreator metricInfoCreator:metricInfoCreators)
+		for (MetricInfo metricInfo:metricInfos)
 		{
-			String metricInfoId = MetricInfoXContentBuilder.getOrCreateId(null, metricInfoCreator);
+			String metricInfoId = MetricInfoXContentBuilder.getOrDeriveId(metricInfo.getId(), metricInfo);
 					
 			if (DatastoreCacheManager.getInstance().getMetricsCache().get(metricInfoId))
 				continue;
 
-			Metadata metadata = this.mediator.getMetadata(scopeId, metricInfoCreator.getLastMessageTimestamp().getTime());
+			Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getLastMessageTimestamp().getTime());
 			String kapuaIndexName = metadata.getKapuaIndexName();
 
 			EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName);
 			
 			bulkRequest.add(EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
 					   .index(kapuaIndexName)
-					   .getUpsertRequest(metricInfoCreator));
+					   .getUpsertRequest(metricInfo));
 		}
 		
 		StorableId[] idResults = null;
@@ -159,7 +158,7 @@ public class MetricInfoRegistryFacade
 			if (itemResponses != null) {
 				for (BulkItemResponse bulkItemResponse : itemResponses) {
 					if (bulkItemResponse.isFailed()) {
-						MetricInfoCreator failedMetricInfoCreator = metricInfoCreators[bulkItemResponse.getItemId()];
+						MetricInfo failedMetricInfoCreator = metricInfos[bulkItemResponse.getItemId()];
 						String failureMessage = bulkItemResponse.getFailureMessage();
 						logger.trace(String.format("Upsert failed [%s, %s, %s]",
 									 failedMetricInfoCreator.getChannel(), failedMetricInfoCreator.getName(), failureMessage));

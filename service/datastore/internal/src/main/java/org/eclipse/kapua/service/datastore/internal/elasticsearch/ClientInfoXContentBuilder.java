@@ -59,7 +59,7 @@ public class ClientInfoXContentBuilder
     /*
      * If the id is null then it is generated
      */
-    private String getOrCreateId(StorableId id, String accountName, String clientId)
+    public static String getOrDeriveId(StorableId id, String accountName, String clientId)
     {      
 		if (id == null)
 			return getClientKey(accountName, clientId);
@@ -124,7 +124,7 @@ public class ClientInfoXContentBuilder
      
 		clientBuilder = this.getClientBuilder(clientId, msgId.toString(), msgTimestamp, accountName);
         
-        this.setClientId(this.getOrCreateId(clientInfo.getId(), accountName, clientId));
+        this.setClientId(getOrDeriveId(clientInfo.getId(), accountName, clientId));
         this.setClientBuilder(clientBuilder);
         
         return this;

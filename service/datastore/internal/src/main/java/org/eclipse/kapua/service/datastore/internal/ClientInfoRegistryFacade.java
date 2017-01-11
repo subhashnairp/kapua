@@ -35,7 +35,6 @@ import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl
 import org.eclipse.kapua.service.datastore.internal.model.query.ClientInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl;
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
-import org.eclipse.kapua.service.datastore.model.ClientInfoCreator;
 import org.eclipse.kapua.service.datastore.model.ClientInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
@@ -60,7 +59,7 @@ public class ClientInfoRegistryFacade
 		this.metadataUpdateSync = new Object();
 	}
 
-	public StorableId store(KapuaId scopeId, ClientInfoCreator clientInfoCreator) 
+	public StorableId upstore(KapuaId scopeId, ClientInfo clientInfo) 
 			throws KapuaIllegalArgumentException, 
 				   EsDocumentBuilderException, 
 				   EsClientUnavailableException, 
@@ -69,11 +68,11 @@ public class ClientInfoRegistryFacade
 		//
 		// Argument Validation
 		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(clientInfoCreator, "clientInfoCreator");
-		ArgumentValidator.notNull(clientInfoCreator.getLastMessageTimestamp(), "clientInfoCreator.lastMessageTimestamp");
+		ArgumentValidator.notNull(clientInfo, "clientInfoCreator");
+		ArgumentValidator.notNull(clientInfo.getLastMessageTimestamp(), "clientInfoCreator.lastMessageTimestamp");
 
         ClientInfoXContentBuilder docBuilder = new ClientInfoXContentBuilder();
-		docBuilder.build(clientInfoCreator);
+		docBuilder.build(clientInfo);
 		
 		// Save client
 		if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
@@ -87,7 +86,7 @@ public class ClientInfoRegistryFacade
 					UpdateResponse response = null;
 					try 
 					{
-						Metadata metadata = this.mediator.getMetadata(scopeId, clientInfoCreator.getLastMessageTimestamp().getTime());
+						Metadata metadata = this.mediator.getMetadata(scopeId, clientInfo.getLastMessageTimestamp().getTime());
 						String kapuaIndexName = metadata.getKapuaIndexName();
 						
 						response = EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName)

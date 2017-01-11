@@ -85,7 +85,7 @@ public class EsMetricInfoDAO
     public UpdateRequest getUpsertRequest(MetricInfoCreator metricInfoCreator) 
     		throws EsDocumentBuilderException
     {
-    	String id = MetricInfoXContentBuilder.getOrCreateId(null, metricInfoCreator);
+    	String id = MetricInfoXContentBuilder.getOrDeriveId(null, metricInfoCreator);
     	
     	MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), new StorableIdImpl(id));
     	metricInfo.setClientId(metricInfoCreator.getClientId());
@@ -115,7 +115,7 @@ public class EsMetricInfoDAO
     public UpdateResponse upsert(MetricInfoCreator metricInfoCreator) 
     		throws EsDocumentBuilderException 
     {
-    	String id = MetricInfoXContentBuilder.getOrCreateId(null, metricInfoCreator);
+    	String id = MetricInfoXContentBuilder.getOrDeriveId(null, metricInfoCreator);
     	
     	MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), new StorableIdImpl(id));
     	metricInfo.setChannel(metricInfoCreator.getChannel());

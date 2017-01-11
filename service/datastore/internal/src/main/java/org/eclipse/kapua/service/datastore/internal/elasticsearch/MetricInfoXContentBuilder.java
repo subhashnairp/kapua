@@ -65,7 +65,7 @@ public class MetricInfoXContentBuilder
         return channelMetricHashCode;
     }
    
-    private static String getOrCreateId(StorableId id, String accountName, String clientId, String channel, String metricMappedName)
+    private static String getOrDeriveId(StorableId id, String accountName, String clientId, String channel, String metricMappedName)
     {      
 		if (id == null)
 			return getMetricKey(accountName, clientId, channel, metricMappedName);
@@ -73,7 +73,7 @@ public class MetricInfoXContentBuilder
 			return id.toString();
     }
     
-    private static String getOrCreateId(StorableId id, String accountName, String clientId, String channel, String metricName, String metricType) 
+    private static String getOrDeriveId(StorableId id, String accountName, String clientId, String channel, String metricName, String metricType) 
     		throws EsDocumentBuilderException
     {      
 		if (id == null) {
@@ -84,10 +84,10 @@ public class MetricInfoXContentBuilder
 			return id.toString();
     }
 
-    public static String getOrCreateId(StorableId id, MetricInfoCreator metricInfoCreator) 
+    public static String getOrDeriveId(StorableId id, MetricInfoCreator metricInfoCreator) 
     		throws EsDocumentBuilderException
 	{
-    	return getOrCreateId(id, 
+    	return getOrDeriveId(id, 
     						 metricInfoCreator.getAccount(), 
     						 metricInfoCreator.getClientId(), 
     						 metricInfoCreator.getChannel(), 
@@ -95,10 +95,10 @@ public class MetricInfoXContentBuilder
     						 metricInfoCreator.getType());
 	}
 
-    public static String getOrCreateId(StorableId id, MetricInfo metricInfo) 
+    public static String getOrDeriveId(StorableId id, MetricInfo metricInfo) 
     		throws EsDocumentBuilderException
 	{
-    	return getOrCreateId(id, 
+    	return getOrDeriveId(id, 
     						 metricInfo.getAccount(), 
     						 metricInfo.getClientId(), 
     						 metricInfo.getChannel(), 
@@ -167,7 +167,7 @@ public class MetricInfoXContentBuilder
                 String channel = DatastoreChannel.getChannel(message.getChannel().getSemanticParts());
                 
                 MetricXContentBuilder metricBuilder = new MetricXContentBuilder();
-                String metricId = getOrCreateId(null, account,
+                String metricId = getOrDeriveId(null, account,
                 									  clientId,
                 									  channel, 
                 									  mappedName);
@@ -197,7 +197,7 @@ public class MetricInfoXContentBuilder
     public MetricInfoXContentBuilder build(MetricInfoCreator metricInfoCreator) 
     		throws EsDocumentBuilderException
     {
-    	String idStr = getOrCreateId(null, metricInfoCreator);
+    	String idStr = getOrDeriveId(null, metricInfoCreator);
     	StorableId id = new StorableIdImpl(idStr);
     	MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), id);
     	metricInfo.setClientId(metricInfoCreator.getClientId());
@@ -231,7 +231,7 @@ public class MetricInfoXContentBuilder
 													 msgId.toString());
         
         MetricXContentBuilder metricBuilder = new MetricXContentBuilder();
-        metricBuilder.setId(getOrCreateId(metricInfo.getId(), metricInfo));
+        metricBuilder.setId(getOrDeriveId(metricInfo.getId(), metricInfo));
         metricBuilder.setContent(metricContentBuilder);
         List<MetricXContentBuilder> metricBuilders = new ArrayList<MetricXContentBuilder>();
         metricBuilders.add(metricBuilder);

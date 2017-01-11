@@ -25,9 +25,14 @@ public class ChannelInfoImpl implements ChannelInfo
     private Date   lastMsgTimestamp;
     private String channel;
 
-    public ChannelInfoImpl(String scope, StorableId id)
+    public ChannelInfoImpl(String scope)
     {
         this.account= scope;
+    }
+
+    public ChannelInfoImpl(String scope, StorableId id)
+    {
+        this(scope);
         this.id = id;
     }
     
@@ -35,6 +40,11 @@ public class ChannelInfoImpl implements ChannelInfo
     public StorableId getId()
     {
         return id;
+    }
+
+    public void setId(StorableId id)
+    {
+        this.id = id;
     }
 
     @Override

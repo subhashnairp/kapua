@@ -23,10 +23,15 @@ public class ClientInfoImpl implements ClientInfo
     private String clientId;
     private Date lastMessageTimestamp;
     private StorableId lastMessageId;
+    
+    public ClientInfoImpl(String account)
+    {
+        this.account = account;
+    }
    
     public ClientInfoImpl(String account, StorableId id)
     {
-        this.account = account;
+        this(account);
         this.id = id;
     }
 
@@ -40,6 +45,11 @@ public class ClientInfoImpl implements ClientInfo
     public StorableId getId()
     {
         return id;
+    }
+
+    public void setId(StorableId id)
+    {
+        this.id = id;
     }
 
     @Override

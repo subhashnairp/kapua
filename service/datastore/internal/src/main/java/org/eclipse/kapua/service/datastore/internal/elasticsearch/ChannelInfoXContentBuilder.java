@@ -77,7 +77,7 @@ public class ChannelInfoXContentBuilder
     	}
     }
     
-    private static String getOrCreateId(StorableId id, String accountName, String clientId, String channel)
+    private static String getOrDeriveId(StorableId id, String accountName, String clientId, String channel)
     {
 		if (id == null) {
 			return getChannelKey(accountName, clientId, channel);
@@ -86,17 +86,17 @@ public class ChannelInfoXContentBuilder
 			return id.toString();    	
     }
 
-    public static String getOrCreateId(StorableId id, ChannelInfoCreator channelInfoCreator)
+    public static String getOrDeriveId(StorableId id, ChannelInfoCreator channelInfoCreator)
     {
-    	return getOrCreateId(id,
+    	return getOrDeriveId(id,
     						 channelInfoCreator.getAccount(),
     						 channelInfoCreator.getClientId(),
     						 channelInfoCreator.getChannel());
     }
 
-    public static String getOrCreateId(StorableId id, ChannelInfo channelInfo)
+    public static String getOrDeriveId(StorableId id, ChannelInfo channelInfo)
     {
-    	return getOrCreateId(id,
+    	return getOrDeriveId(id,
     						 channelInfo.getAccount(),
     						 channelInfo.getClientId(),
     						 channelInfo.getChannel());
@@ -111,7 +111,7 @@ public class ChannelInfoXContentBuilder
     public ChannelInfoXContentBuilder build(ChannelInfoCreator channelInfoCreator) 
     		throws EsDocumentBuilderException
     {
-    	StorableId id = new StorableIdImpl(getOrCreateId(null, channelInfoCreator.getAccount(),
+    	StorableId id = new StorableIdImpl(getOrDeriveId(null, channelInfoCreator.getAccount(),
     														   channelInfoCreator.getClientId(),
     														   channelInfoCreator.getChannel()));
     	ChannelInfoImpl channelInfo = new ChannelInfoImpl(channelInfoCreator.getAccount(), id);
@@ -138,7 +138,7 @@ public class ChannelInfoXContentBuilder
         XContentBuilder channelBuilder;
 		channelBuilder = this.build(channel, msgId.toString(), msgTimestamp, clientId, account);
 		
-        this.setChannelId(getOrCreateId(channelInfo.getId(), channelInfo.getAccount(),
+        this.setChannelId(getOrDeriveId(channelInfo.getId(), channelInfo.getAccount(),
         													 channelInfo.getClientId(),
         													 channelInfo.getChannel()));
         this.setBuilder(channelBuilder);

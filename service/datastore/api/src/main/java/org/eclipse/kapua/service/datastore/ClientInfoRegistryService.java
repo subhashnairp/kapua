@@ -23,12 +23,6 @@ import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 public interface ClientInfoRegistryService extends KapuaService,
                                        KapuaConfigurableService
 {
-    // public StorableId store(KapuaId scopeId, DeviceInfoCreator creator)
-    // throws KapuaException;
-    //
-    // public StorableId update(KapuaId scopeId, DeviceInfo assetInfo)
-    // throws KapuaException;
-    //
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException;
 

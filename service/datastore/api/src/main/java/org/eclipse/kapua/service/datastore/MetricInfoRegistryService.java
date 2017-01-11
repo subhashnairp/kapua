@@ -27,12 +27,6 @@ import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 public interface MetricInfoRegistryService extends KapuaService,
                                     KapuaConfigurableService
 {
-//    public StorableId store(KapuaId scopeId, MetricInfoCreator creator)
-//        throws KapuaException;
-//
-//    public StorableId update(KapuaId scopeId, MetricInfo metricInfo)
-//            throws KapuaException;
-//
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException;
 

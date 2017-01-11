@@ -26,9 +26,10 @@ import org.eclipse.kapua.service.datastore.internal.MessageStoreFacade;
 import org.eclipse.kapua.service.datastore.internal.MetricInfoRegistryFacade;
 import org.eclipse.kapua.service.datastore.internal.ChannelInfoRegistryFacade;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
-import org.eclipse.kapua.service.datastore.internal.model.ClientInfoCreatorImpl;
-import org.eclipse.kapua.service.datastore.internal.model.MetricInfoCreatorImpl;
-import org.eclipse.kapua.service.datastore.internal.model.ChannelInfoCreatorImpl;
+import org.eclipse.kapua.service.datastore.internal.model.ClientInfoImpl;
+import org.eclipse.kapua.service.datastore.internal.model.MetricInfoImpl;
+import org.eclipse.kapua.service.datastore.internal.model.StorableIdImpl;
+import org.eclipse.kapua.service.datastore.internal.model.ChannelInfoImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MetricInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ChannelMatchPredicateImpl;
@@ -117,18 +118,21 @@ public class DatastoreMediator implements MessageStoreMediator,
 				   EsClientUnavailableException, 
 				   EsConfigurationException 
 	{
-		ClientInfoCreatorImpl clientInfoCreator = new ClientInfoCreatorImpl(docBuilder.getAccountName());
-		clientInfoCreator.setClientId(docBuilder.getClientId());
-		clientInfoCreator.setLastMessageId(docBuilder.getMessageId());
-		clientInfoCreator.setLastMessageTimestamp(docBuilder.getTimestamp());
-		this.clientInfoStoreFacade.store(scopeId, clientInfoCreator);
+		ClientInfoImpl clientInfo = new ClientInfoImpl(docBuilder.getAccountName());
+		clientInfo.setClientId(docBuilder.getClientId());
+		clientInfo.setLastMessageId(docBuilder.getMessageId());
+		clientInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+		String clientInfoId = ClientInfoXContentBuilder.getOrDeriveId(null, docBuilder.getAccountName(), docBuilder.getClientId());
+		clientInfo.setId(new StorableIdImpl(clientInfoId));
+		this.clientInfoStoreFacade.upstore(scopeId, clientInfo);
 		
-		ChannelInfoCreatorImpl channelInfoCreator = new ChannelInfoCreatorImpl(docBuilder.getAccountName());
-		channelInfoCreator.setClientId(docBuilder.getClientId());
-		channelInfoCreator.setChannel(docBuilder.getChannel());
-		channelInfoCreator.setLastMessageId(docBuilder.getMessageId());
-		channelInfoCreator.setLastMessageTimestamp(docBuilder.getTimestamp());
-		this.channelInfoStoreFacade.store(scopeId, channelInfoCreator);
+		ChannelInfoImpl channelInfo = new ChannelInfoImpl(docBuilder.getAccountName());
+		channelInfo.setClientId(docBuilder.getClientId());
+		channelInfo.setChannel(docBuilder.getChannel());
+		channelInfo.setLastMessageId(docBuilder.getMessageId());
+		channelInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+		channelInfo.setId(new StorableIdImpl(ChannelInfoXContentBuilder.getOrDeriveId(null, channelInfo)));
+		this.channelInfoStoreFacade.upstore(scopeId, channelInfo);
 		
 		KapuaPayload payload = message.getPayload();
 		if  (payload == null)
@@ -139,20 +143,21 @@ public class DatastoreMediator implements MessageStoreMediator,
 			return;
 		
 		int i = 0;
-		MetricInfoCreatorImpl[] messageMetricsCreators = new MetricInfoCreatorImpl[metrics.size()];
+		MetricInfoImpl[] messageMetrics = new MetricInfoImpl[metrics.size()];
 		for(Map.Entry<String, Object> entry:metrics.entrySet()) {
-			MetricInfoCreatorImpl metricInfoCreator = new MetricInfoCreatorImpl(docBuilder.getAccountName());
-			metricInfoCreator.setDevice(docBuilder.getClientId());
-			metricInfoCreator.setChannel(docBuilder.getChannel());
-			metricInfoCreator.setName(entry.getKey());
-			metricInfoCreator.setType(EsUtils.getEsTypeFromValue(entry.getValue()));
-			metricInfoCreator.setLastMessageId(docBuilder.getMessageId());
-			metricInfoCreator.setLastMessageTimestamp(docBuilder.getTimestamp());
-			metricInfoCreator.setValue(entry.getValue());
-			messageMetricsCreators[i++] = metricInfoCreator;
+			MetricInfoImpl metricInfo = new MetricInfoImpl(docBuilder.getAccountName());
+			metricInfo.setClientId(docBuilder.getClientId());
+			metricInfo.setChannel(docBuilder.getChannel());
+			metricInfo.setName(entry.getKey());
+			metricInfo.setType(EsUtils.getEsTypeFromValue(entry.getValue()));
+			metricInfo.setLastMessageId(docBuilder.getMessageId());
+			metricInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+			metricInfo.setValue(entry.getValue());
+			metricInfo.setId(new StorableIdImpl(MetricInfoXContentBuilder.getOrDeriveId(null, metricInfo)));
+			messageMetrics[i++] = metricInfo;
 		}
 		
-		this.metricInfoStoreFacade.store(scopeId, messageMetricsCreators);
+		this.metricInfoStoreFacade.upstore(scopeId, messageMetrics);
 	}
 	
 	/*

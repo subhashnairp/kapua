@@ -23,12 +23,6 @@ import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 public interface ChannelInfoRegistryService extends KapuaService,
                                    KapuaConfigurableService
 {
-//    public StorableId store(KapuaId scopeId, ChannelInfoCreator creator)
-//        throws KapuaException;
-//
-//    public StorableId update(KapuaId scopeId, ChannelInfo creator)
-//            throws KapuaException;
-//
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException;
 

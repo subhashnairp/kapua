@@ -28,16 +28,26 @@ public class MetricInfoImpl implements MetricInfo
     private StorableId lastMessageId;
     private Date lastMessageTimestamp;
     
+    public MetricInfoImpl(String scope)
+    {
+        this.account = scope;
+    }
+    
     public MetricInfoImpl(String scope, StorableId id)
     {
+    	this(scope);
         this.id = id;
-        this.account = scope;
     }
 
     @Override
     public StorableId getId()
     {
         return id;
+    }
+
+    public void setId(StorableId id)
+    {
+        this.id = id;
     }
 
     @Override

@@ -35,7 +35,6 @@ import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl
 import org.eclipse.kapua.service.datastore.internal.model.query.ChannelInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
-import org.eclipse.kapua.service.datastore.model.ChannelInfoCreator;
 import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
@@ -60,7 +59,7 @@ public class ChannelInfoRegistryFacade
 		this.metadataUpdateSync = new Object();
 	}
 
-	public StorableId store(KapuaId scopeId, ChannelInfoCreator channelInfoCreator) 
+	public StorableId upstore(KapuaId scopeId, ChannelInfo channelInfo) 
 			throws KapuaIllegalArgumentException, 
 				   EsDocumentBuilderException, 
 				   EsClientUnavailableException, 
@@ -69,11 +68,11 @@ public class ChannelInfoRegistryFacade
 		//
 		// Argument Validation
 		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(channelInfoCreator, "channelInfoCreator");
-		ArgumentValidator.notNull(channelInfoCreator.getChannel(), "channelInfoCreator.getChannel");
-		ArgumentValidator.notNull(channelInfoCreator.getLastMessageTimestamp(), "channelInfoCreator.lastMessageTimestamp");
+		ArgumentValidator.notNull(channelInfo, "channelInfoCreator");
+		ArgumentValidator.notNull(channelInfo.getChannel(), "channelInfoCreator.getChannel");
+		ArgumentValidator.notNull(channelInfo.getLastMessageTimestamp(), "channelInfoCreator.lastMessageTimestamp");
         
-        String channelInfoId = ChannelInfoXContentBuilder.getOrCreateId(null, channelInfoCreator);
+        String channelInfoId = ChannelInfoXContentBuilder.getOrDeriveId(channelInfo.getId(), channelInfo);
 
 		// Store channel. Look up channel in the cache, and cache it if it doesn't exist
 		if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
@@ -88,12 +87,12 @@ public class ChannelInfoRegistryFacade
 					UpdateResponse response = null;
 					try 
 					{
-						Metadata metadata = this.mediator.getMetadata(scopeId, channelInfoCreator.getLastMessageTimestamp().getTime());
+						Metadata metadata = this.mediator.getMetadata(scopeId, channelInfo.getLastMessageTimestamp().getTime());
 						String kapuaIndexName = metadata.getKapuaIndexName();
 
 						response = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
 											 .index(metadata.getKapuaIndexName())
-											 .upsert(channelInfoCreator);
+											 .upsert(channelInfo);
 						
 						channelInfoId = response.getId();
 						
