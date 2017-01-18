@@ -13,9 +13,11 @@
 package org.eclipse.kapua.broker.core.listener;
 
 import org.apache.camel.spi.UriEndpoint;
+import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.message.CamelKapuaMessage;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.message.device.data.KapuaDataMessage;
+import org.eclipse.kapua.service.datastore.MessageStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ public class DataMessageListener extends AbstractListener
 
     private static final Logger logger = LoggerFactory.getLogger(DataMessageListener.class);
 
-    // private static DeviceLifeCycleService deviceLifeCycleService = KapuaLocator.getInstance().getService(DeviceLifeCycleService.class);
+    private static MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
 
     // metrics
     private Counter metricDataMessage;
@@ -47,13 +49,13 @@ public class DataMessageListener extends AbstractListener
      * Process a data message.
      * 
      * @param dataMessage
+     * @throws KapuaException
      */
-    public void processDataMessage(CamelKapuaMessage<KapuaDataMessage> dataMessage)
+    public void processDataMessage(CamelKapuaMessage<KapuaDataMessage> dataMessage) throws KapuaException
     {
-        // TODO to be implemented
-        logger.info("Received data message from device channel: client id '{}' - {}",
+        logger.debug("Received data message from device channel: client id '{}' - {}",
                     new Object[] { dataMessage.getMessage().getClientId(), dataMessage.getMessage().getChannel().toString() });
-
+        messageStoreService.store(dataMessage.getMessage().getScopeId(), dataMessage.getMessage());
         metricDataMessage.inc();
     }
 
