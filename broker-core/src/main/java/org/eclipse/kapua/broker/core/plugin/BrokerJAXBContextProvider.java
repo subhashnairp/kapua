@@ -27,9 +27,13 @@ import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.model.config.metatype.KapuaToption;
 import org.eclipse.kapua.model.config.metatype.MetatypeXmlRegistry;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DatastoreJAXBContextProvider implements JAXBContextProvider
+public class BrokerJAXBContextProvider implements JAXBContextProvider
 {
+
+    private static Logger logger = LoggerFactory.getLogger(BrokerJAXBContextProvider.class);
 
     private JAXBContext context;
 
@@ -44,13 +48,13 @@ public class DatastoreJAXBContextProvider implements JAXBContextProvider
                                                   KapuaTicon.class,
                                                   TscalarImpl.class,
                                                   KapuaToption.class,
-                                                  KapuaTmetadata.class,
                                                   KapuaTdesignate.class,
                                                   KapuaTobject.class,
                                                   MetatypeXmlRegistry.class
             };
             try {
                 context = JAXBContextFactory.createContext(classes, null);
+                logger.debug("Broker JAXB context initialized!");
             }
             catch (JAXBException jaxbException) {
                 throw KapuaException.internalError(jaxbException, "Error creating JAXBContext!");

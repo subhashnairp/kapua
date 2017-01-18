@@ -193,7 +193,7 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
         metricPublishMessageSizeAllowed = metricsService.getHistogram("security", "publish", "messages", "allowed", "size", "bytes");
         metricPublishMessageSizeNotAllowed = metricsService.getHistogram("security", "publish", "messages", "not_allowed", "size", "bytes");
 
-        XmlUtil.setContextProvider(new DatastoreJAXBContextProvider());
+        XmlUtil.setContextProvider(new BrokerJAXBContextProvider());
     }
 
     @Override

@@ -13,11 +13,29 @@ package org.eclipse.kapua.service.datastore.model;
 
 import java.util.Date;
 
-import org.eclipse.kapua.message.device.data.KapuaDataMessage;
+import org.eclipse.kapua.message.KapuaChannel;
+import org.eclipse.kapua.message.KapuaMessage;
+import org.eclipse.kapua.message.KapuaPayload;
 
-public interface DatastoreMessage extends KapuaDataMessage, Storable
+/**
+ * Message returned by the data store find services
+ *
+ * @since 1.0
+ */
+public interface DatastoreMessage extends KapuaMessage<KapuaChannel, KapuaPayload>, Storable
 {
+
+    /**
+     * Stored message identifier
+     * 
+     * @return
+     */
     public StorableId getDatastoreId();
     
+    /**
+     * Stored message timestamp
+     * 
+     * @return
+     */
     public Date getTimestamp();
 }

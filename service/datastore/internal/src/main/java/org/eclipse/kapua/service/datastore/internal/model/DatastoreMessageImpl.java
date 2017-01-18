@@ -13,11 +13,13 @@ package org.eclipse.kapua.service.datastore.internal.model;
 
 import java.util.Date;
 
-import org.eclipse.kapua.message.internal.device.data.KapuaDataMessageImpl;
+import org.eclipse.kapua.message.KapuaChannel;
+import org.eclipse.kapua.message.KapuaPayload;
+import org.eclipse.kapua.message.internal.KapuaMessageImpl;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
-public class DatastoreMessageImpl extends KapuaDataMessageImpl implements DatastoreMessage
+public class DatastoreMessageImpl extends KapuaMessageImpl<KapuaChannel, KapuaPayload> implements DatastoreMessage
 {
 	private StorableId datastoreId;
 	private Date timestamp;
