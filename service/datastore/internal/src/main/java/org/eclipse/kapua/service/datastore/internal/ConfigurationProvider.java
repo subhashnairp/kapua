@@ -21,6 +21,6 @@ public interface ConfigurationProvider {
 	public LocalServicePlan getConfiguration(KapuaId scopeId) 
 			throws EsConfigurationException;
 	
-	public MessageInfo getInfo(KapuaId scopeId, KapuaId deviceId)
+    public MessageInfo getInfo(KapuaId scopeId)
 			throws EsConfigurationException;
 }

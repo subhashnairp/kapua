@@ -22,20 +22,16 @@ import org.eclipse.kapua.service.config.KapuaConfigurableService;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
-import org.eclipse.kapua.service.device.registry.Device;
-import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 
 public class ConfigurationProviderImpl implements ConfigurationProvider {
 
 	private AccountService accountService;
-	private DeviceRegistryService deviceRegistryService;
 	private KapuaConfigurableService configurableService;
 	
 	public ConfigurationProviderImpl(KapuaConfigurableService configurableService, 
-									 AccountService accountService,
-									 DeviceRegistryService deviceRegistryService) {
+                                     AccountService accountService)
+    {
 		this.accountService  = accountService;
-		this.deviceRegistryService = deviceRegistryService;
 		this.configurableService = configurableService;
 	}
 	
@@ -54,7 +50,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 	}
 	
 	@Override
-	public MessageInfo getInfo(KapuaId scopeId, KapuaId deviceId) 
+    public MessageInfo getInfo(KapuaId scopeId)
 			throws EsConfigurationException {
 
         Account account = null;        
@@ -74,26 +70,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 				throw new EsConfigurationException(exc);
 			}
 		}
-
-        Device device = null;
-        if (deviceId != null) {
-			try {
-				device = KapuaSecurityUtils.doPriviledge(new Callable<Device>() {
-	
-					@Override
-					public Device call() throws Exception {
-						return deviceRegistryService.find(scopeId, deviceId);
-					}
-					
-				});
-			} catch (KapuaException exc) {
-				throw new EsConfigurationException(exc);
-			} catch (Exception exc) {
-				throw new EsConfigurationException(exc);
-			}
-        }
         
-        return new MessageInfo(account, device);
+        return new MessageInfo(account);
 	}
 
 }

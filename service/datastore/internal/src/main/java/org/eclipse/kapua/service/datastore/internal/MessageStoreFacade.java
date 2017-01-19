@@ -18,6 +18,7 @@ import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
+import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreChannel;
@@ -29,7 +30,6 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsMetric;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilderException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsQueryConversionException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsInvalidChannelException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreMediator;
@@ -89,13 +89,12 @@ public final class MessageStoreFacade {
 		
 		// Collect context data
 		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-		MessageInfo accountInfo = this.configProvider.getInfo(scopeId, null);
-		String accountName = accountInfo.getAccount().getName();
+        MessageInfo accountInfo = this.configProvider.getInfo(scopeId);
 		
 		// Define data TTL
 		long ttlSecs = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_SECS;
 		if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == LocalServicePlan.DISABLED) {
-			String msg = String.format("Message Store not enabled for account %s", accountName);
+            String msg = String.format("Message Store not enabled for account %s", accountInfo.getAccount().getName());
 			logger.debug(msg);
 			throw new EsConfigurationException(msg);
 		}
@@ -126,11 +125,9 @@ public final class MessageStoreFacade {
 		Date receivedOnDt = new Date(receivedOn);
 
 		// Parse document
-		MessageInfo messageInfo = this.configProvider.getInfo(message.getScopeId(), message.getDeviceId());
-		String msgAccountName = messageInfo.getAccount().getName();
-		String msgClientId = messageInfo.getDevice().getClientId();
+        MessageInfo messageInfo = this.configProvider.getInfo(message.getScopeId());
 		MessageXContentBuilder docBuilder = new MessageXContentBuilder();
-		docBuilder.build(msgAccountName, msgClientId, message, indexedOnDt, receivedOnDt);
+        docBuilder.build(messageInfo.getAccount().getName(), message, indexedOnDt, receivedOnDt);
 
 		// Possibly update the schema with new metric mappings
 		Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
@@ -298,7 +295,7 @@ public final class MessageStoreFacade {
 
     //TODO cache will not be reset from the client code it should be automatically reset
     // after some time.
-	private void resetCache(KapuaId scopeId, KapuaId deviceId, String channel) 
+	private void resetCache(KapuaId scopeId, KapuaId deviceId, String channel, String clientId) 
 			throws Exception 
 	{
 
@@ -309,8 +306,6 @@ public final class MessageStoreFacade {
 		if (channel != null) {
 
 			// determine if we should delete an client if topic = account/clientId/#
-			MessageInfo messageInfo = this.configProvider.getInfo(scopeId, deviceId);
-			String clientId = messageInfo.getDevice().getClientId();
 			isAnyClientId = DatastoreChannel.isAnyClientId(clientId);
 			semTopic = channel;
 

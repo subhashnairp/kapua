@@ -87,12 +87,12 @@ public class JmsUtil
      * @throws JMSException
      * @throws KapuaException
      */
-    public static CamelKapuaMessage<?> convertToKapuaMessage(ConnectorDescriptor connectorDescriptor, MESSAGE_TYPE messageType, BytesMessage jmsMessage, KapuaId connectionId)
+    public static CamelKapuaMessage<?> convertToKapuaMessage(ConnectorDescriptor connectorDescriptor, MESSAGE_TYPE messageType, BytesMessage jmsMessage, KapuaId connectionId, String clientId)
         throws JMSException, KapuaException
     {
         String jmsTopic = jmsMessage.getStringProperty(MessageConstants.PROPERTY_ORIGINAL_TOPIC);
         Date queuedOn = new Date(jmsMessage.getLongProperty(MessageConstants.PROPERTY_ENQUEUED_TIMESTAMP));
-        return convertToKapuaMessage(connectorDescriptor, connectorDescriptor.getDeviceClass(messageType), connectorDescriptor.getKapuaClass(messageType), jmsMessage, jmsTopic, queuedOn, connectionId);
+        return convertToKapuaMessage(connectorDescriptor, connectorDescriptor.getDeviceClass(messageType), connectorDescriptor.getKapuaClass(messageType), jmsMessage, jmsTopic, queuedOn, connectionId, clientId);
     }
 
     /**
@@ -126,7 +126,7 @@ public class JmsUtil
     @SuppressWarnings({ "unchecked", "rawtypes" })
     // TODO check the code with huge messages
     private static CamelKapuaMessage<?> convertToKapuaMessage(ConnectorDescriptor connectorDescriptor, Class<DeviceMessage<?, ?>> deviceMessageType, Class<KapuaMessage<?, ?>> kapuaMessageType, BytesMessage jmsMessage, String jmsTopic,
-                                                              Date queuedOn, KapuaId connectionId)
+                                                              Date queuedOn, KapuaId connectionId, String clientId)
         throws JMSException, KapuaException
     {
         byte[] payload = null;
@@ -136,7 +136,7 @@ public class JmsUtil
             int readBytes = jmsMessage.readBytes(payload);
             logger.debug("Message conversion... {} bytes read!", readBytes);
         }
-        KapuaMessage kapuaMessage = convertToKapuaMessage(deviceMessageType, kapuaMessageType, payload, jmsTopic, queuedOn, connectionId);
+        KapuaMessage kapuaMessage = convertToKapuaMessage(deviceMessageType, kapuaMessageType, payload, jmsTopic, queuedOn, connectionId, clientId);
         return new CamelKapuaMessage(kapuaMessage, connectionId, connectorDescriptor);
     }
 
@@ -153,10 +153,10 @@ public class JmsUtil
      * @throws KapuaException
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static CamelKapuaMessage<?> convertToCamelKapuaMessage(ConnectorDescriptor connectorDescriptor, MESSAGE_TYPE messageType, byte[] messageBody, String jmsTopic, Date queuedOn, KapuaId connectionId)
+    public static CamelKapuaMessage<?> convertToCamelKapuaMessage(ConnectorDescriptor connectorDescriptor, MESSAGE_TYPE messageType, byte[] messageBody, String jmsTopic, Date queuedOn, KapuaId connectionId, String clientId)
         throws KapuaException
     {
-        KapuaMessage kapuaMessage = convertToKapuaMessage(connectorDescriptor.getDeviceClass(messageType), connectorDescriptor.getKapuaClass(messageType), messageBody, jmsTopic, queuedOn, connectionId);
+        KapuaMessage kapuaMessage = convertToKapuaMessage(connectorDescriptor.getDeviceClass(messageType), connectorDescriptor.getKapuaClass(messageType), messageBody, jmsTopic, queuedOn, connectionId, clientId);
         return new CamelKapuaMessage(kapuaMessage, connectionId, connectorDescriptor);
     }
 
@@ -173,7 +173,7 @@ public class JmsUtil
      * @throws KapuaException
      */
     @SuppressWarnings("rawtypes")
-    private static KapuaMessage convertToKapuaMessage(Class<DeviceMessage<?, ?>> deviceMessageType, Class<KapuaMessage<?, ?>> kapuaMessageType, byte[] messageBody, String jmsTopic, Date queuedOn, KapuaId connectionId)
+    private static KapuaMessage convertToKapuaMessage(Class<DeviceMessage<?, ?>> deviceMessageType, Class<KapuaMessage<?, ?>> kapuaMessageType, byte[] messageBody, String jmsTopic, Date queuedOn, KapuaId connectionId, String clientId)
         throws KapuaException
     {
         Translator<JmsMessage, DeviceMessage<?, ?>> translatorFromJms = null;// = translatorFromJmsMap.get(connectorDescriptor.getDeviceProtocolName());
@@ -191,7 +191,9 @@ public class JmsUtil
             translatorToKapua = Translator.getTranslatorFor(deviceMessageType, kapuaMessageType);
             // translatorToKapuaMap.put(protocol, translatorToKapua);
         }
-        return translatorToKapua.translate(deviceMessage);
+        KapuaMessage message = translatorToKapua.translate(deviceMessage);
+        message.setClientId(clientId);
+        return message;
     }
 
     /**

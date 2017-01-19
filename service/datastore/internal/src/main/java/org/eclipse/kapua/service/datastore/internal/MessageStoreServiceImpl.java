@@ -31,7 +31,6 @@ import org.eclipse.kapua.service.datastore.model.MessageListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
-import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,6 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
     private static final KapuaLocator locator 	= KapuaLocator.getInstance();
 
     private final AccountService accountService = locator.getService(AccountService.class);
-    private final DeviceRegistryService deviceRegistryService = locator.getService(DeviceRegistryService.class);
     private final AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
     private final PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
     
@@ -59,7 +57,7 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
     {
     	super(MessageStoreService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
 
-    	ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(this, accountService, this.deviceRegistryService);
+        ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(this, accountService);
         this.esMessageStoreFacade = new MessageStoreFacade(configurationProvider, DatastoreMediator.getInstance());
     	DatastoreMediator.getInstance().setMessageStoreFacade(esMessageStoreFacade);
     }

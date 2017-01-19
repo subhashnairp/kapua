@@ -145,6 +145,9 @@ public class MetricInfoRegistryFacade
 		
 		StorableId[] idResults = null;
 		
+        if (bulkRequest.numberOfActions() <= 0)
+            return idResults;
+
 		// The code is safe even without the synchronized block
 		// Synchronize in order to let the first thread complete its update
 		// then the others of the same type will find the cache updated and

@@ -12,23 +12,17 @@
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.account.Account;
-import org.eclipse.kapua.service.device.registry.Device;
 
 public class MessageInfo 
 {
     private Account account;
-    private Device device;
     
-    public MessageInfo(Account account, Device device) {
+    public MessageInfo(Account account)
+    {
         this.account = account;
-        this.device = device;
     }
     
     public Account getAccount() {
         return this.account;
-    }
-    
-    public Device getDevice() {
-    	return this.device;
     }
 }

@@ -30,7 +30,6 @@ import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
-import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,6 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     private static final Logger  logger           = LoggerFactory.getLogger(MetricInfoRegistryServiceImpl.class);
 
     private final AccountService       accountService;
-    private final DeviceRegistryService deviceRegistryService;
     private final AuthorizationService authorizationService;
     private final PermissionFactory    permissionFactory;
     private final MetricInfoRegistryFacade metricInfoStoreFacade;
@@ -56,12 +54,11 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 
         KapuaLocator locator = KapuaLocator.getInstance();
         accountService = locator.getService(AccountService.class);
-        deviceRegistryService = locator.getService(DeviceRegistryService.class);
         authorizationService = locator.getService(AuthorizationService.class);
         permissionFactory = locator.getFactory(PermissionFactory.class);
         
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
-        ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService, deviceRegistryService);
+        ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
         this.metricInfoStoreFacade = new MetricInfoRegistryFacade(configurationProvider, DatastoreMediator.getInstance());
         DatastoreMediator.getInstance().setMetricInfoStoreFacade(metricInfoStoreFacade);
     }

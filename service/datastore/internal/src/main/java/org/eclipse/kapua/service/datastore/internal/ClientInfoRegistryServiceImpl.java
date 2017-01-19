@@ -30,7 +30,6 @@ import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.ClientInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
-import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,6 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 	private static final Logger logger = LoggerFactory.getLogger(ClientInfoRegistryServiceImpl.class);
 
 	private final AccountService accountService;
-	private final DeviceRegistryService deviceRegistryService;
 	private final AuthorizationService authorizationService;
 	private final PermissionFactory permissionFactory;
 	private final ClientInfoRegistryFacade facade;
@@ -56,12 +54,11 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 
         KapuaLocator locator = KapuaLocator.getInstance();
         accountService = locator.getService(AccountService.class);
-        deviceRegistryService = locator.getService(DeviceRegistryService.class);
         authorizationService = locator.getService(AuthorizationService.class);
         permissionFactory = locator.getFactory(PermissionFactory.class);
         
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
-        ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService, deviceRegistryService);
+        ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
         this.facade = new ClientInfoRegistryFacade(configurationProvider, DatastoreMediator.getInstance());
         DatastoreMediator.getInstance().setClientInfoStoreFacade(this.facade);
     }

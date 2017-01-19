@@ -153,7 +153,7 @@ public class MessageXContentBuilder
         return this;
     }
     
-    public MessageXContentBuilder build(String account, String clientId, KapuaMessage<?,?> message, Date indexedOn, Date receivedOn) 
+    public MessageXContentBuilder build(String account, KapuaMessage<?, ?> message, Date indexedOn, Date receivedOn)
     		throws EsDocumentBuilderException
     {
         StorableId messageId;
@@ -161,7 +161,7 @@ public class MessageXContentBuilder
 		messageId = new StorableIdImpl(uuid.toString());
 		
         this.setAccountName(account);
-        this.setClientId(clientId);
+        this.setClientId(message.getClientId());
         
         List<String> parts = message.getChannel().getSemanticParts();
         this.setChannel(DatastoreChannel.getChannel(parts));
