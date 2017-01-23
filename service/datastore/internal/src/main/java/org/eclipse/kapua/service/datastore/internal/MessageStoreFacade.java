@@ -18,7 +18,6 @@ import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreChannel;
@@ -75,7 +74,7 @@ public final class MessageStoreFacade {
 		this.mediator = mediator;
 	}
 	
-	public StorableId store(KapuaId scopeId, KapuaMessage<?,?> message) 
+    public StorableId store(KapuaMessage<?, ?> message)
 			throws KapuaIllegalArgumentException, 
 				   EsConfigurationException, 
 				   EsClientUnavailableException, 
@@ -83,13 +82,13 @@ public final class MessageStoreFacade {
 	{
 		//
 		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(message.getScopeId(), "scopeId");
 		ArgumentValidator.notNull(message, "message");
-		ArgumentValidator.notNull(message.getPayload(), "message.payload");
+        // ArgumentValidator.notNull(message.getPayload(), "message.payload");
 		
 		// Collect context data
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        MessageInfo accountInfo = this.configProvider.getInfo(scopeId);
+        LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(message.getScopeId());
+        MessageInfo accountInfo = this.configProvider.getInfo(message.getScopeId());
 		
 		// Define data TTL
 		long ttlSecs = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_SECS;
@@ -119,7 +118,7 @@ public final class MessageStoreFacade {
 			indexedOn = capturedOn.getTime();
 
 		// Extract schema metadata
-		EsSchema.Metadata schemaMetadata = this.mediator.getMetadata(scopeId, indexedOn);
+        EsSchema.Metadata schemaMetadata = this.mediator.getMetadata(message.getScopeId(), indexedOn);
 
 		Date indexedOnDt = new Date(indexedOn);
 		Date receivedOnDt = new Date(receivedOn);
@@ -131,7 +130,7 @@ public final class MessageStoreFacade {
 
 		// Possibly update the schema with new metric mappings
 		Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
-		this.mediator.onUpdatedMappings(scopeId, indexedOn, esMetrics);
+        this.mediator.onUpdatedMappings(message.getScopeId(), indexedOn, esMetrics);
 
 		String indexName = schemaMetadata.getDataIndexName();
 
@@ -142,7 +141,7 @@ public final class MessageStoreFacade {
 					.index(indexName)
 					.upsert(docBuilder.getMessageId().toString(), docBuilder.getBuilder());
 		
-		this.mediator.onAfterMessageStore(scopeId, docBuilder, message);
+        this.mediator.onAfterMessageStore(message.getScopeId(), docBuilder, message);
 		
 		return docBuilder.getMessageId();
 	}

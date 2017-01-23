@@ -63,16 +63,16 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
     }
 
     @Override
-    public StorableId store(KapuaId scopeId, KapuaMessage<?,?> message) 
+    public StorableId store(KapuaMessage<?, ?> message)
     		throws KapuaException
     {
     	try
     	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
+            ArgumentValidator.notNull(message.getScopeId(), "scopeId");
 	
-	        this.checkDataAccess(scopeId, Actions.write);
+            this.checkDataAccess(message.getScopeId(), Actions.write);
 	
-	        return this.esMessageStoreFacade.store(scopeId, message);
+            return this.esMessageStoreFacade.store(message);
 		} 
 		catch (Exception e) {
 			throw KapuaException.internalError(e);

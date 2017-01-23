@@ -84,5 +84,11 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-device-registry-internal</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

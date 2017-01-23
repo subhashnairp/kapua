@@ -705,7 +705,7 @@ public class EsSchema
     public void updateMessageMappings(KapuaId scopeId, long time, Map<String, EsMetric> esMetrics) 
     		throws EsDocumentBuilderException, EsClientUnavailableException
     {
-        if (esMetrics.size() == 0)
+        if (esMetrics == null || esMetrics.size() == 0)
             return;
 
         Metadata currentMetadata = null;

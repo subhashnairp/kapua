@@ -28,7 +28,7 @@ import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
 public interface MessageStoreService extends KapuaService,
                                      KapuaConfigurableService
 {
-    StorableId store(KapuaId scopeId, KapuaMessage<?,?> message)
+    StorableId store(KapuaMessage<?, ?> message)
         throws KapuaException;
 
     void delete(KapuaId scopeId, StorableId id)
