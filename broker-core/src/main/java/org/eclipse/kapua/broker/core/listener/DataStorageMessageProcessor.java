@@ -29,7 +29,7 @@ import com.codahale.metrics.Timer.Context;
  *
  * @since 1.0
  */
-@UriEndpoint(title = "Data storage message processor", syntax = "bean:dataStorageMessageListener", scheme = "bean")
+@UriEndpoint(title = "Data storage message processor", syntax = "bean:dataStorageMessageProcessor", scheme = "bean")
 public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMessage<?>>
 {
 
@@ -61,7 +61,6 @@ public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMes
     @Override
     public void processMessage(CamelKapuaMessage<?> message)
     {
-        metricStorageMessage.inc();
 
         // TODO filter alert topic???
         //
@@ -69,7 +68,10 @@ public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMes
         // data messages
         try {
             Context metricStorageDataSaveTimeContext = metricStorageDataSaveTime.time();
-            messageStoreService.store(message.getMessage().getScopeId(), message.getMessage());
+            logger.debug("Received data message from device channel: client id '{}' - {}",
+                         new Object[] { message.getMessage().getClientId(), message.getMessage().getChannel().toString() });
+            messageStoreService.store(message.getMessage());
+            metricStorageMessage.inc();
             metricStorageDataSaveTimeContext.stop();
         }
         catch (KapuaException e) {
@@ -77,5 +79,6 @@ public class DataStorageMessageProcessor extends AbstractProcessor<CamelKapuaMes
             logger.error("An error occurred while storing message: {}", e.getCode().toString());
         }
     }
+
 
 }
