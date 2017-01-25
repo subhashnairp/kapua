@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
-import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
@@ -25,7 +24,7 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilde
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsQueryConversionException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MetricInfoRegistryMediator;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MetricInfoXContentBuilder;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.dao.EsMetricInfoDAO;
@@ -200,10 +199,10 @@ public class MetricInfoRegistryFacade
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, return", scopeId);
             return;
         }
@@ -257,10 +256,10 @@ public class MetricInfoRegistryFacade
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
             return new MetricInfoListResultImpl();
         }
@@ -287,10 +286,10 @@ public class MetricInfoRegistryFacade
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
             return 0;
         }
@@ -317,10 +316,10 @@ public class MetricInfoRegistryFacade
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
         }
 

@@ -51,7 +51,8 @@ public class EsSchema
     public final static String  MESSAGE_CLIENT_ID               = "client_id";
     public final static String  MESSAGE_CHANNEL               	= "channel";
     public final static String  MESSAGE_CHANNEL_PARTS           = "channel_parts";
-    public final static String  MESSAGE_COLLECTED_ON            = "collected_on";
+    public final static String MESSAGE_CAPTURED_ON         = "captured_on";
+    public final static String MESSAGE_SENT_ON             = "sent_on";
     public final static String  MESSAGE_POSITION                = "position";
     public final static String  MESSAGE_POS_LOCATION            = "location";
     public final static String  MESSAGE_POS_LOCATION_FULL       = "position.location";
@@ -356,9 +357,12 @@ public class EsSchema
 	                         // .field("type", "string")
 	                         // .field("index", "not_analyzed")
 	                     // .endObject()
-	                     .startObject(EsSchema.MESSAGE_COLLECTED_ON)
-	                         .field("type", "date")
-	                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_CAPTURED_ON)
+                                                     .field("type", "date")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_CAPTURED_ON)
+                                                     .field("type", "date")
+                                                     .endObject()
 	                     .startObject(EsSchema.MESSAGE_POSITION)
 	                         .field("type", "object")
 	                         .field("enabled", true)

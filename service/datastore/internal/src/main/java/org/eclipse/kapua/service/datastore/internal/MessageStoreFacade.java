@@ -29,7 +29,7 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsMetric;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilderException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsQueryConversionException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreMediator;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageXContentBuilder;
@@ -59,11 +59,7 @@ import org.slf4j.LoggerFactory;
 
 public final class MessageStoreFacade {
 
-	// @SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(MessageStoreFacade.class);
-
-	private static final long TTL_DEFAULT_DAYS = 30; // TODO define as a default configuration
-	private static final long TTL_DEFAULT_SECS = TTL_DEFAULT_DAYS * KapuaDateUtils.DAY_SECS;
 
 	private final MessageStoreMediator mediator;
 	private final ConfigurationProvider configProvider;
@@ -84,49 +80,45 @@ public final class MessageStoreFacade {
 		// Argument Validation
         ArgumentValidator.notNull(message.getScopeId(), "scopeId");
 		ArgumentValidator.notNull(message, "message");
-        // ArgumentValidator.notNull(message.getPayload(), "message.payload");
+        ArgumentValidator.notNull(message.getReceivedOn(), "receivedOn");
 		
 		// Collect context data
-        LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(message.getScopeId());
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(message.getScopeId());
         MessageInfo accountInfo = this.configProvider.getInfo(message.getScopeId());
 		
 		// Define data TTL
-		long ttlSecs = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_SECS;
-		if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == LocalServicePlan.DISABLED) {
+        long ttlSecs = accountServicePlan.getDataTimeToLiveMilliseconds();
+		if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == MessageStoreConfiguration.DISABLED) {
             String msg = String.format("Message Store not enabled for account %s", accountInfo.getAccount().getName());
 			logger.debug(msg);
 			throw new EsConfigurationException(msg);
 		}
 
-		// If root scope set ttl equal to default
-		if (ttlSecs < 0) {
-			ttlSecs = TTL_DEFAULT_SECS;
-		}
-
 		Date capturedOn = message.getCapturedOn();
 		long currentDate = KapuaDateUtils.getKapuaSysDate().getTime();
-
-		long receivedOn = currentDate;
-		if (message.getReceivedOn() != null)
-			receivedOn = message.getReceivedOn().getTime();
 
 		// Overwrite timestamp if necessary
 		// Use the account service plan to determine whether we will give
 		// precede to the device time
 		long indexedOn = currentDate;
-		if (DataIndexBy.DEVICE_TIMESTAMP.equals(accountServicePlan.getDataIndexBy()) && capturedOn != null)
-			indexedOn = capturedOn.getTime();
+        if (DataIndexBy.DEVICE_TIMESTAMP.equals(accountServicePlan.getDataIndexBy())) {
+            if (capturedOn != null) {
+                indexedOn = capturedOn.getTime();
+            }
+            else {
+                logger.warn("The account is set to use, as date indexing, the device timestamp but the device timestamp is null! Current system date will be used to indexing the message by date!");
+            }
+        }
 
 		// Extract schema metadata
         EsSchema.Metadata schemaMetadata = this.mediator.getMetadata(message.getScopeId(), indexedOn);
 
 		Date indexedOnDt = new Date(indexedOn);
-		Date receivedOnDt = new Date(receivedOn);
 
 		// Parse document
         MessageInfo messageInfo = this.configProvider.getInfo(message.getScopeId());
 		MessageXContentBuilder docBuilder = new MessageXContentBuilder();
-        docBuilder.build(messageInfo.getAccount().getName(), message, indexedOnDt, receivedOnDt);
+        docBuilder.build(messageInfo.getAccount().getName(), message, indexedOnDt, message.getReceivedOn());
 
 		// Possibly update the schema with new metric mappings
 		Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
@@ -158,10 +150,10 @@ public final class MessageStoreFacade {
 
 		//
 		// Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-		long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-		if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+		if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
 			logger.debug("Storage not enabled for account {}, return", scopeId);
 			return;
 		}
@@ -216,10 +208,10 @@ public final class MessageStoreFacade {
 
 		//
 		// Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-		long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-		if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+		if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
 			logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
 			return new MessageListResultImpl();
 		}
@@ -246,10 +238,10 @@ public final class MessageStoreFacade {
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
             return 0;
         }
@@ -276,10 +268,10 @@ public final class MessageStoreFacade {
 
         //
         // Do the find
-		LocalServicePlan accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLive() * KapuaDateUtils.DAY_MILLIS;
+		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-        if (!accountServicePlan.getDataStorageEnabled() || ttl == LocalServicePlan.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
             logger.debug("Storage not enabled for account {}, skipping delete", scopeId);
             return;
         }

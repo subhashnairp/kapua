@@ -13,12 +13,12 @@ package org.eclipse.kapua.service.datastore.internal;
 
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 
 public interface ConfigurationProvider {
 
-	public LocalServicePlan getConfiguration(KapuaId scopeId) 
+	public MessageStoreConfiguration getConfiguration(KapuaId scopeId) 
 			throws EsConfigurationException;
 	
     public MessageInfo getInfo(KapuaId scopeId)

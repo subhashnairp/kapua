@@ -41,8 +41,9 @@ public class MessageXContentBuilder
     private String[]			  channelParts;
     private Date				  timestamp;
     private Date				  indexedOn;
+    private Date            capturedOn;
     private Date				  receivedOn;
-    private Date				  collectedOn;
+    private Date            sentOn;
     private XContentBuilder       messageBuilder;
     
     private Map<String, EsMetric> metricMappings;
@@ -73,16 +74,9 @@ public class MessageXContentBuilder
 	                                                        .field(EsSchema.MESSAGE_DEVICE_ID,deviceIdStr)
 	                                                        .field(EsSchema.MESSAGE_CLIENT_ID, this.getClientId())
 	                                                        .field(EsSchema.MESSAGE_CHANNEL, this.getChannel())
-	                                                        .field(EsSchema.MESSAGE_CHANNEL_PARTS, this.getChannelParts());
-	
-	        KapuaPayload payload = message.getPayload();
-	        if (payload == null) {
-	            messageBuilder.endObject();
-	            return messageBuilder;
-	        }
-	
-			this.setCollectedOn(message.getCapturedOn());
-	        messageBuilder.field(EsSchema.MESSAGE_COLLECTED_ON, message.getCapturedOn());
+                                                            .field(EsSchema.MESSAGE_CHANNEL_PARTS, this.getChannelParts())
+                                                            .field(EsSchema.MESSAGE_CAPTURED_ON, message.getCapturedOn())
+                                                            .field(EsSchema.MESSAGE_SENT_ON, message.getSentOn());
 	
 	        KapuaPosition kapuaPosition = message.getPosition();
 	        if (kapuaPosition != null) {
@@ -106,6 +100,12 @@ public class MessageXContentBuilder
 	            messageBuilder.field(EsSchema.MESSAGE_POSITION, position);
 	        }
 	
+            KapuaPayload payload = message.getPayload();
+            if (payload == null) {
+                messageBuilder.endObject();
+                return messageBuilder;
+            }
+
 	        messageBuilder.field(EsSchema.MESSAGE_BODY, payload.getBody());
 	
 	        Map<String, EsMetric> metricMappings = new HashMap<String, EsMetric>();
@@ -174,6 +174,9 @@ public class MessageXContentBuilder
         this.setTimestamp(indexedOn);
         this.setIndexedOn(indexedOn);
         this.setReceivedOn(receivedOn);
+        this.setSentOn(message.getSentOn());
+        this.setCapturedOn(message.getCapturedOn());
+
         this.setMessageId(messageId);
         this.setBuilder(messageBuilder);
         return this;
@@ -245,15 +248,27 @@ public class MessageXContentBuilder
 		this.receivedOn = receivedOn;
 	}
 
-	public Date getCollectedOn() {
-		return collectedOn;
-	}
+    public Date getCapturedOn()
+    {
+        return capturedOn;
+    }
 
-	private void setCollectedOn(Date collectedOn) {
-		this.collectedOn = collectedOn;
-	}
+    public void setCapturedOn(Date capturedOn)
+    {
+        this.capturedOn = capturedOn;
+    }
 
-	public XContentBuilder getBuilder()
+    public Date getSentOn()
+    {
+        return sentOn;
+    }
+
+    public void setSentOn(Date sentOn)
+    {
+        this.sentOn = sentOn;
+    }
+
+    public XContentBuilder getBuilder()
     {
         return messageBuilder;
     }

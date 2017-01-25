@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.message.internal.KapuaPositionImpl;
@@ -36,13 +37,12 @@ public class MessageObjectBuilder
     		throws EsObjectBuilderException
     {
     	Map<String, SearchHitField> searchHitFields = searchHit.getFields();
-    	//String account = searchHitFields.get(EsSchema.MESSAGE_ACCOUNT).getValue();
     	String accountId = searchHitFields.get(EsSchema.MESSAGE_ACCOUNT_ID).getValue();
     	String deviceId = searchHitFields.get(EsSchema.MESSAGE_DEVICE_ID).getValue();
     	String clientId = searchHitFields.get(EsSchema.MESSAGE_CLIENT_ID).getValue();
-        //String channel = searchHitFields.get(EsSchema.MESSAGE_CHANNEL).getValue();
 
         DatastoreMessageImpl tmpMessage = new DatastoreMessageImpl();
+        tmpMessage.setId(UUID.fromString(searchHit.getId()));
         KapuaDataChannelImpl dataChannel = new KapuaDataChannelImpl();
         tmpMessage.setChannel(dataChannel);
 
@@ -112,9 +112,15 @@ public class MessageObjectBuilder
 				position.setTimestamp((Date) EsUtils.convertToKapuaObject("date", (String) obj));
         }
 
-        Object collectedOnFld = source.get(EsSchema.MESSAGE_COLLECTED_ON);
-        if (collectedOnFld != null)
-			tmpMessage.setCapturedOn((Date) (collectedOnFld == null ? null : EsUtils.convertToKapuaObject("date", (String) collectedOnFld)));
+        Object capturedOnFld = source.get(EsSchema.MESSAGE_CAPTURED_ON);
+        if (capturedOnFld != null)
+            tmpMessage.setCapturedOn((Date) (capturedOnFld == null ? null : EsUtils.convertToKapuaObject("date", (String) capturedOnFld)));
+        Object sentOnFld = source.get(EsSchema.MESSAGE_SENT_ON);
+        if (sentOnFld != null)
+            tmpMessage.setSentOn((Date) (sentOnFld == null ? null : EsUtils.convertToKapuaObject("date", (String) sentOnFld)));
+        Object receivedOnFld = source.get(EsSchema.MESSAGE_RECEIVED_ON);
+        if (receivedOnFld != null)
+            tmpMessage.setReceivedOn((Date) (receivedOnFld == null ? null : EsUtils.convertToKapuaObject("date", (String) receivedOnFld)));
 
         if (source.get(EsSchema.MESSAGE_METRICS) != null) {
 

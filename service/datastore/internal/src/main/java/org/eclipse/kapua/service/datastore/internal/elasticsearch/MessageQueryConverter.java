@@ -29,7 +29,7 @@ public class MessageQueryConverter extends AbstractStorableQueryConverter<Datast
                 includeSource = new String[] { "" };
                 break;
             case SOURCE_SELECT:
-                includeSource = new String[] { EsSchema.MESSAGE_COLLECTED_ON, EsSchema.MESSAGE_POSITION + ".*", EsSchema.MESSAGE_METRICS + ".*" };
+                includeSource = new String[] { EsSchema.MESSAGE_CAPTURED_ON, EsSchema.MESSAGE_POSITION + ".*", EsSchema.MESSAGE_METRICS + ".*" };
                 break;
             case SOURCE_FULL:
                 includeSource = new String[] { "*" };

@@ -20,7 +20,7 @@ import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.config.KapuaConfigurableService;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.LocalServicePlan;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 
 public class ConfigurationProviderImpl implements ConfigurationProvider {
@@ -36,17 +36,17 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 	}
 	
 	@Override
-	public LocalServicePlan getConfiguration(KapuaId scopeId) 
+	public MessageStoreConfiguration getConfiguration(KapuaId scopeId) 
 			throws EsConfigurationException {
 		
-		LocalServicePlan localServicePlan = null;	
+        MessageStoreConfiguration messageStoreConfiguration = null;
         try {
-        	localServicePlan = new LocalServicePlan(configurableService.getConfigValues(scopeId));
+            messageStoreConfiguration = new MessageStoreConfiguration(configurableService.getConfigValues(scopeId));
 		} catch (KapuaException e) {
 			throw new EsConfigurationException(e);
 		}
         
-        return localServicePlan;
+        return messageStoreConfiguration;
 	}
 	
 	@Override

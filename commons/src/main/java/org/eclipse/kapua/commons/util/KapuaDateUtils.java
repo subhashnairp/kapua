@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -23,6 +26,8 @@ import java.util.TimeZone;
  *
  */
 public class KapuaDateUtils {
+
+    public static final String DEFAULT_DATE_PATTERN = "MM/dd/yyyy h:mm a"; // example 24/01/2017 11:22 AM
 	
     public static final long    SEC_MILLIS       = 1000;
     public static final long    MIN_SECS         = 60;
@@ -130,4 +135,18 @@ public class KapuaDateUtils {
 		cal.set(Calendar.MILLISECOND, cal.getMinimum(Calendar.MILLISECOND));
 		return cal.getTime();
 	}
+
+    /**
+     * Parse the provided String using the default pattern {@value #DEFAULT_DATE_PATTERN} and the default locale {@link #getKapuaLocale() getKapuaLocale}
+     * 
+     * @param date
+     * @return
+     * @throws ParseException
+     */
+    public static Date parseDate(String date) throws ParseException
+    {
+        DateFormat df = new SimpleDateFormat(DEFAULT_DATE_PATTERN, getKapuaLocale());
+        return df.parse(date);
+    }
+
 }
