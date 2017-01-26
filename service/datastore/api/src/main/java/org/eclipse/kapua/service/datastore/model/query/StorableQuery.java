@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+import java.util.List;
+
 import org.eclipse.kapua.service.datastore.model.Storable;
 
 public interface StorableQuery<S extends Storable>
@@ -35,9 +37,9 @@ public interface StorableQuery<S extends Storable>
 
     public void setFetchStyle(StorableFetchStyle fetchStyle);
 
-    public SortDirection getSort();
+    public List<SortField> getSortFields();
 
-    public void setSort(SortDirection sortStyle);
+    public void setSortFields(List<SortField> sortFields);
     
     public void copy(StorableQuery<S> query);
 }

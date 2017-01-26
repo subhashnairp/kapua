@@ -12,9 +12,14 @@
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.datastore.model.Storable;
+import org.eclipse.kapua.service.datastore.model.query.SortDirection;
+import org.eclipse.kapua.service.datastore.model.query.SortField;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.StorableQuery;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 
 public abstract class AbstractStorableQueryConverter<S extends Storable, Q extends StorableQuery<S>>
 {
@@ -39,11 +44,27 @@ public abstract class AbstractStorableQueryConverter<S extends Storable, Q exten
         if (query == null)
             throw new NullPointerException(String.format("Query parameter is undefined"));
 
+
         PredicateConverter pc = new PredicateConverter();
         SearchRequestBuilder searchReqBuilder = ElasticsearchClient.getInstance().prepareSearch(indices);
         searchReqBuilder.setTypes(type)
-                        .setQuery(pc.toElasticsearchQuery(query.getPredicate()))
-                        .setFrom(query.getOffset())
+                        .setQuery(pc.toElasticsearchQuery(query.getPredicate()));
+        if (query.getSortFields() != null) {
+            for (SortField sf : query.getSortFields()) {
+                if (sf.getSortDirection() == null) {
+                    throw new NullPointerException(String.format("The order for the field [%s] is undefined!", sf.getField()));
+                }
+                FieldSortBuilder fsb = SortBuilders.fieldSort(sf.getField());
+                if (SortDirection.ASC.equals(sf.getSortDirection())) {
+                    fsb.order(SortOrder.ASC);
+                }
+                else {
+                    fsb.order(SortOrder.DESC);
+                }
+                searchReqBuilder.addSort(fsb);
+            }
+        }
+        searchReqBuilder.setFrom(query.getOffset())
                         .setSize(query.getLimit());
         
         String[] includes = this.getIncludes(query.getFetchStyle());
