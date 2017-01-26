@@ -28,6 +28,8 @@ import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 
+import com.fasterxml.jackson.core.Base64Variants;
+
 public class MessageObjectBuilder
 {
 
@@ -81,7 +83,7 @@ public class MessageObjectBuilder
                 position.setLatitude((double) locationMap.get("lat"));
 
             if (locationMap != null && locationMap.get("lon") != null)
-                position.setLatitude((double) locationMap.get("lon"));
+                position.setLongitude((double) locationMap.get("lon"));
 
             Object obj = positionMap.get(EsSchema.MESSAGE_POS_ALT);
             if (obj != null)
@@ -110,6 +112,8 @@ public class MessageObjectBuilder
             obj = positionMap.get(EsSchema.MESSAGE_POS_TIMESTAMP);
             if (obj != null)
 				position.setTimestamp((Date) EsUtils.convertToKapuaObject("date", (String) obj));
+
+            tmpMessage.setPosition(position);
         }
 
         Object capturedOnFld = source.get(EsSchema.MESSAGE_CAPTURED_ON);
@@ -136,8 +140,10 @@ public class MessageObjectBuilder
                 if (metricValue.size() > 0) {
                     String[] valueTypes = metricValue.keySet().toArray(new String[] {});
                     Object value = metricValue.get(valueTypes[0]);
-                    if (value != null && value instanceof Integer)
-                        payloadMetrics.put(EsUtils.restoreMetricName(metricsName), value);
+                    // since elasticsearch doesn't return always the same type of the saved field
+                    // (usually due to some promotion of the field type)
+                    // we need to check the metric type returned by elasticsearch and, if needed, convert to the proper type
+                    payloadMetrics.put(EsUtils.restoreMetricName(metricsName), EsUtils.convertToCorrectType(valueTypes[0], value));
                 }
             }
             
@@ -149,7 +155,7 @@ public class MessageObjectBuilder
         }
 
         if (source.get(EsSchema.MESSAGE_BODY) != null) {
-            byte[] body = ((String) source.get(EsSchema.MESSAGE_BODY)).getBytes();
+            byte[] body = Base64Variants.getDefaultVariant().decode((String) source.get(EsSchema.MESSAGE_BODY));
             payload.setBody(body);
         }
 

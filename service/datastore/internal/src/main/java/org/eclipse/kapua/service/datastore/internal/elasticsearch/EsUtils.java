@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,10 +18,6 @@ import java.util.Date;
 import java.util.regex.Pattern;
 
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,7 +251,7 @@ public class EsUtils {
 		if (kapuaType.equals("string") || kapuaType.equals("String"))
 			return ES_TYPE_STRING;
 		
-		if (kapuaType.equals("int") || kapuaType.equals("Integer"))
+        if (kapuaType.equals("integer") || kapuaType.equals("Integer"))
 			return ES_TYPE_INTEGER;
 		
 		if (kapuaType.equals("long") || kapuaType.equals("Long"))
@@ -392,6 +386,60 @@ public class EsUtils {
 		throw new IllegalArgumentException(String.format("Unknown type [%s]", type));
 	}
 	
+    public static Object convertToCorrectType(String acronymType, Object value)
+    {
+        Object convertedValue = null;
+        if (acronymType.equals(ES_TYPE_SHORT_DOUBLE)) {
+            if (value instanceof Number) {
+                convertedValue = new Double(((Number) value).doubleValue());
+            }
+            else if (value instanceof String) {
+                convertedValue = Double.parseDouble((String) value);
+            }
+            else {
+                throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
+            }
+        }
+        else if (acronymType.equals(ES_TYPE_SHORT_FLOAT)) {
+            if (value instanceof Number) {
+                convertedValue = new Float(((Number) value).floatValue());
+            }
+            else if (value instanceof String) {
+                convertedValue = Float.parseFloat((String) value);
+            }
+            else {
+                throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
+            }
+        }
+        else if (acronymType.equals(ES_TYPE_SHORT_INTEGER)) {
+            if (value instanceof Number) {
+                convertedValue = new Integer(((Number) value).intValue());
+            }
+            else if (value instanceof String) {
+                convertedValue = Integer.parseInt((String) value);
+            }
+            else {
+                throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
+            }
+        }
+        else if (acronymType.equals(ES_TYPE_SHORT_LONG)) {
+            if (value instanceof Number) {
+                convertedValue = new Long(((Number) value).longValue());
+            }
+            else if (value instanceof String) {
+                convertedValue = Long.parseLong((String) value);
+            }
+            else {
+                throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Long!", value.getClass()));
+            }
+        }
+        else {
+            // no need to translate for others field type
+            convertedValue = value;
+        }
+        return convertedValue;
+    }
+
 	public static long getQueryTimeout() {
 		return 15000;
 	}
