@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import org.eclipse.kapua.service.datastore.MetricInfoRegistryService;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoField;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoField;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreChannel;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MetricInfoField;
 import org.eclipse.kapua.service.datastore.internal.model.DataIndexBy;
@@ -172,6 +174,117 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         }
     }
 
+    /**
+     * Test the correctness of the query filtering order (3 fields: date descending, date ascending, string descending)
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testOrderingMixedTest()
+        throws Exception
+    {
+        Account account = getTestAccountCreator(adminScopeId);
+
+        String[] availableSematicParts = new String[] {
+                                                        "/device1/bus/route/one",
+                                                        "/device2/bus/route/one",
+                                                        "/device3/bus/route/two/a",
+                                                        "/device4/bus/route/two/b",
+                                                        "/device5/tram/route/one",
+                                                        "/device6/car/one"
+        };
+
+        DeviceRegistryService devRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
+        DeviceFactory deviceFactory = KapuaLocator.getInstance().getFactory(DeviceFactory.class);
+
+        KapuaDataMessage message = null;
+        String clientId1 = String.format("device-%d", new Date().getTime());
+        Thread.sleep(100);
+        String clientId2 = String.format("device-%d", new Date().getTime());
+        DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientId1);
+        Device device1 = devRegistryService.create(deviceCreator);
+        DeviceCreator deviceCreator2 = deviceFactory.newCreator(account.getScopeId(), clientId2);
+        Device device2 = devRegistryService.create(deviceCreator2);
+        int messagesCount = 100;
+        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
+        Date sentOn1 = new Date();
+        Date sentOn2 = new Date(sentOn1.getTime() + 5000);
+        Date capturedOn1 = new Date(new Date().getTime() + 10000);
+        Date capturedOn2 = new Date(capturedOn1.getTime() + 20000);
+        String clientId = null;
+        Device device = null;
+        // leave the message index by as default (DEVICE_TIMESTAMP)
+        for (int i = 0; i < messagesCount; i++) {
+            clientId = clientId1;
+            device = device1;
+            Date receivedOn = new Date();
+            Date sentOn = null;
+            if (i < messagesCount / 2) {
+                sentOn = sentOn1;
+            }
+            else {
+                sentOn = sentOn2;
+            }
+            Date capturedOn = null;
+            if (i < messagesCount / 4 - 1 || (i > messagesCount / 2 - 1 && i < messagesCount * 3 / 4 - 1)) {
+                capturedOn = capturedOn1;
+                if (i % 2 == 0) {
+                    clientId = clientId2;
+                    device = device2;
+                }
+            }
+            else {
+                capturedOn = capturedOn2;
+                if (i % 2 == 0) {
+                    clientId = clientId2;
+                    device = device2;
+                }
+            }
+            String semanticTopic = availableSematicParts[i % availableSematicParts.length];
+            message = getMessage(clientId, account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+            updateChannel(message, semanticTopic);
+            List<StorableId> messageStoredId = new ArrayList<StorableId>();
+            try {
+                messageStoredId.add(messageStoreService.store(message));
+            }
+            catch (KapuaException e) {
+                s_logger.error("Exception: ", e.getMessage(), e);
+            }
+            Thread.sleep(1);
+        }
+        // Wait ES indexes to be refreshed
+        DatastoreSettings settings = DatastoreSettings.getInstance();
+        Thread.sleep(settings.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS);
+        List<SortField> sort = new ArrayList<SortField>();
+        SortField sortSentOn = new SortFieldImpl();
+        sortSentOn.setField(EsSchema.MESSAGE_SENT_ON);
+        sortSentOn.setSortDirection(SortDirection.DESC);
+        sort.add(sortSentOn);
+        SortField sortTimestamp = new SortFieldImpl();
+        sortTimestamp.setField(EsSchema.MESSAGE_TIMESTAMP);
+        sortTimestamp.setSortDirection(SortDirection.ASC);
+        sort.add(sortTimestamp);
+        SortField sortClientId = new SortFieldImpl();
+        sortClientId.setField(EsSchema.MESSAGE_CLIENT_ID);
+        sortClientId.setSortDirection(SortDirection.DESC);
+        sort.add(sortClientId);
+        MessageQuery messageQuery = getOrderedQuery(messagesCount + 1, sort);
+        DatastoreObjectFactory objectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+        AndPredicate andPredicate = new AndPredicateImpl();
+        TermPredicate accountName = objectFactory.newTermPredicate(ClientInfoField.ACCOUNT, account.getName());
+        andPredicate.getPredicates().add(accountName);
+        RangePredicate timestampPredicate = new RangePredicateImpl(ClientInfoField.TIMESTAMP, new Date(capturedOn1.getTime()), new Date(capturedOn2.getTime()));
+        andPredicate.getPredicates().add(timestampPredicate);
+        messageQuery.setPredicate(andPredicate);
+        
+        MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
+        checkMessagesCount(result, messagesCount);
+        for (DatastoreMessage messageStored : result) {
+            s_logger.info("message sentOn: '" + messageStored.getSentOn() + "' - capturedOn: '" + messageStored.getCapturedOn() + "' clientId: '" + messageStored.getClientId() + "'");
+        }
+        checkListOrder(result, sort);
+    }
+
     @Test
     /**
      * Test the correctness of the storage process with a basic message (no metrics, payload and position) indexing message date by device timestamp (as default)
@@ -228,7 +341,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         messageQuery.setPredicate(andPredicate);
 
         MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
-        DatastoreMessage messageQueried = checkOnlyOneMessage(result);
+        DatastoreMessage messageQueried = checkMessagesCount(result, 1);
         checkMessageId(messageQueried, messageStoredId);
         checkMessageBody(messageQueried, null);
         checkMetricsSize(messageQueried, 0);
@@ -291,7 +404,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         messageQuery.setPredicate(andPredicate);
         
         MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
-        DatastoreMessage messageQueried = checkOnlyOneMessage(result);
+        DatastoreMessage messageQueried = checkMessagesCount(result, 1);
         checkMessageId(messageQueried, messageStoredId);
         checkTopic(messageQueried, topicSemanticPart);
         checkMessageBody(messageQueried, null);
@@ -414,29 +527,54 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         query.setOffset(0);
         List<SortField> order = new ArrayList<SortField>();
         SortField sf = new SortFieldImpl();
-        sf.setField("timestamp");
+        sf.setField(EsSchema.MESSAGE_TIMESTAMP);
         sf.setSortDirection(SortDirection.DESC);
         order.add(sf);
         query.setSortFields(order);
         return query;
     }
-
+    
+    /**
+     * Get the ordered query (adding the sort fields list provided and the result limit count)
+     * 
+     * @param limit
+     * @param order
+     * @return
+     */
+    private MessageQuery getOrderedQuery(int limit, List<SortField> order)
+    {
+        MessageQuery query = new MessageQueryImpl();
+        query.setAskTotalCount(true);
+        query.setFetchStyle(StorableFetchStyle.SOURCE_FULL);
+        query.setLimit(limit);
+        query.setOffset(0);
+        query.setSortFields(order);
+        return query;
+    }
+    
     //
     // Utility methods to help to check the message result
     //
     /**
-     * Check if in the result set is present only one message and it is not null
+     * Check if in the result set has the expected messages count and return the first (if any)
      * 
      * @param result
      * @return
      */
-    private DatastoreMessage checkOnlyOneMessage(MessageListResult result)
+    private DatastoreMessage checkMessagesCount(MessageListResult result, int messagesCount)
     {
-        assertNotNull("No result found", result);
-        assertNotNull("No result found", result.getTotalCount());
-        assertEquals("result message has a wrong size", 1, result.getTotalCount().intValue());
-        DatastoreMessage messageQueried = result.get(0);
-        assertNotNull("result message", messageQueried);
+        DatastoreMessage messageQueried = null;
+        if (messagesCount > 0) {
+            assertNotNull("No result found!", result);
+            assertNotNull("No result found!", result.getTotalCount());
+            assertEquals("Result message has a wrong size!", messagesCount, result.getTotalCount().intValue());
+            messageQueried = result.get(0);
+            assertNotNull("Result message is null!", messageQueried);
+        }
+        else {
+            assertTrue("No result should be found!", result == null || result.getTotalCount() == null || result.getTotalCount() <= 0);
+
+        }
         return messageQueried;
     }
 
@@ -470,7 +608,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         assertEquals("Wrong semantic topic stored!", topicSemanticPartTokenized.length, semanticParts.size());
         int i = 0;
         for (String tmp : topicSemanticPartTokenized) {
-            assertEquals("Wrong " + i + " sematic part!", tmp, semanticParts.get(i++));
+            assertEquals(String.format("Wrong [%s] sematic part!", i), tmp, semanticParts.get(i++));
         }
     }
 
@@ -542,7 +680,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         Iterator<String> metricsKeys = metrics.keySet().iterator();
         while (metricsKeys.hasNext()) {
             String key = metricsKeys.next();
-            assertEquals("Metric " + key + " differs!", metrics.get(key), messageProperties.get(key));
+            assertEquals(String.format("Metric [%s] differs!", key), metrics.get(key), messageProperties.get(key));
         }
     }
 
@@ -569,6 +707,122 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
             assertEquals("Speed position differs from the original!", messagePosition.getSpeed(), position.getSpeed());
             assertEquals("Status position differs from the original!", messagePosition.getStatus(), position.getStatus());
             assertEquals("Timestamp position differs from the original!", messagePosition.getTimestamp(), position.getTimestamp());
+        }
+    }
+
+    /**
+     * Check if the message result list is correctly ordered by the provided criteria (list of fields and ordering)
+     * 
+     * @param result
+     * @param sortFieldList
+     */
+    @SuppressWarnings("rawtypes")
+    private void checkListOrder(MessageListResult result, List<SortField> sortFieldList)
+    {
+        DatastoreMessage previousMessage = null;
+        for (DatastoreMessage message : result) {
+            for (SortField field : sortFieldList) {
+                String normalizedFieldName = getNormalizedFieldName(field);
+                if (previousMessage != null) {
+                    Comparable currentValue = getValue(message, normalizedFieldName);
+                    Comparable previousValue = getValue(previousMessage, normalizedFieldName);
+                    if (!currentValue.equals(previousValue)) {
+                        checkNextValueCoherence(field, currentValue, previousValue);
+                        // proceed with next message
+                        break;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+            previousMessage = message;
+        }
+    }
+
+    /**
+     * Normalize the field name to compose (in a different method) the getter name.
+     * It removes the _ and append the remaining part capitalizing the first letter
+     * 
+     * @param field
+     * @return
+     */
+    private String getNormalizedFieldName(SortField field) {
+        String str[] = field.getField().split("_");
+        if (str==null || str.length<=0) {
+            throw new IllegalArgumentException(String.format("Invalid field name [%s]", field.getField()));
+        }
+        String fieldName = str[0];
+        for (int i=1; i<str.length; i++) {
+            fieldName += str[i].substring(0, 1).toUpperCase() + str[i].substring(1);
+        }
+        return fieldName;
+    }
+
+    /**
+     * Check if the next value (it must be not equals, so the equals condition must be checked before calling this method) is coherent with its ordering criteria
+     * 
+     * @param field
+     * @param currentValue
+     * @param previousValue
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void checkNextValueCoherence(SortField field, Comparable currentValue, Comparable previousValue)
+    {
+        if (SortDirection.ASC.equals(field.getSortDirection())) {
+            assertTrue(String.format("The field [%s] is not correctly ordered as [%s]!", field.getField(), field.getSortDirection()), currentValue.compareTo(previousValue) > 0);
+        }
+        else {
+            assertTrue(String.format("The field [%s] is not correctly ordered as [%s]!", field.getField(), field.getSortDirection()), currentValue.compareTo(previousValue) < 0);
+        }
+    }
+
+    /**
+     * Return the value of the field name provided (assuming that this value is a Comparable)
+     * 
+     * @param message
+     * @param field
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    private Comparable getValue(DatastoreMessage message, String field)
+    {
+        try {
+            Class dataStoreClass = DatastoreMessage.class;
+            Method getMethod = getMethod(dataStoreClass, field, "get");
+            if (getMethod != null) {
+                return (Comparable) getMethod.invoke(message, new Object[0]);
+            }
+            getMethod = getMethod(dataStoreClass, field, "is");
+            if (getMethod != null) {
+                return (Comparable) getMethod.invoke(message, new Object[0]);
+            }
+            else {
+                throw new IllegalArgumentException(String.format("Cannot find getter for field [%s] or the field value is not a Comparable value!", field));
+            }
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException(String.format("Cannot find getter for field [%s] or the field value is not a Comparable value!", field));
+        }
+    }
+
+    /**
+     * Return the method combining the prefix and the field name provided
+     * 
+     * @param dataStoreClass
+     * @param field
+     * @param prefix
+     * @return
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Method getMethod(Class dataStoreClass, String field, String prefix)
+    {
+        String fieldName = prefix + field.substring(0, 1).toUpperCase() + field.substring(1);
+        try {
+            return dataStoreClass.getMethod(fieldName, new Class[0]);
+        }
+        catch (NoSuchMethodException e) {
+            return null;
         }
     }
 
