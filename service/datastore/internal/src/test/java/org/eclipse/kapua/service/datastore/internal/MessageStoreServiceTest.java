@@ -53,6 +53,7 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.MetricInfoFiel
 import org.eclipse.kapua.service.datastore.internal.model.DataIndexBy;
 import org.eclipse.kapua.service.datastore.internal.model.MetricsIndexBy;
 import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl;
+import org.eclipse.kapua.service.datastore.internal.model.query.ChannelInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.RangePredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.SortFieldImpl;
@@ -325,7 +326,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         DatastoreSettings settings = DatastoreSettings.getInstance();
         Thread.sleep(settings.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS);
 
-        MessageQuery messageQuery = getBaseQuery();
+        MessageQuery messageQuery = getBaseMessageQuery();
         DatastoreObjectFactory objectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
         AndPredicate andPredicate = new AndPredicateImpl();
         TermPredicate accountName = objectFactory.newTermPredicate(ClientInfoField.ACCOUNT, account.getName());
@@ -391,7 +392,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         DatastoreSettings settings = DatastoreSettings.getInstance();
         Thread.sleep(settings.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS);
 
-        MessageQuery messageQuery = getBaseQuery();
+        MessageQuery messageQuery = getBaseMessageQuery();
 
         DatastoreObjectFactory objectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
         AndPredicate andPredicate = new AndPredicateImpl();
@@ -411,6 +412,216 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkMetricsSize(messageQueried, 0);
         checkPosition(messageQueried, null);
         checkMessageDate(messageQueried, new Range<Date>("timestamp", timestampLowerBound, timestampUpperBound), new Range<Date>("sentOn", sentOn), new Range<Date>("capturedOn", capturedOn), new Range<Date>("receivedOn", messageTime));
+    }
+
+    @Test
+    /**
+     * Check the correctness of the channel info data stored by retrieving the client id information.
+     * This test stores few messages with 4 different client id so it checks if the channel info stored for that account contains 4 records and if the 4 clients id are the same used by the store
+     * messages process.
+     * 
+     * @throws Exception
+     */
+    public void testClientIdByAccount()
+        throws Exception
+    {
+        DeviceRegistryService devRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
+        DeviceFactory deviceFactory = KapuaLocator.getInstance().getFactory(DeviceFactory.class);
+
+        Account account = createAccount(null, null);
+        Date messageTime = new Date();
+        String clientId = String.format("device-%d", messageTime.getTime());
+        DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientId);
+        Device device = devRegistryService.create(deviceCreator);
+
+        String accountName = account.getName();
+        String[] assets = new String[] { "asset1", "asset2", "asset3", "asset4" };
+        // Create two sample "metric" messages
+        Date sentOn = new Date(new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2015").getTime());
+        Date capturedOn = new Date();
+        Date receivedOn = new Date();
+        KapuaDataMessage message1 = getMessage(assets[0], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message1, "1/2/3");
+        message1.setReceivedOn(messageTime);
+        KapuaDataMessage message2 = getMessage(assets[1], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message2, "1/2/3");
+        message2.setReceivedOn(messageTime);
+        KapuaDataMessage message3 = getMessage(assets[2], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message3, "1/2/3");
+        message3.setReceivedOn(messageTime);
+        KapuaDataMessage message4 = getMessage(assets[3], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message4, "1/2/3");
+        message4.setReceivedOn(messageTime);
+        KapuaDataMessage message5 = getMessage(assets[3], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message5, "1/2/3");
+        message5.setReceivedOn(messageTime);
+        KapuaDataMessage message6 = getMessage(assets[3], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message6, "1/2/3");
+        message6.setReceivedOn(messageTime);
+        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
+        StorableId messageStoredId1 = null;
+        StorableId messageStoredId2 = null;
+        StorableId messageStoredId3 = null;
+        StorableId messageStoredId4 = null;
+        StorableId messageStoredId5 = null;
+        StorableId messageStoredId6 = null;
+        updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
+        // Store messages
+        try {
+            messageStoredId1 = messageStoreService.store(message1);
+            messageStoredId2 = messageStoreService.store(message2);
+            messageStoredId3 = messageStoreService.store(message3);
+            messageStoredId4 = messageStoreService.store(message4);
+            messageStoredId5 = messageStoreService.store(message5);
+            messageStoredId6 = messageStoreService.store(message6);
+        }
+        catch (Exception e) {
+            fail("Store messages should have succeded");
+        }
+
+        // Wait ES indexes to be refreshed
+        DatastoreSettings settings = DatastoreSettings.getInstance();
+        Thread.sleep(settings.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS);
+
+        Date timestampUpperBound = new Date(messageTime.getTime() + 2000);
+        Date timestampLowerBound = new Date(messageTime.getTime() - 2000);
+        ChannelInfoRegistryService registryService = KapuaLocator.getInstance().getService(ChannelInfoRegistryService.class);
+
+        ChannelInfoQuery channelInfoQuery = getBaseChannelInfoQuery();
+
+        DatastoreObjectFactory objectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+        AndPredicate andPredicateChannel = new AndPredicateImpl();
+        TermPredicate accountNamePredicateChannel = objectFactory.newTermPredicate(ChannelInfoField.ACCOUNT, account.getName());
+        andPredicateChannel.getPredicates().add(accountNamePredicateChannel);
+        RangePredicate timestampPredicateChannel = new RangePredicateImpl(ClientInfoField.TIMESTAMP, timestampLowerBound, timestampUpperBound);
+        andPredicateChannel.getPredicates().add(timestampPredicateChannel);
+        channelInfoQuery.setPredicate(andPredicateChannel);
+
+        ArrayList<String> allAssets = new ArrayList<String>();
+
+        ChannelInfoListResult channelList = registryService.query(account.getScopeId(), channelInfoQuery);
+        for (ChannelInfo channelInfo : channelList) {
+            allAssets.add(channelInfo.getClientId());
+        }
+        for (String asset : assets) {
+            assertTrue(allAssets.contains(asset));
+        }
+    }
+
+    @Test
+    /**
+     * Check the correctness of the channel info last publish date stored by retrieving the client id information.
+     * messages process.
+     * This test is failing because Elastichsearch caching code should be improved.
+     * 
+     * @throws Exception
+     */
+    public void testClientIdPublishDateByAccount()
+        throws Exception
+    {
+        DeviceRegistryService devRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
+        DeviceFactory deviceFactory = KapuaLocator.getInstance().getFactory(DeviceFactory.class);
+
+        Account account = createAccount(null, null);
+        Date messageTime = new Date();
+        String clientId = String.format("device-%d", messageTime.getTime());
+        DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientId);
+        Device device = devRegistryService.create(deviceCreator);
+
+        String accountName = account.getName();
+        String[] assets = new String[] { "asset1", "asset2" };
+        // Create two sample "metric" messages
+        Date sentOn = new Date(new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2015").getTime());
+        Date capturedOn = new Date();
+        Date capturedOnSecondMessage = new Date(capturedOn.getTime() + 1000);
+        Date capturedOnThirdMessage = new Date(capturedOn.getTime() + 2000);
+        Date receivedOn = new Date();
+        KapuaDataMessage message1 = getMessage(assets[0], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message1, "1/2/3");
+        message1.setReceivedOn(messageTime);
+        KapuaDataMessage message2 = getMessage(assets[1], account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
+        updateChannel(message2, "1/2/3");
+        message2.setReceivedOn(messageTime);
+        KapuaDataMessage message3 = getMessage(assets[1], account.getScopeId(), device.getId(), receivedOn, capturedOnSecondMessage, sentOn);
+        updateChannel(message3, "1/2/3");
+        message3.setReceivedOn(messageTime);
+        KapuaDataMessage message4 = getMessage(assets[1], account.getScopeId(), device.getId(), receivedOn, capturedOnThirdMessage, sentOn);
+        updateChannel(message4, "1/2/3");
+        message4.setReceivedOn(messageTime);
+        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
+        StorableId messageStoredId1 = null;
+        StorableId messageStoredId2 = null;
+        StorableId messageStoredId3 = null;
+        StorableId messageStoredId4 = null;
+        updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
+        // Store messages
+        try {
+            messageStoredId1 = messageStoreService.store(message1);
+            messageStoredId2 = messageStoreService.store(message2);
+            messageStoredId3 = messageStoreService.store(message3);
+            messageStoredId4 = messageStoreService.store(message4);
+        }
+        catch (Exception e) {
+            fail("Store messages should have succeded");
+        }
+
+        // Wait ES indexes to be refreshed
+        DatastoreSettings settings = DatastoreSettings.getInstance();
+        Thread.sleep(settings.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS);
+
+        Date timestampUpperBound = new Date(capturedOnThirdMessage.getTime() + 2000);
+        Date timestampLowerBound = new Date(messageTime.getTime() - 2000);
+        ChannelInfoRegistryService registryService = KapuaLocator.getInstance().getService(ChannelInfoRegistryService.class);
+
+        ChannelInfoQuery channelInfoQuery = getBaseChannelInfoQuery();
+
+        DatastoreObjectFactory objectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+        AndPredicate andPredicateChannel = new AndPredicateImpl();
+        TermPredicate accountNamePredicateChannel = objectFactory.newTermPredicate(ChannelInfoField.ACCOUNT, account.getName());
+        andPredicateChannel.getPredicates().add(accountNamePredicateChannel);
+        RangePredicate timestampPredicateChannel = new RangePredicateImpl(ClientInfoField.TIMESTAMP, timestampLowerBound, timestampUpperBound);
+        andPredicateChannel.getPredicates().add(timestampPredicateChannel);
+        channelInfoQuery.setPredicate(andPredicateChannel);
+
+        ArrayList<String> allAssets = new ArrayList<String>();
+
+        ChannelInfoListResult channelList = registryService.query(account.getScopeId(), channelInfoQuery);
+        for (ChannelInfo channelInfo : channelList) {
+            allAssets.add(channelInfo.getClientId());
+        }
+        for (String asset : assets) {
+            assertTrue(allAssets.contains(asset));
+        }
+
+        // MessageQuery messageQuery = getBaseMessageQuery();
+        //
+        // AndPredicate andPredicate = new AndPredicateImpl();
+        // TermPredicate accountNamePredicate = objectFactory.newTermPredicate(ClientInfoField.ACCOUNT, account.getName());
+        // andPredicate.getPredicates().add(accountNamePredicate);
+        // RangePredicate timestampPredicate = new RangePredicateImpl(ClientInfoField.TIMESTAMP, timestampLowerBound, timestampUpperBound);
+        // andPredicate.getPredicates().add(timestampPredicate);
+        // messageQuery.setPredicate(andPredicate);
+        //
+        // allAssets = new ArrayList<String>();
+        //
+        // MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
+        // for (DatastoreMessage datastoreMessage : result) {
+        // allAssets.add(datastoreMessage.getClientId());
+        // }
+        //
+        // for (String asset : assets) {
+        // assertTrue(allAssets.contains(asset));
+        // }
+
+        // check the message date
+        for (ChannelInfo channelInfo : channelList) {
+            if (assets[0].equals(channelInfo.getClientId())) {
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", assets[0]), capturedOn, channelInfo.getLastMessageTimestamp());
+            }
+            else if (assets[1].equals(channelInfo.getClientId())) {
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", assets[1]), capturedOnThirdMessage, channelInfo.getLastMessageTimestamp());
+            }
+        }
     }
 
     // ===========================================================
@@ -518,7 +729,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
      * 
      * @return
      */
-    private MessageQuery getBaseQuery()
+    private MessageQuery getBaseMessageQuery()
     {
         MessageQuery query = new MessageQueryImpl();
         query.setAskTotalCount(true);
@@ -534,6 +745,27 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         return query;
     }
     
+    /**
+     * Creates a new query setting the default base parameters (fetch style, sort, limit, offset, ...)
+     * 
+     * @return
+     */
+    private ChannelInfoQuery getBaseChannelInfoQuery()
+    {
+        ChannelInfoQuery query = new ChannelInfoQueryImpl();
+        query.setAskTotalCount(true);
+        query.setFetchStyle(StorableFetchStyle.SOURCE_FULL);
+        query.setLimit(10);
+        query.setOffset(0);
+        List<SortField> order = new ArrayList<SortField>();
+        SortField sf = new SortFieldImpl();
+        sf.setField(EsSchema.MESSAGE_TIMESTAMP);
+        sf.setSortDirection(SortDirection.DESC);
+        order.add(sf);
+        query.setSortFields(order);
+        return query;
+    }
+
     /**
      * Get the ordered query (adding the sort fields list provided and the result limit count)
      * 
@@ -708,6 +940,29 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
             assertEquals("Status position differs from the original!", messagePosition.getStatus(), position.getStatus());
             assertEquals("Timestamp position differs from the original!", messagePosition.getTimestamp(), position.getTimestamp());
         }
+    }
+
+    /**
+     * Check if in the result set has the expected messages count and return the first (if any)
+     * 
+     * @param result
+     * @return
+     */
+    private ChannelInfo checkChannelInfoCount(ChannelInfoListResult result, int messagesCount)
+    {
+        ChannelInfo channelInfoQueried = null;
+        if (messagesCount > 0) {
+            assertNotNull("No result found!", result);
+            assertNotNull("No result found!", result.getTotalCount());
+            assertEquals("Result channel has a wrong size!", messagesCount, result.getTotalCount().intValue());
+            channelInfoQueried = result.get(0);
+            assertNotNull("Result channel is null!", channelInfoQueried);
+        }
+        else {
+            assertTrue("No result should be found!", result == null || result.getTotalCount() == null || result.getTotalCount() <= 0);
+
+        }
+        return channelInfoQueried;
     }
 
     /**
