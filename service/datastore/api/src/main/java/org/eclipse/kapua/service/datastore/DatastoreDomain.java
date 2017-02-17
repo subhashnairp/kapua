@@ -9,7 +9,7 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.datastore.internal;
+package org.eclipse.kapua.service.datastore;
 
 import java.util.HashSet;
 import java.util.Set;

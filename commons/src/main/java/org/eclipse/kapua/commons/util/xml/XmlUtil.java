@@ -46,6 +46,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import static org.apache.commons.lang.SystemUtils.LINE_SEPARATOR;
+
 /**
  * Xml utilities
  *

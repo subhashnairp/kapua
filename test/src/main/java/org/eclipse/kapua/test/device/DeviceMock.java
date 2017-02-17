@@ -420,4 +420,18 @@ public class DeviceMock implements Device {
 		
 	}
 
+    @Override
+    public KapuaId getGroupId()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setGroupId(KapuaId groupId)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
 }
