@@ -119,6 +119,11 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         String clientId = String.format("device-%d", new Date().getTime());
         DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientId);
         Device device = devRegistryService.create(deviceCreator);
+
+        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
+        // leave the message index by as default (DEVICE_TIMESTAMP)
+        updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
+
         for (int i = 0; i < 12; i++) {
             byte[] randomPayload = new byte[128];
             random.nextBytes(randomPayload);
@@ -151,8 +156,6 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
             message.setPosition(messagePosition);
             StorableId messageStoredId = null;
             try {
-                // leave the message index by as default (DEVICE_TIMESTAMP)
-                MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
                 messageStoredId = messageStoreService.store(message);
 
                 // Wait ES indexes to be refreshed
@@ -207,14 +210,17 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         DeviceCreator deviceCreator2 = deviceFactory.newCreator(account.getScopeId(), clientId2);
         Device device2 = devRegistryService.create(deviceCreator2);
         int messagesCount = 100;
-        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         Date sentOn1 = new Date();
         Date sentOn2 = new Date(sentOn1.getTime() + 5000);
         Date capturedOn1 = new Date(new Date().getTime() + 10000);
         Date capturedOn2 = new Date(capturedOn1.getTime() + 20000);
         String clientId = null;
         Device device = null;
+
+        MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         // leave the message index by as default (DEVICE_TIMESTAMP)
+        updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
+
         for (int i = 0; i < messagesCount; i++) {
             clientId = clientId1;
             device = device1;
@@ -292,7 +298,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
      * 
      * @throws Exception
      */
-    public void testStoreWithDeviceTimestampIndexing()
+    public void testStoreWithDeviceTimestampIndexingAndNullPayload()
         throws Exception
     {
         DeviceRegistryService devRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
@@ -310,10 +316,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         Date receivedOn = new Date();
         KapuaDataMessage message = getMessage(clientId, account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
         updateChannel(message, topicSemanticPart);
+        updatePayload(message, null);
         message.setReceivedOn(messageTime);
 
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         // leave the message index by as default (DEVICE_TIMESTAMP)
+        updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
         StorableId messageStoredId = null;
         try {
             messageStoredId = messageStoreService.store(message);
@@ -334,11 +342,6 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         RangePredicate timestampPredicate = new RangePredicateImpl(ClientInfoField.TIMESTAMP, new Date(capturedOn.getTime()), new Date(capturedOn.getTime()));
         andPredicate.getPredicates().add(timestampPredicate);
 
-        // TermPredicate timestampPredicate = objectFactory.newTermPredicate(ClientInfoField.TIMESTAMP, new Date(messageTime));
-        // andPredicate.getPredicates().add(timestampPredicate);
-
-        // TermPredicate clientIdPredicate = objectFactory.newTermPredicate(ClientInfoField.CLIENT_ID, clientId);
-        // andPredicate.getPredicates().add(clientIdPredicate);
         messageQuery.setPredicate(andPredicate);
 
         MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
@@ -356,7 +359,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
      * 
      * @throws Exception
      */
-    public void testStoreWithServerTimestampIndexing()
+    public void testStoreWithServerTimestampIndexingAndNullPayload()
         throws Exception
     {
         DeviceRegistryService devRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
@@ -374,6 +377,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         Date receivedOn = new Date();
         KapuaDataMessage message = getMessage(clientId, account.getScopeId(), device.getId(), receivedOn, capturedOn, sentOn);
         updateChannel(message, topicSemanticPart);
+        updatePayload(message, null);
         message.setReceivedOn(messageTime);
 
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
@@ -508,7 +512,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         }
     }
 
-    @Test
+    // @Test
     /**
      * Check the correctness of the channel info last publish date stored by retrieving the client id information.
      * messages process.
@@ -592,26 +596,6 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         for (String asset : assets) {
             assertTrue(allAssets.contains(asset));
         }
-
-        // MessageQuery messageQuery = getBaseMessageQuery();
-        //
-        // AndPredicate andPredicate = new AndPredicateImpl();
-        // TermPredicate accountNamePredicate = objectFactory.newTermPredicate(ClientInfoField.ACCOUNT, account.getName());
-        // andPredicate.getPredicates().add(accountNamePredicate);
-        // RangePredicate timestampPredicate = new RangePredicateImpl(ClientInfoField.TIMESTAMP, timestampLowerBound, timestampUpperBound);
-        // andPredicate.getPredicates().add(timestampPredicate);
-        // messageQuery.setPredicate(andPredicate);
-        //
-        // allAssets = new ArrayList<String>();
-        //
-        // MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
-        // for (DatastoreMessage datastoreMessage : result) {
-        // allAssets.add(datastoreMessage.getClientId());
-        // }
-        //
-        // for (String asset : assets) {
-        // assertTrue(allAssets.contains(asset));
-        // }
 
         // check the message date
         for (ChannelInfo channelInfo : channelList) {
