@@ -22,6 +22,7 @@ import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.PrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -97,14 +98,19 @@ public class PredicateConverter
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         
-        if (datastoreChannel.isAnyAccount())
+        if (!datastoreChannel.isAnyAccount())
             boolQuery.must(QueryBuilders.termQuery(MessageField.ACCOUNT.field(), datastoreChannel.getAccount()));
 
-        if (datastoreChannel.isAnyClientId())
+        if (!datastoreChannel.isAnyClientId())
             boolQuery.must(QueryBuilders.termQuery(MessageField.CLIENT_ID.field(), datastoreChannel.getClientId()));
 
-        if (datastoreChannel.isAnySubtopic())
+        if (datastoreChannel.isWildcardChannel()) {
+            PrefixQueryBuilder prefixFilter = QueryBuilders.prefixQuery(MessageField.CHANNEL.field(), datastoreChannel.getChannel().substring(0, datastoreChannel.getChannel().length() - 1));
+            boolQuery.filter(prefixFilter);
+        }
+        else if (!datastoreChannel.isAnyChannel()) {
             boolQuery.must(QueryBuilders.termQuery(MessageField.CHANNEL.field(), datastoreChannel.getChannel()));
+        }
 
         return boolQuery;
     }

@@ -19,8 +19,12 @@ import org.eclipse.kapua.service.datastore.internal.model.StorableIdImpl;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetricInfoObjectBuilder {
+
+    private static final Logger logger = LoggerFactory.getLogger(MetricInfoObjectBuilder.class);
 
 	private MetricInfo metricInfo;
 	
@@ -57,7 +61,7 @@ public class MetricInfoObjectBuilder {
 		
 		if (EsUtils.ES_TYPE_INTEGER.equals(type)) {
 		    finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
-		    finalMetricInfo.setValue((Integer)value);
+            finalMetricInfo.setValue((Integer) value);
 		}
 		
 		if (EsUtils.ES_TYPE_LONG.equals(type)) {
@@ -66,22 +70,26 @@ public class MetricInfoObjectBuilder {
 				obj = ((Integer)value).longValue();
 			
 			finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
-			finalMetricInfo.setValue((Long)obj);
+            finalMetricInfo.setValue((Long) obj);
 		}
 		
 		if (EsUtils.ES_TYPE_FLOAT.equals(type)) {
+            Object obj = value;
+            if (value != null && value instanceof Double)
+                obj = ((Double) value).floatValue();
+
 		    finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
-		    finalMetricInfo.setValue((Float)value);
+            finalMetricInfo.setValue((Float) obj);
 		}
 		
 		if (EsUtils.ES_TYPE_DOUBLE.equals(type)) {
 		    finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
-		    finalMetricInfo.setValue((Double)value);
+            finalMetricInfo.setValue((Double) value);
 		}
 		
 		if (EsUtils.ES_TYPE_BOOL.equals(type)) {
 		    finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
-		    finalMetricInfo.setValue((Boolean)value);
+            finalMetricInfo.setValue((Boolean) value);
 		}
 		
 		if (EsUtils.ES_TYPE_BINARY.equals(type)) {
@@ -89,6 +97,11 @@ public class MetricInfoObjectBuilder {
 		    finalMetricInfo.setValue((byte[])value);
 		}
 		
+        if (EsUtils.ES_TYPE_DATE.equals(type)) {
+            finalMetricInfo.setType(EsUtils.convertToKapuaType(type));
+            finalMetricInfo.setValue((Date) EsUtils.convertToKapuaObject(type, (String) value));
+        }
+
 		if (finalMetricInfo.getType() == null)
 			throw new EsObjectBuilderException(String.format("Unknown metric type [%s]", type));
 

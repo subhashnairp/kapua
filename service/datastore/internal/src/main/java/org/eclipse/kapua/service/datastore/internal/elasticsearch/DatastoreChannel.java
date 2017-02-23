@@ -29,8 +29,17 @@ public class DatastoreChannel {
 	private static final Logger logger = LoggerFactory.getLogger(DatastoreChannel.class);
 	
 	public static final int MIN_PARTS = 3;
+    /**
+     * Default multiple level wild card
+     */
     public static final String MULTI_LEVEL_WCARD = "#";
+    /**
+     * Default single level wild card
+     */
     public static final String SINGLE_LEVEL_WCARD = "+";
+    /**
+     * Default topic parts separator
+     */
     public static final String TOPIC_SEPARATOR = "/";
 
     public static final String ALERT_TOPIC = "ALERT";
@@ -54,14 +63,26 @@ public class DatastoreChannel {
 		
 		this.clientId = clientId;
 			
-		// Must be not null and not singlelevel wild card
-        if (channel == null || SINGLE_LEVEL_WCARD.equals(channel))
+        // Must be not null and not single level wild card
+        if (channel == null)
 			throw new EsInvalidChannelException("Invalid channel: " + channel);
+        
+        // Check if there is one single level wild card or if the multi level wild card is present more than once or not at the end of the topic
+        if (channel.indexOf(SINGLE_LEVEL_WCARD) != -1) {
+            throw new EsInvalidChannelException(String.format("Invalid channel [%s]. The channel cannot contain [%s] wildcard!", channel, SINGLE_LEVEL_WCARD));
+        }
+        
+        int indexOfMultiLevelWildCard = channel.indexOf(MULTI_LEVEL_WCARD);
+        if (indexOfMultiLevelWildCard != -1) {
+            if (indexOfMultiLevelWildCard < channel.length() - 1) {
+                throw new EsInvalidChannelException(String.format("Invalid channel [%s]. The channel [%s] wildcard is allowed only at the end of the channel!", channel, MULTI_LEVEL_WCARD));
+            }
+        }
 		
 		this.channel = channel;		
-		this.channelParts = this.channel.split(TOPIC_SEPARATOR);
+        channelParts = this.channel.split(TOPIC_SEPARATOR);
 		
-		if (this.channelParts.length < 1) {
+        if (channelParts.length < 1) {
 			// Special case: The topic is too small
 			throw new EsInvalidChannelException(channel);
 		}
@@ -90,12 +111,12 @@ public class DatastoreChannel {
 		if (parts.length < MIN_PARTS)
 			throw new EsInvalidChannelException(String.format("Invalid channel: less than %d parts found.", MIN_PARTS));
 		
-		init(account, clientId, channel);
+        init(parts[0], parts[1], fullName.substring(parts[0].length() + parts[1].length() + 2));
 	}
 	
 	public String getAccount()
 	{
-		return this.account;
+        return account;
 	}
 	
 	public boolean isAnyAccount()
@@ -105,7 +126,7 @@ public class DatastoreChannel {
 	
 	public String getClientId()
 	{
-		return this.clientId;
+        return clientId;
 	}
 	
 	public static boolean isAnyClientId(String clientId)
@@ -124,34 +145,68 @@ public class DatastoreChannel {
 	}
 	
 	public boolean isAlertTopic() {
-		return isAlertTopic(this.channel);
+        return isAlertTopic(channel);
 	}
     
-    public static boolean isAnySubtopic(String channel) 
+    /**
+     * Return true if the channel is single path channel and the last channel part is the {@see DatastoreChannel#MULTI_LEVEL_WCARD (see MULTI_LEVEL_WCARD)} char.
+     * 
+     * @param channel
+     * @return
+     */
+    public static boolean isAnyChannel(String channel)
     {
-    	if (channel == null)
-    		return false;
-    	
-        final String multilevelAnySubtopic = String.format("%s%s", TOPIC_SEPARATOR, MULTI_LEVEL_WCARD);
-        boolean isAnySubtopic = channel.endsWith(multilevelAnySubtopic) ||
-                                MULTI_LEVEL_WCARD.equals(channel);
-        
-        return isAnySubtopic;
-    }	
+        return (channel != null && MULTI_LEVEL_WCARD.equals(channel));
+    }
+
+    /**
+     * {@see DatastoreChannel#isAnyChannel(String channel) (see isAnyChannel)}
+     * 
+     * @return
+     */
+    public boolean isAnyChannel()
+    {
+        return isAnyChannel(channel);
+    }
+
+    /**
+     * {@see DatastoreChannel#isWildcardChannel(String channel) (see isWildcardChannel)}
+     * 
+     * @return
+     */
+    public boolean isWildcardChannel()
+    {
+        return isWildcardChannel(channel);
+    }
     
-    public boolean isAnySubtopic() 
+    /**
+     * Return true if the channel is multi path channel and the last channel part is the {@see DatastoreChannel#MULTI_LEVEL_WCARD MULTI_LEVEL_WCARD} char.<br>
+     * <b>This method returns false if the channel is {@see DatastoreChannel#MULTI_LEVEL_WCARD (see MULTI_LEVEL_WCARD)}.</b>
+     * 
+     * @param channel
+     * @return
+     */
+    public static boolean isWildcardChannel(String channel)
     {
-        return isAnySubtopic(this.channel);
-    }	
+        final String multilevelAnySubtopic = String.format("%s%s", TOPIC_SEPARATOR, MULTI_LEVEL_WCARD);
+                                MULTI_LEVEL_WCARD.equals(channel);
+        return (channel != null && channel.endsWith(multilevelAnySubtopic));
+    }
+
 
     public static String getChannel(List<String> parts)
     {
 		StringBuilder channelBuilder = new StringBuilder();
 		for (String part:parts) {
 			channelBuilder.append(part);
-			channelBuilder.append(DatastoreChannel.TOPIC_SEPARATOR);
+            channelBuilder.append(DatastoreChannel.TOPIC_SEPARATOR);
 		}
-		return 	channelBuilder.toString();						
+        if (channelBuilder.length() > 0) {
+            return channelBuilder.substring(0, channelBuilder.length() - 1).toString();
+        }
+        else {
+            return "";
+        }
     }
     
 	public String getChannel() {
@@ -179,15 +234,16 @@ public class DatastoreChannel {
 	}
 	
 	public String[] getParts() {
-		return this.channelParts;
+        return channelParts;
 	}
 
 	public String getFullName() {
-		return this.account + TOPIC_SEPARATOR + this.clientId + TOPIC_SEPARATOR + this.channel;
+        return account + TOPIC_SEPARATOR + clientId + TOPIC_SEPARATOR + channel;
 	}
 	
 	@Override
 	public String toString() {
-		return this.channel;
+        return channel;
 	}
-	}
+
+}
