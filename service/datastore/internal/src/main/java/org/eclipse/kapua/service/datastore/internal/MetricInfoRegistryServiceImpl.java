@@ -52,7 +52,6 @@ import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.SortDirection;
 import org.eclipse.kapua.service.datastore.model.query.SortField;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
-import org.eclipse.kapua.service.datastore.model.query.StorableField;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,7 +241,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         andPredicate.getPredicates().add(accountNamePredicate);
         TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(MessageField.CLIENT_ID, metricInfo.getClientId());
         andPredicate.getPredicates().add(clientIdPredicate);
-        ExistsPredicate metricPredicate = new ExistsPredicateImpl(MessageField.METRICS.field() + "." + metricInfo.getName());
+        ExistsPredicate metricPredicate = new ExistsPredicateImpl(MessageField.METRICS.field(), metricInfo.getName());
         andPredicate.getPredicates().add(metricPredicate);
         messageQuery.setPredicate(andPredicate);
         MessageListResult messageList = messageStoreService.query(scopeId, messageQuery);

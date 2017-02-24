@@ -29,6 +29,16 @@ public class ExistsPredicateImpl implements ExistsPredicate
         this.name = name;
     }
 
+    public ExistsPredicateImpl(String... paths)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (String str : paths) {
+            builder.append(str);
+            builder.append('.');
+        }
+        name = builder.substring(0, builder.length() - 1);
+    }
+
     @Override
     public String getName()
     {
