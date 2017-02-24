@@ -25,8 +25,9 @@ public class MetricInfoImpl implements MetricInfo
     private String name;
     private String type;
     private Object value;
-    private StorableId lastMessageId;
-    private Date lastMessageTimestamp;
+    private StorableId messageId;
+    private Date       messageTimestamp;
+    private Date       lastMsgTimestamp;
     
     public MetricInfoImpl(String scope)
     {
@@ -116,26 +117,37 @@ public class MetricInfoImpl implements MetricInfo
     }
 
     @Override
-    public StorableId getLastMessageId()
+    public StorableId getMessageId()
     {
-        return lastMessageId;
+        return messageId;
     }
 
     @Override
-    public void setLastMessageId(StorableId lastMessageId)
+    public void setMessageId(StorableId messageId)
     {
-        this.lastMessageId = lastMessageId;
+        this.messageId = messageId;
+    }
+
+    @Override
+    public Date getMessageTimestamp()
+    {
+        return messageTimestamp;
+    }
+
+    @Override
+    public void setMessageTimestamp(Date messageTimestamp)
+    {
+        this.messageTimestamp = messageTimestamp;
     }
 
     @Override
     public Date getLastMessageTimestamp()
     {
-        return lastMessageTimestamp;
+        return lastMsgTimestamp;
     }
 
-    @Override
-    public void setLastMessageTimestamp(Date lastMessageTimestamp)
+    public void setLastMessageTimestamp(Date lastMsgTimestamp)
     {
-        this.lastMessageTimestamp = lastMessageTimestamp;
+        this.lastMsgTimestamp = lastMsgTimestamp;
     }
  }

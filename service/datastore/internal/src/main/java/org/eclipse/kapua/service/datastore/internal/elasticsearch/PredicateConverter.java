@@ -17,11 +17,13 @@ import java.util.Set;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
+import org.eclipse.kapua.service.datastore.model.query.ExistsPredicate;
 import org.eclipse.kapua.service.datastore.model.query.IdsPredicate;
 import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.index.query.PrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -50,6 +52,9 @@ public class PredicateConverter
 
         if (predicate instanceof TermPredicate)
             return toElasticsearchQuery((TermPredicate)predicate);
+
+        if (predicate instanceof ExistsPredicate)
+            return toElasticsearchQuery((ExistsPredicate) predicate);
 
         throw new EsQueryConversionException(String.format("Unknown predicate type %s", this.getClass().getName()));
     }
@@ -140,4 +145,16 @@ public class PredicateConverter
        
         return termQuery;
     }
+
+    public QueryBuilder toElasticsearchQuery(ExistsPredicate predicate)
+        throws EsQueryConversionException
+    {
+        if (predicate == null)
+            throw new EsQueryConversionException(String.format("Predicate parameter is undefined"));
+
+        ExistsQueryBuilder existsQuery = QueryBuilders.existsQuery(predicate.getName());
+
+        return existsQuery;
+    }
+
 }

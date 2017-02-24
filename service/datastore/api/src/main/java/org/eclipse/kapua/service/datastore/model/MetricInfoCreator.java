@@ -35,11 +35,11 @@ public interface MetricInfoCreator extends StorableCreator<MetricInfo>
 
     public <T> void setValue(T value);
 
-    public StorableId getLastMessageId();
+    public StorableId getMessageId();
 
-    public void setLastMessageId(StorableId lastMessageId);
+    public void setMessageId(StorableId messageId);
 
-    public Date getLastMessageTimestamp();
+    public Date getMessageTimestamp();
 
-    public void setLastMessageTimestamp(Date lastMessageTimestamp);
+    public void setMessageTimestamp(Date messageTimestamp);
 }

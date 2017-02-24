@@ -21,8 +21,9 @@ public class ClientInfoImpl implements ClientInfo
     private StorableId id;
     private String account;
     private String clientId;
-    private Date lastMessageTimestamp;
-    private StorableId lastMessageId;
+    private Date       messageTimestamp;
+    private StorableId messageId;
+    private Date       lastMsgTimestamp;
     
     public ClientInfoImpl(String account)
     {
@@ -64,24 +65,35 @@ public class ClientInfoImpl implements ClientInfo
     }
 
     @Override
-    public StorableId getLastMessageId()
+    public StorableId getMessageId()
     {
-        return lastMessageId;
+        return messageId;
     }
 
-    public void setLastMessageId(StorableId lastMessageId)
+    public void setMessageId(StorableId messageId)
     {
-        this.lastMessageId = lastMessageId;
+        this.messageId = messageId;
+    }
+
+    @Override
+    public Date getMessageTimestamp()
+    {
+        return messageTimestamp;
+    }
+
+    public void setMessageTimestamp(Date messageTimestamp)
+    {
+        this.messageTimestamp = messageTimestamp;
     }
 
     @Override
     public Date getLastMessageTimestamp()
     {
-        return lastMessageTimestamp;
+        return lastMsgTimestamp;
     }
 
-    public void setLastMessageTimestamp(Date lastMessageTimestamp)
+    public void setLastMessageTimestamp(Date lastMsgTimestamp)
     {
-        this.lastMessageTimestamp = lastMessageTimestamp;
+        this.lastMsgTimestamp = lastMsgTimestamp;
     }
 }

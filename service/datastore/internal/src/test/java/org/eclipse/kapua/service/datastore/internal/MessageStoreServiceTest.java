@@ -99,7 +99,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
 {
 
     private static final Logger s_logger = LoggerFactory.getLogger(MessageStoreServiceTest.class);
-    private static final long   QUERY_TIME_WINDOW = 2000l;
+    private static final long   QUERY_TIME_WINDOW                   = 2000l;
     private static final long   PUBLISH_DATE_TEST_CHECK_TIME_WINDOW = 1000l;
 
     private DeviceRegistryService  deviceRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
@@ -220,8 +220,8 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         int messagesCount = 100;
         Date sentOn1 = new Date();
         Date sentOn2 = new Date(sentOn1.getTime() + 5000);
-        Date capturedOn1 = new Date(new Date().getTime() + 10000);
-        Date capturedOn2 = new Date(capturedOn1.getTime() + 20000);
+        Date capturedOn1 = new Date(new Date().getTime() + 1000);
+        Date capturedOn2 = new Date(capturedOn1.getTime() + 1000);
         String clientId = null;
         Device device = null;
 
@@ -418,7 +418,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkChannelInfoClientIdsAndTopics(channelList, 4, clientIds, semanticTopic);
     }
 
-    // @Test
+    @Test
     /**
      * Check the correctness of the channel info last publish date stored by retrieving the channel info by client id.
      * 
@@ -513,13 +513,13 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         updateChannel(message6, semanticTopic[1]);
         message6.setReceivedOn(messageTime);
         updateConfiguration(messageStoreService, account.getScopeId(), DataIndexBy.DEVICE_TIMESTAMP, MetricsIndexBy.TIMESTAMP, 30, true);
-        insertMessages(true, message1, message2, message3, message4);
+        insertMessages(true, message1, message2, message3, message4, message5, message6);
 
         ChannelInfoQuery channelInfoQuery = getBaseChannelInfoQuery();
         setChannelInfoQueryBaseCriteria(channelInfoQuery, account.getName(), new DateRange(messageTime));
 
         ChannelInfoListResult channelList = channelInfoRegistryService.query(account.getScopeId(), channelInfoQuery);
-        checkChannelInfoClientIdsAndTopics(channelList, 4, clientIds, semanticTopic);
+        checkChannelInfoClientIdsAndTopics(channelList, 6, clientIds, semanticTopic);
     }
 
     @Test
@@ -567,7 +567,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         setChannelInfoQueryBaseCriteria(channelInfoQuery, account.getName(), clientIds[0], new DateRange(messageTime));
 
         ChannelInfoListResult channelList = channelInfoRegistryService.query(account.getScopeId(), channelInfoQuery);
-        checkChannelInfoClientIdsAndTopics(channelList, 2, clientIds, semanticTopic);
+        checkChannelInfoClientIdsAndTopics(channelList, 4, clientIds, semanticTopic);
     }
 
     @Test
@@ -613,7 +613,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkMetricInfoClientIdsAndMetricNames(metricList, 4, clientIds, metrics);
     }
 
-    // @Test
+    @Test
     /**
      * Check the correctness of the metric info last publish date stored by retrieving the metric info by account.
      * 
@@ -741,7 +741,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         setMetricInfoQueryBaseCriteria(metricInfoQuery, account.getName(), clientIds[0], new DateRange(capturedOn));
 
         MetricInfoListResult metricList = metricInfoRegistryService.query(account.getScopeId(), metricInfoQuery);
-        checkMetricInfoClientIdsAndMetricNames(metricList, 2, new String[] { clientIds[0] }, new String[] { metrics[0], metrics[1] });
+        checkMetricInfoClientIdsAndMetricNames(metricList, 4, new String[] { clientIds[0] }, metrics);
     }
 
     /**
@@ -784,8 +784,8 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         int messagesCount = 100;
         Date sentOn1 = new Date();
         Date sentOn2 = new Date(sentOn1.getTime() + 5000);
-        Date capturedOn1 = new Date(new Date().getTime() + 10000);
-        Date capturedOn2 = new Date(capturedOn1.getTime() + 20000);
+        Date capturedOn1 = new Date(new Date().getTime() + 1000);
+        Date capturedOn2 = new Date(capturedOn1.getTime() + 1000);
         String clientId = null;
         Device device = null;
 
@@ -849,7 +849,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkMetricDateBound(metricList, new Date(capturedOn1.getTime()), new Date(capturedOn2.getTime()));
 
         for (MetricInfo metricInfo : metricList) {
-            s_logger.info("metric client id: '" + metricInfo.getClientId() + "' - channel: '" + metricInfo.getChannel() + "' metric name: '" + metricInfo.getName()
+            s_logger.debug("metric client id: '" + metricInfo.getClientId() + "' - channel: '" + metricInfo.getChannel() + "' metric name: '" + metricInfo.getName()
                           + "' metric type: '" + metricInfo.getType() + "' metric value: '" + getPrivateField(metricInfo, "value") + "'");
         }
         checkListOrder(metricList, sort);
@@ -901,7 +901,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkClientInfo(clientList, 2, clientIds);
     }
 
-//    @Test
+    @Test
     /**
      * Check the correctness of the client info data stored by retrieving the client information by account.
      * 
@@ -1062,6 +1062,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
                 storableIds.add(messageStoreService.store(message));
             }
             catch (Exception e) {
+                s_logger.error("Message insert exception!", e);
                 fail("Store messages should have succeded");
             }
         }
@@ -2164,7 +2165,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         ClientInfo clientInfo = clientInfos.get(0);
 
         assertNotNull(clientInfo);
-        assertTrue(messageId.equals(clientInfo.getLastMessageId()));
+        assertTrue(messageId.equals(clientInfo.getMessageId()));
 
         // There must be a channel info entry in the registry
         equalsMessageId = datastoreObjectFactory.newTermPredicate(ChannelInfoField.MESSAGE_ID, messageId);
@@ -2184,7 +2185,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         ChannelInfo channelInfo = channelInfos.get(0);
 
         assertNotNull(channelInfo);
-        assertTrue(messageId.equals(channelInfo.getLastMessageId()));
+        assertTrue(messageId.equals(channelInfo.getMessageId()));
 
         // There must be two metric info entries in the registry
         equalsMessageId = datastoreObjectFactory.newTermPredicate(MetricInfoField.MESSAGE_ID_FULL, messageId);
@@ -2204,12 +2205,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         MetricInfo metricInfo = metricInfos.get(0);
 
         assertNotNull(metricInfo);
-        assertTrue(messageId.equals(metricInfo.getLastMessageId()));
+        assertTrue(messageId.equals(metricInfo.getMessageId()));
 
         metricInfo = metricInfos.get(1);
 
         assertNotNull(metricInfo);
-        assertTrue(messageId.equals(metricInfo.getLastMessageId()));
+        assertTrue(messageId.equals(metricInfo.getMessageId()));
     }
 
     /**

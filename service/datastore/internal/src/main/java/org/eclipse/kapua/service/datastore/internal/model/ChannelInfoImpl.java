@@ -21,9 +21,10 @@ public class ChannelInfoImpl implements ChannelInfo
     private StorableId id;
     private String account;
     private String clientId;
-    private StorableId lastMsgId;
-    private Date   lastMsgTimestamp;
+    private StorableId msgId;
+    private Date       msgTimestamp;
     private String channel;
+    private Date       lastMsgTimestamp;
 
     public ChannelInfoImpl(String scope)
     {
@@ -65,14 +66,36 @@ public class ChannelInfoImpl implements ChannelInfo
     }
     
     @Override
-    public StorableId getLastMessageId()
+    public StorableId getMessageId()
     {
-        return this.lastMsgId;
+        return this.msgId;
     }
 
-    public void setLastMessageId(StorableId lastMsgId)
+    public void setMessageId(StorableId msgId)
     {
-        this.lastMsgId = lastMsgId;
+        this.msgId = msgId;
+    }
+
+    @Override
+    public Date getMessageTimestamp()
+    {
+        return msgTimestamp;
+    }
+
+    public void setMessageTimestamp(Date msgTimestamp)
+    {
+        this.msgTimestamp = msgTimestamp;
+    }
+
+    @Override
+    public String getChannel()
+    {
+        return channel;
+    }
+    
+    public void setChannel(String channel)
+    {
+        this.channel = channel;
     }
 
     @Override
@@ -86,14 +109,4 @@ public class ChannelInfoImpl implements ChannelInfo
         this.lastMsgTimestamp = lastMsgTimestamp;
     }
 
-    @Override
-    public String getChannel()
-    {
-        return channel;
-    }
-    
-    public void setChannel(String channel)
-    {
-        this.channel = channel;
-    }
 }

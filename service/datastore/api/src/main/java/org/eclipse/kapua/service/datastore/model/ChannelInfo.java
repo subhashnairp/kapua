@@ -25,11 +25,21 @@ public interface ChannelInfo extends Storable
 
     public void setChannel(String channel);
     
-    public StorableId getLastMessageId();
+    public StorableId getMessageId();
     
-    public void setLastMessageId(StorableId lastMessageId);
+    public void setMessageId(StorableId messageId);
     
+    public Date getMessageTimestamp();
+    
+    public void setMessageTimestamp(Date messageTimestamp);
+
+    /**
+     * Transient data field (the last publish timestamp should get from the message table by the find service)
+     * 
+     * @return
+     */
     public Date getLastMessageTimestamp();
-    
+
     public void setLastMessageTimestamp(Date lastMessageTimestamp);
+
 }

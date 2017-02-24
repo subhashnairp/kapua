@@ -90,8 +90,8 @@ public class EsMetricInfoDAO
     	MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), new StorableIdImpl(id));
     	metricInfo.setClientId(metricInfoCreator.getClientId());
     	metricInfo.setChannel(metricInfoCreator.getChannel());
-    	metricInfo.setLastMessageId(metricInfoCreator.getLastMessageId());
-    	metricInfo.setLastMessageTimestamp(metricInfoCreator.getLastMessageTimestamp());
+        metricInfo.setMessageId(metricInfoCreator.getMessageId());
+        metricInfo.setMessageTimestamp(metricInfoCreator.getMessageTimestamp());
     	metricInfo.setName(metricInfoCreator.getName());
     	metricInfo.setType(metricInfoCreator.getType());
     	metricInfo.setValue(metricInfoCreator.getValue(Object.class));
@@ -119,8 +119,8 @@ public class EsMetricInfoDAO
     	
     	MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), new StorableIdImpl(id));
     	metricInfo.setChannel(metricInfoCreator.getChannel());
-    	metricInfo.setLastMessageId(metricInfoCreator.getLastMessageId());
-    	metricInfo.setLastMessageTimestamp(metricInfoCreator.getLastMessageTimestamp());
+        metricInfo.setMessageId(metricInfoCreator.getMessageId());
+        metricInfo.setMessageTimestamp(metricInfoCreator.getMessageTimestamp());
     	metricInfo.setName(metricInfoCreator.getName());
     	metricInfo.setType(metricInfoCreator.getType());
     	metricInfo.setValue(metricInfoCreator.getValue(Object.class));

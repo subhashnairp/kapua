@@ -120,8 +120,8 @@ public class DatastoreMediator implements MessageStoreMediator,
 	{
 		ClientInfoImpl clientInfo = new ClientInfoImpl(docBuilder.getAccountName());
 		clientInfo.setClientId(docBuilder.getClientId());
-		clientInfo.setLastMessageId(docBuilder.getMessageId());
-		clientInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+        clientInfo.setMessageId(docBuilder.getMessageId());
+        clientInfo.setMessageTimestamp(docBuilder.getTimestamp());
 		String clientInfoId = ClientInfoXContentBuilder.getOrDeriveId(null, docBuilder.getAccountName(), docBuilder.getClientId());
 		clientInfo.setId(new StorableIdImpl(clientInfoId));
 		this.clientInfoStoreFacade.upstore(scopeId, clientInfo);
@@ -129,8 +129,8 @@ public class DatastoreMediator implements MessageStoreMediator,
 		ChannelInfoImpl channelInfo = new ChannelInfoImpl(docBuilder.getAccountName());
 		channelInfo.setClientId(docBuilder.getClientId());
 		channelInfo.setChannel(docBuilder.getChannel());
-		channelInfo.setLastMessageId(docBuilder.getMessageId());
-		channelInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+        channelInfo.setMessageId(docBuilder.getMessageId());
+        channelInfo.setMessageTimestamp(docBuilder.getTimestamp());
 		channelInfo.setId(new StorableIdImpl(ChannelInfoXContentBuilder.getOrDeriveId(null, channelInfo)));
 		this.channelInfoStoreFacade.upstore(scopeId, channelInfo);
 		
@@ -150,8 +150,8 @@ public class DatastoreMediator implements MessageStoreMediator,
 			metricInfo.setChannel(docBuilder.getChannel());
 			metricInfo.setName(entry.getKey());
 			metricInfo.setType(EsUtils.getEsTypeFromValue(entry.getValue()));
-			metricInfo.setLastMessageId(docBuilder.getMessageId());
-			metricInfo.setLastMessageTimestamp(docBuilder.getTimestamp());
+            metricInfo.setMessageId(docBuilder.getMessageId());
+            metricInfo.setMessageTimestamp(docBuilder.getTimestamp());
 			metricInfo.setValue(entry.getValue());
 			metricInfo.setId(new StorableIdImpl(MetricInfoXContentBuilder.getOrDeriveId(null, metricInfo)));
 			messageMetrics[i++] = metricInfo;
@@ -170,7 +170,7 @@ public class DatastoreMediator implements MessageStoreMediator,
 				   EsConfigurationException, 
 				   EsClientUnavailableException 
 	{
-		this.messageStoreFacade.delete(scopeId, clientInfo.getLastMessageId());
+        this.messageStoreFacade.delete(scopeId, clientInfo.getMessageId());
 	}
 	
 	/*

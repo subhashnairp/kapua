@@ -37,10 +37,10 @@ public class ClientInfoObjectBuilder {
 		
 		this.clientInfo = new ClientInfoImpl(account, new StorableIdImpl(idStr));
 		this.clientInfo.setClientId(clientId);
-        this.clientInfo.setLastMessageId(new StorableIdImpl(messageId));
+        this.clientInfo.setMessageId(new StorableIdImpl(messageId));
 
     	Date timestamp = (Date) EsUtils.convertToKapuaObject("date", timestampStr);
-		this.clientInfo.setLastMessageTimestamp(timestamp);
+        this.clientInfo.setMessageTimestamp(timestamp);
 
         return this;
 	}

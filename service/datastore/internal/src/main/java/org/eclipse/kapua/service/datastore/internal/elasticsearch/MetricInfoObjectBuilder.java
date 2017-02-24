@@ -19,12 +19,8 @@ import org.eclipse.kapua.service.datastore.internal.model.StorableIdImpl;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MetricInfoObjectBuilder {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetricInfoObjectBuilder.class);
 
 	private MetricInfo metricInfo;
 	
@@ -46,13 +42,13 @@ public class MetricInfoObjectBuilder {
         MetricInfoImpl finalMetricInfo = new MetricInfoImpl(account, new StorableIdImpl(id));
 		finalMetricInfo.setClientId(clientId);
 		finalMetricInfo.setChannel(channel);
-		finalMetricInfo.setLastMessageId(new StorableIdImpl(lastMsgId));
+        finalMetricInfo.setMessageId(new StorableIdImpl(lastMsgId));
 
 		String metricName = EsUtils.restoreMetricName(name);
 		finalMetricInfo.setName(metricName);
 
 		Date timestamp = (Date)EsUtils.convertToKapuaObject("date", lastMsgTimestamp);
-		finalMetricInfo.setLastMessageTimestamp(timestamp);
+        finalMetricInfo.setMessageTimestamp(timestamp);
 
         if (EsUtils.ES_TYPE_STRING.equals(type)) {
             finalMetricInfo.setType(EsUtils.convertToKapuaType(type));

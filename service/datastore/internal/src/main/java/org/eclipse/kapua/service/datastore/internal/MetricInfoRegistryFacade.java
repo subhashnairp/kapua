@@ -71,7 +71,7 @@ public class MetricInfoRegistryFacade
 		// Argument Validation
 		ArgumentValidator.notNull(scopeId, "scopeId");
 		ArgumentValidator.notNull(metricInfo, "metricInfoCreator");
-		ArgumentValidator.notNull(metricInfo.getLastMessageTimestamp(), "metricInfoCreator.lastMessageTimestamp");
+        ArgumentValidator.notNull(metricInfo.getMessageTimestamp(), "metricInfoCreator.messageTimestamp");
         
 		String metricInfoId = MetricInfoXContentBuilder.getOrDeriveId(metricInfo.getId(), metricInfo);
 
@@ -88,7 +88,7 @@ public class MetricInfoRegistryFacade
 					UpdateResponse response = null;
 					try 
 					{
-						Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getLastMessageTimestamp().getTime());
+                        Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getMessageTimestamp().getTime());
 						String kapuaIndexName = metadata.getKapuaIndexName();
 
 						response = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
@@ -132,7 +132,7 @@ public class MetricInfoRegistryFacade
 			if (DatastoreCacheManager.getInstance().getMetricsCache().get(metricInfoId))
 				continue;
 
-			Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getLastMessageTimestamp().getTime());
+            Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getMessageTimestamp().getTime());
 			String kapuaIndexName = metadata.getKapuaIndexName();
 
 			EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName);

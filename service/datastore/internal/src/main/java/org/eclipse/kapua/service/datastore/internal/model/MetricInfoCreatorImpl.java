@@ -21,8 +21,8 @@ public class MetricInfoCreatorImpl implements MetricInfoCreator
 	private String account;
 	private String clientId;
 	private String channel;
-	private StorableId lastMessageId;
-	private Date lastMessageTimestamp;
+    private StorableId messageId;
+    private Date       messageTimestamp;
 	private String name;
 	private String type;
 	private Object value;
@@ -58,13 +58,15 @@ public class MetricInfoCreatorImpl implements MetricInfoCreator
 	}
 
 	@Override
-	public StorableId getLastMessageId() {
-		return lastMessageId;
+    public StorableId getMessageId()
+    {
+        return messageId;
 	}
 
 	@Override
-	public void setLastMessageId(StorableId lastMessageId) {
-		this.lastMessageId = lastMessageId;
+    public void setMessageId(StorableId messageId)
+    {
+        this.messageId = messageId;
 	}
 
 	@Override
@@ -97,12 +99,14 @@ public class MetricInfoCreatorImpl implements MetricInfoCreator
 	}
 
 	@Override
-	public Date getLastMessageTimestamp() {
-		return lastMessageTimestamp;
+    public Date getMessageTimestamp()
+    {
+        return messageTimestamp;
 	}
 
 	@Override
-	public void setLastMessageTimestamp(Date lastMessageTimestamp) {
-		this.lastMessageTimestamp = lastMessageTimestamp;
+    public void setMessageTimestamp(Date messageTimestamp)
+    {
+        this.messageTimestamp = messageTimestamp;
 	}
 }

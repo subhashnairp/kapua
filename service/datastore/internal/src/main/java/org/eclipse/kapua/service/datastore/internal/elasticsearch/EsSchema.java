@@ -70,7 +70,7 @@ public class EsSchema
     public final static String  MESSAGE_POS_SATELLITES_FULL     = "position.satellites";
     public final static String  MESSAGE_POS_STATUS              = "status";
     public final static String  MESSAGE_POS_STATUS_FULL         = "position.status";
-    public final static String  MESSAGE_METRICS                 = "metrics";
+    public final static String MESSAGE_METRICS             = "metrics";
     public final static String  MESSAGE_BODY                    = "body";
 
     public final static String  CHANNEL_TYPE_NAME               = "channel";

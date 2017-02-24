@@ -34,7 +34,7 @@ public enum MessageField implements StorableField
     POSITION_TIMESTAMP(EsSchema.MESSAGE_POS_TIMESTAMP_FULL),
     POSITION_SATELLITES(EsSchema.MESSAGE_POS_SATELLITES_FULL),
     POSITION_STATUS(EsSchema.MESSAGE_POS_STATUS_FULL),
-    //METRICS(EsSchema.MESSAGE_MTR),
+    METRICS(EsSchema.MESSAGE_METRICS),
     BODY(EsSchema.MESSAGE_BODY);
     
     private String field;
