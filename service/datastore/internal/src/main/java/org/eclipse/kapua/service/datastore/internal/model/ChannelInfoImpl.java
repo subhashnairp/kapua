@@ -16,33 +16,55 @@ import java.util.Date;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 
+/**
+ * Channel information schema implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ChannelInfoImpl implements ChannelInfo
 {
     private StorableId id;
-    private String account;
-    private String clientId;
+    private String     account;
+    private String     clientId;
     private StorableId msgId;
     private Date       msgTimestamp;
-    private String channel;
+    private String     channel;
     private Date       lastMsgTimestamp;
 
+    /**
+     * Construct a channel information for the given scope
+     * 
+     * @param scope
+     */
     public ChannelInfoImpl(String scope)
     {
-        this.account= scope;
+        this.account = scope;
     }
 
+    /**
+     * Construct a channel information for the given scope and storable identifier
+     * 
+     * @param scope
+     * @param id
+     */
     public ChannelInfoImpl(String scope, StorableId id)
     {
         this(scope);
         this.id = id;
     }
-    
+
     @Override
     public StorableId getId()
     {
         return id;
     }
 
+    /**
+     * Set the storable identifier
+     * 
+     * @param id
+     */
     public void setId(StorableId id)
     {
         this.id = id;
@@ -57,20 +79,26 @@ public class ChannelInfoImpl implements ChannelInfo
     @Override
     public String getClientId()
     {
-    	return clientId;
+        return clientId;
     }
-    
+
+    /**
+     * Set the client identifier
+     * 
+     * @param clientId
+     */
     public void setClientId(String clientId)
     {
-    	this.clientId = clientId;
+        this.clientId = clientId;
     }
-    
+
     @Override
     public StorableId getMessageId()
     {
         return this.msgId;
     }
 
+    @Override
     public void setMessageId(StorableId msgId)
     {
         this.msgId = msgId;
@@ -82,6 +110,7 @@ public class ChannelInfoImpl implements ChannelInfo
         return msgTimestamp;
     }
 
+    @Override
     public void setMessageTimestamp(Date msgTimestamp)
     {
         this.msgTimestamp = msgTimestamp;
@@ -92,7 +121,8 @@ public class ChannelInfoImpl implements ChannelInfo
     {
         return channel;
     }
-    
+
+    @Override
     public void setChannel(String channel)
     {
         this.channel = channel;
@@ -104,6 +134,7 @@ public class ChannelInfoImpl implements ChannelInfo
         return lastMsgTimestamp;
     }
 
+    @Override
     public void setLastMessageTimestamp(Date lastMsgTimestamp)
     {
         this.lastMsgTimestamp = lastMsgTimestamp;

@@ -32,18 +32,17 @@ import org.elasticsearch.search.sort.SortOrder;
 
 public class EsTypeDAO
 {
-	private static final String CLIENT_UNDEFINED_MSG = "ES client must be not null";
-	private static final String INVALID_DOCUMENT_ID_MSG = "Document id must be not empty %s";
-	
-    private Client        client;
+    private static final String CLIENT_UNDEFINED_MSG    = "ES client must be not null";
+    private static final String INVALID_DOCUMENT_ID_MSG = "Document id must be not empty %s";
+
+    private Client client;
 
     private String        indexName;
     private String        typeName;
     private EsDaoListener eventListener;
 
     protected EsTypeDAO()
-    {
-    }
+    {}
 
     protected Client getClient()
     {
@@ -96,9 +95,9 @@ public class EsTypeDAO
 
     public String insert(XContentBuilder esClient)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         long timeout = EsUtils.getQueryTimeout();
 
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName).source(esClient);
@@ -108,9 +107,9 @@ public class EsTypeDAO
 
     public UpdateResponse update(String id, XContentBuilder esClient)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         long timeout = EsUtils.getQueryTimeout();
 
         UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
@@ -121,9 +120,9 @@ public class EsTypeDAO
 
     public UpdateRequest getUpsertRequest(String id, Map<String, Object> esClient)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
         UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         updRequest.upsert(idxRequest);
@@ -132,9 +131,9 @@ public class EsTypeDAO
 
     public UpdateRequest getUpsertRequest(String id, XContentBuilder esClient)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
         UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
         updRequest.upsert(idxRequest);
@@ -143,9 +142,9 @@ public class EsTypeDAO
 
     public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         long timeout = EsUtils.getQueryTimeout();
 
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
@@ -156,9 +155,9 @@ public class EsTypeDAO
 
     public UpdateResponse upsert(String id, Map<String, Object> esMessage)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-    	
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+
         long timeout = EsUtils.getQueryTimeout();
 
         IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esMessage);
@@ -214,8 +213,8 @@ public class EsTypeDAO
 
     public BulkResponse bulk(BulkRequest bulkRequest)
     {
-    	if (this.client == null)
-    		throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
+        if (this.client == null)
+            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
 
         long timeout = EsUtils.getQueryTimeout();
 

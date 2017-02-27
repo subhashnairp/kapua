@@ -11,16 +11,36 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsConfigurationException extends EsDatastoreException {
+/**
+ * Invalid configuration exception.<br>
+ * This exception is raised if some configuration parameter is not valid
+ * 
+ * @since 1.0
+ *
+ */
+public class EsConfigurationException extends EsDatastoreException
+{
 
-	private static final long serialVersionUID = 5211237236391747299L;
+    private static final long serialVersionUID = 5211237236391747299L;
 
-	public EsConfigurationException(String message) {
-		super(message);
-	}
-    
-    public EsConfigurationException(Exception e) {
-    	super(e);
+    /**
+     * Construct the exception with the provided message
+     * 
+     * @param message
+     */
+    public EsConfigurationException(String message)
+    {
+        super(message);
+    }
+
+    /**
+     * Construct the exception with the provided exception
+     * 
+     * @param t
+     */
+    public EsConfigurationException(Exception e)
+    {
+        super(e);
     }
 
 }

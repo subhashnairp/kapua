@@ -57,50 +57,67 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MessageStoreFacade {
+/**
+ * Message store facade
+ * 
+ * @since 1.0
+ *
+ */
+public final class MessageStoreFacade
+{
 
-	private static final Logger logger = LoggerFactory.getLogger(MessageStoreFacade.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageStoreFacade.class);
 
-	private final MessageStoreMediator mediator;
-	private final ConfigurationProvider configProvider;
+    private final MessageStoreMediator  mediator;
+    private final ConfigurationProvider configProvider;
 
-	public MessageStoreFacade(ConfigurationProvider confProvider, MessageStoreMediator mediator) 
-	{
-		this.configProvider = confProvider;
-		this.mediator = mediator;
-	}
-	
+    public MessageStoreFacade(ConfigurationProvider confProvider, MessageStoreMediator mediator)
+    {
+        this.configProvider = confProvider;
+        this.mediator = mediator;
+    }
+
+    /**
+     * Store a message
+     * 
+     * @param message
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     * @throws EsDocumentBuilderException
+     */
     public StorableId store(KapuaMessage<?, ?> message)
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsClientUnavailableException, 
-				   EsDocumentBuilderException 
-	{
-		//
-		// Argument Validation
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException,
+        EsDocumentBuilderException
+    {
+        //
+        // Argument Validation
         ArgumentValidator.notNull(message.getScopeId(), "scopeId");
-		ArgumentValidator.notNull(message, "message");
+        ArgumentValidator.notNull(message, "message");
         ArgumentValidator.notNull(message.getReceivedOn(), "receivedOn");
-		
-		// Collect context data
+
+        // Collect context data
         MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(message.getScopeId());
         MessageInfo accountInfo = this.configProvider.getInfo(message.getScopeId());
-		
-		// Define data TTL
+
+        // Define data TTL
         long ttlSecs = accountServicePlan.getDataTimeToLiveMilliseconds();
-		if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == MessageStoreConfiguration.DISABLED) {
+        if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == MessageStoreConfiguration.DISABLED) {
             String msg = String.format("Message Store not enabled for account %s", accountInfo.getAccount().getName());
-			logger.debug(msg);
-			throw new EsConfigurationException(msg);
-		}
+            logger.debug(msg);
+            throw new EsConfigurationException(msg);
+        }
 
-		Date capturedOn = message.getCapturedOn();
-		long currentDate = KapuaDateUtils.getKapuaSysDate().getTime();
+        Date capturedOn = message.getCapturedOn();
+        long currentDate = KapuaDateUtils.getKapuaSysDate().getTime();
 
-		// Overwrite timestamp if necessary
-		// Use the account service plan to determine whether we will give
-		// precede to the device time
-		long indexedOn = currentDate;
+        // Overwrite timestamp if necessary
+        // Use the account service plan to determine whether we will give
+        // precede to the device time
+        long indexedOn = currentDate;
         if (DataIndexBy.DEVICE_TIMESTAMP.equals(accountServicePlan.getDataIndexBy())) {
             if (capturedOn != null) {
                 indexedOn = capturedOn.getTime();
@@ -110,126 +127,130 @@ public final class MessageStoreFacade {
             }
         }
 
-		// Extract schema metadata
+        // Extract schema metadata
         EsSchema.Metadata schemaMetadata = this.mediator.getMetadata(message.getScopeId(), indexedOn);
 
-		Date indexedOnDt = new Date(indexedOn);
+        Date indexedOnDt = new Date(indexedOn);
 
-		// Parse document
+        // Parse document
         MessageInfo messageInfo = this.configProvider.getInfo(message.getScopeId());
-		MessageXContentBuilder docBuilder = new MessageXContentBuilder();
+        MessageXContentBuilder docBuilder = new MessageXContentBuilder();
         docBuilder.build(messageInfo.getAccount().getName(), message, indexedOnDt, message.getReceivedOn());
 
-		// Possibly update the schema with new metric mappings
-		Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
+        // Possibly update the schema with new metric mappings
+        Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
         this.mediator.onUpdatedMappings(message.getScopeId(), indexedOn, esMetrics);
 
-		String indexName = schemaMetadata.getDataIndexName();
+        String indexName = schemaMetadata.getDataIndexName();
 
-		// Save message (the big one)
-		// TODO check response
-		Client client = ElasticsearchClient.getInstance();
-		EsMessageDAO.client(client)
-					.index(indexName)
-					.upsert(docBuilder.getMessageId().toString(), docBuilder.getBuilder());
-		
+        // Save message (the big one)
+        // TODO check response
+        Client client = ElasticsearchClient.getInstance();
+        EsMessageDAO.client(client)
+                    .index(indexName)
+                    .upsert(docBuilder.getMessageId().toString(), docBuilder.getBuilder());
+
         this.mediator.onAfterMessageStore(message.getScopeId(), docBuilder, message);
-		
-		return docBuilder.getMessageId();
-	}
 
-	public void delete(KapuaId scopeId, StorableId id) 
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsClientUnavailableException 
-	{
-		//
-		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(id, "id");
+        return docBuilder.getMessageId();
+    }
 
-		//
-		// Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+    /**
+     * Delete message by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     */
+    public void delete(KapuaId scopeId, StorableId id)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException
+    {
+        //
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(id, "id");
+
+        //
+        // Do the find
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
-		if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
-			logger.debug("Storage not enabled for account {}, return", scopeId);
-			return;
-		}
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
+            logger.debug("Storage not enabled for account {}, return", scopeId);
+            return;
+        }
 
-		String dataIndexName = EsSchema.getDataIndexName(scopeId);
-		EsMessageDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
-					.deleteById(id.toString());
-	}
+        String dataIndexName = EsSchema.getDataIndexName(scopeId);
+        EsMessageDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+                    .deleteById(id.toString());
+    }
 
-	public DatastoreMessage find(KapuaId scopeId, StorableId id, StorableFetchStyle fetchStyle) 
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsClientUnavailableException, 
-				   EsQueryConversionException, EsObjectBuilderException 
-	{
-		//
-		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(id, "id");
-		ArgumentValidator.notNull(fetchStyle, "fetchStyle");
+    /**
+     * Find message by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @param fetchStyle
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public DatastoreMessage find(KapuaId scopeId, StorableId id, StorableFetchStyle fetchStyle)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException,
+        EsQueryConversionException, EsObjectBuilderException
+    {
+        //
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(id, "id");
+        ArgumentValidator.notNull(fetchStyle, "fetchStyle");
 
-		DatastoreMessage message = null;
-	
-		// Query by Id
-		IdsPredicateImpl idsPredicate = new IdsPredicateImpl(EsSchema.MESSAGE_TYPE_NAME);
-		idsPredicate.addValue(id);
-		MessageQueryImpl idsQuery = new MessageQueryImpl();
-		idsQuery.setPredicate(idsPredicate);
-		
-		MessageListResult result = null;
-		String dataIndexName = EsSchema.getDataIndexName(scopeId);
-		result = EsMessageDAO.client(ElasticsearchClient.getInstance())
-							 .index(dataIndexName)
-							 .query(idsQuery);
+        DatastoreMessage message = null;
 
-		if (result != null && result.size() > 0)
-			message = result.get(0);
+        // Query by Id
+        IdsPredicateImpl idsPredicate = new IdsPredicateImpl(EsSchema.MESSAGE_TYPE_NAME);
+        idsPredicate.addValue(id);
+        MessageQueryImpl idsQuery = new MessageQueryImpl();
+        idsQuery.setPredicate(idsPredicate);
 
-		return message;
-	}
+        MessageListResult result = null;
+        String dataIndexName = EsSchema.getDataIndexName(scopeId);
+        result = EsMessageDAO.client(ElasticsearchClient.getInstance())
+                             .index(dataIndexName)
+                             .query(idsQuery);
 
-	public MessageListResult query(KapuaId scopeId, MessageQuery query) 
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsClientUnavailableException, 
-				   EsQueryConversionException, EsObjectBuilderException 
-	{
-		//
-		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(query, "query");
+        if (result != null && result.size() > 0)
+            message = result.get(0);
 
-		//
-		// Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
-        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
+        return message;
+    }
 
-		if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
-			logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
-			return new MessageListResultImpl();
-		}
-
-		String dataIndexName = EsSchema.getDataIndexName(scopeId);
-		MessageListResult result = null;
-		result = EsMessageDAO.client(ElasticsearchClient.getInstance())
-							 .index(dataIndexName)
-							 .query(query);
-
-		return result;
-	}
-	
-    public long count(KapuaId scopeId, MessageQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException,
-    			   EsQueryConversionException, 
-    			   EsClientUnavailableException
+    /**
+     * Find messages matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public MessageListResult query(KapuaId scopeId, MessageQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException,
+        EsQueryConversionException, EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -238,7 +259,48 @@ public final class MessageStoreFacade {
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
+
+        if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
+            logger.debug("Storage not enabled for account {}, returning empty result", scopeId);
+            return new MessageListResultImpl();
+        }
+
+        String dataIndexName = EsSchema.getDataIndexName(scopeId);
+        MessageListResult result = null;
+        result = EsMessageDAO.client(ElasticsearchClient.getInstance())
+                             .index(dataIndexName)
+                             .query(query);
+
+        return result;
+    }
+
+    /**
+     * Get messages count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
+    public long count(KapuaId scopeId, MessageQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
+    {
+        //
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(query, "query");
+
+        //
+        // Do the find
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -254,12 +316,22 @@ public final class MessageStoreFacade {
 
         return result;
     }
-    
-    public void delete(KapuaId scopeId, MessageQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException, 
-    			   EsQueryConversionException, 
-    			   EsClientUnavailableException
+
+    /**
+     * Delete messages count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
+    public void delete(KapuaId scopeId, MessageQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
     {
         //
         // Argument Validation
@@ -268,7 +340,7 @@ public final class MessageStoreFacade {
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -284,144 +356,145 @@ public final class MessageStoreFacade {
         return;
     }
 
-    //TODO cache will not be reset from the client code it should be automatically reset
+    // TODO cache will not be reset from the client code it should be automatically reset
     // after some time.
-	private void resetCache(KapuaId scopeId, KapuaId deviceId, String channel, String clientId) 
-			throws Exception 
-	{
+    private void resetCache(KapuaId scopeId, KapuaId deviceId, String channel, String clientId)
+        throws Exception
+    {
 
-		boolean isAnyClientId;
-		boolean isClientToDelete = false;
-		String semTopic;
+        boolean isAnyClientId;
+        boolean isClientToDelete = false;
+        String semTopic;
 
-		if (channel != null) {
+        if (channel != null) {
 
-			// determine if we should delete an client if topic = account/clientId/#
-			isAnyClientId = DatastoreChannel.isAnyClientId(clientId);
-			semTopic = channel;
+            // determine if we should delete an client if topic = account/clientId/#
+            isAnyClientId = DatastoreChannel.isAnyClientId(clientId);
+            semTopic = channel;
 
-			if (semTopic.isEmpty() && !isAnyClientId)
-				isClientToDelete = true;
-		} else {
-			isAnyClientId = true;
-			semTopic = "";
-			isClientToDelete = true;
-		}
+            if (semTopic.isEmpty() && !isAnyClientId)
+                isClientToDelete = true;
+        }
+        else {
+            isAnyClientId = true;
+            semTopic = "";
+            isClientToDelete = true;
+        }
 
-		// Find all topics
-		String dataIndexName = EsSchema.getDataIndexName(scopeId);
+        // Find all topics
+        String dataIndexName = EsSchema.getDataIndexName(scopeId);
 
-		int pageSize = 1000;
-		int offset = 0;
-		long totalHits = 1;
+        int pageSize = 1000;
+        int offset = 0;
+        long totalHits = 1;
 
-		MetricInfoQueryImpl metricQuery = new MetricInfoQueryImpl();
-		metricQuery.setLimit(pageSize + 1);
-		metricQuery.setOffset(offset);
+        MetricInfoQueryImpl metricQuery = new MetricInfoQueryImpl();
+        metricQuery.setLimit(pageSize + 1);
+        metricQuery.setOffset(offset);
 
-		ChannelMatchPredicateImpl channelPredicate = new ChannelMatchPredicateImpl();
-		channelPredicate.setExpression(channel);
-		metricQuery.setPredicate(channelPredicate);
+        ChannelMatchPredicateImpl channelPredicate = new ChannelMatchPredicateImpl();
+        channelPredicate.setExpression(channel);
+        metricQuery.setPredicate(channelPredicate);
 
-		// Remove metrics
-		while (totalHits > 0) {
-			MetricInfoListResult metrics = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
-					.index(dataIndexName).query(metricQuery);
+        // Remove metrics
+        while (totalHits > 0) {
+            MetricInfoListResult metrics = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+                                                          .index(dataIndexName).query(metricQuery);
 
-			totalHits = metrics.size();
-			LocalCache<String, Boolean> metricsCache = DatastoreCacheManager.getInstance().getMetricsCache();
-			long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
+            totalHits = metrics.size();
+            LocalCache<String, Boolean> metricsCache = DatastoreCacheManager.getInstance().getMetricsCache();
+            long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
 
-			for (int i = 0; i < toBeProcessed; i++) {
-				String id = metrics.get(i).getId().toString();
-				if (metricsCache.get(id))
-					metricsCache.remove(id);
-			}
+            for (int i = 0; i < toBeProcessed; i++) {
+                String id = metrics.get(i).getId().toString();
+                if (metricsCache.get(id))
+                    metricsCache.remove(id);
+            }
 
-			if (totalHits > pageSize)
-				offset += (pageSize + 1);
-		}
+            if (totalHits > pageSize)
+                offset += (pageSize + 1);
+        }
 
-		logger.debug(String.format("Removed cached channel metrics for [%s]", channel));
+        logger.debug(String.format("Removed cached channel metrics for [%s]", channel));
 
-		EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
-				.deleteByQuery(metricQuery);
+        EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+                       .deleteByQuery(metricQuery);
 
-		logger.debug(String.format("Removed channel metrics for [%s]", channel));
-		//
+        logger.debug(String.format("Removed channel metrics for [%s]", channel));
+        //
 
-		ChannelInfoQueryImpl channelQuery = new ChannelInfoQueryImpl();
-		channelQuery.setLimit(pageSize + 1);
-		channelQuery.setOffset(offset);
+        ChannelInfoQueryImpl channelQuery = new ChannelInfoQueryImpl();
+        channelQuery.setLimit(pageSize + 1);
+        channelQuery.setOffset(offset);
 
-		channelPredicate = new ChannelMatchPredicateImpl();
-		channelPredicate.setExpression(channel);
-		channelQuery.setPredicate(channelPredicate);
+        channelPredicate = new ChannelMatchPredicateImpl();
+        channelPredicate.setExpression(channel);
+        channelQuery.setPredicate(channelPredicate);
 
-		// Remove channel
-		offset = 0;
-		totalHits = 1;
-		while (totalHits > 0) {
-			ChannelInfoListResult channels = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-					.index(dataIndexName).query(channelQuery);
+        // Remove channel
+        offset = 0;
+        totalHits = 1;
+        while (totalHits > 0) {
+            ChannelInfoListResult channels = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+                                                             .index(dataIndexName).query(channelQuery);
 
-			totalHits = channels.size();
-			LocalCache<String, Boolean> channelsCache = DatastoreCacheManager.getInstance().getChannelsCache();
-			long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
+            totalHits = channels.size();
+            LocalCache<String, Boolean> channelsCache = DatastoreCacheManager.getInstance().getChannelsCache();
+            long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
 
-			for (int i = 0; i < toBeProcessed; i++) {
-				String id = channels.get(0).getId().toString();
-				if (channelsCache.get(id))
-					channelsCache.remove(id);
-			}
-			if (totalHits > pageSize)
-				offset += (pageSize + 1);
-		}
+            for (int i = 0; i < toBeProcessed; i++) {
+                String id = channels.get(0).getId().toString();
+                if (channelsCache.get(id))
+                    channelsCache.remove(id);
+            }
+            if (totalHits > pageSize)
+                offset += (pageSize + 1);
+        }
 
-		logger.debug(String.format("Removed cached channels for [%s]", channel));
+        logger.debug(String.format("Removed cached channels for [%s]", channel));
 
-		EsChannelInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
-				.deleteByQuery(channelQuery);
+        EsChannelInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+                        .deleteByQuery(channelQuery);
 
-		logger.debug(String.format("Removed channels for [%s]", channel));
-		//
+        logger.debug(String.format("Removed channels for [%s]", channel));
+        //
 
-		// Remove client
-		if (isClientToDelete) {
+        // Remove client
+        if (isClientToDelete) {
 
-			ClientInfoQueryImpl clientInfoQuery = new ClientInfoQueryImpl();
-			clientInfoQuery.setLimit(pageSize + 1);
-			clientInfoQuery.setOffset(offset);
+            ClientInfoQueryImpl clientInfoQuery = new ClientInfoQueryImpl();
+            clientInfoQuery.setLimit(pageSize + 1);
+            clientInfoQuery.setOffset(offset);
 
-			channelPredicate = new ChannelMatchPredicateImpl();
-			channelPredicate.setExpression(channel);
-			clientInfoQuery.setPredicate(channelPredicate);
+            channelPredicate = new ChannelMatchPredicateImpl();
+            channelPredicate.setExpression(channel);
+            clientInfoQuery.setPredicate(channelPredicate);
 
-			offset = 0;
-			totalHits = 1;
-			while (totalHits > 0) {
-				ClientInfoListResult clients = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
-						.index(dataIndexName).query(clientInfoQuery);
+            offset = 0;
+            totalHits = 1;
+            while (totalHits > 0) {
+                ClientInfoListResult clients = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+                                                              .index(dataIndexName).query(clientInfoQuery);
 
-				totalHits = clients.size();
-				LocalCache<String, Boolean> clientsCache = DatastoreCacheManager.getInstance().getClientsCache();
-				long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
+                totalHits = clients.size();
+                LocalCache<String, Boolean> clientsCache = DatastoreCacheManager.getInstance().getClientsCache();
+                long toBeProcessed = totalHits > pageSize ? pageSize : totalHits;
 
-				for (int i = 0; i < toBeProcessed; i++) {
-					String id = clients.get(i).getId().toString();
-					if (clientsCache.get(id))
-						clientsCache.remove(id);
-				}
-				if (totalHits > pageSize)
-					offset += (pageSize + 1);
-			}
+                for (int i = 0; i < toBeProcessed; i++) {
+                    String id = clients.get(i).getId().toString();
+                    if (clientsCache.get(id))
+                        clientsCache.remove(id);
+                }
+                if (totalHits > pageSize)
+                    offset += (pageSize + 1);
+            }
 
-			logger.debug(String.format("Removed cached clients for [%s]", channel));
+            logger.debug(String.format("Removed cached clients for [%s]", channel));
 
-			EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
-					.deleteByQuery(clientInfoQuery);
+            EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+                           .deleteByQuery(clientInfoQuery);
 
-			logger.debug(String.format("Removed clients for [%s]", channel));
-		}
-	}
+            logger.debug(String.format("Removed clients for [%s]", channel));
+        }
+    }
 }

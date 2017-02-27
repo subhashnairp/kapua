@@ -62,11 +62,11 @@ public class MessageQueryConverter extends AbstractStorableQueryConverter<Datast
     @Override
     protected String[] getFields()
     {
-        return new String[] {MessageField.ACCOUNT_ID.field(),
-        					 MessageField.ACCOUNT.field(),
-        					 MessageField.DEVICE_ID.field(),
-                             MessageField.CLIENT_ID.field(),
-                             MessageField.CHANNEL.field(),
-                             MessageField.TIMESTAMP.field()};
+        return new String[] { MessageField.ACCOUNT_ID.field(),
+                              MessageField.ACCOUNT.field(),
+                              MessageField.DEVICE_ID.field(),
+                              MessageField.CLIENT_ID.field(),
+                              MessageField.CHANNEL.field(),
+                              MessageField.TIMESTAMP.field() };
     }
 }

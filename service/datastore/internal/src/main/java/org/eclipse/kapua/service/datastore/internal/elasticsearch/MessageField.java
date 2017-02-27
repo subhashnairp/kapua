@@ -36,14 +36,14 @@ public enum MessageField implements StorableField
     POSITION_STATUS(EsSchema.MESSAGE_POS_STATUS_FULL),
     METRICS(EsSchema.MESSAGE_METRICS),
     BODY(EsSchema.MESSAGE_BODY);
-    
+
     private String field;
-    
+
     private MessageField(String name)
     {
-        this.field= name;
+        this.field = name;
     }
-    
+
     @Override
     public String field()
     {

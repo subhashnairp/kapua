@@ -11,8 +11,20 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Query sort behavior
+ * 
+ * @since 1.0
+ *
+ */
 public enum SortDirection
 {
+    /**
+     * Ascending
+     */
     ASC,
+    /**
+     * Descending
+     */
     DESC;
 }

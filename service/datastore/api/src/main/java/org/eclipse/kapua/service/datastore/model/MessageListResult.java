@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model;
 
+/**
+ * Message query result list definition.<br>
+ * This object contains the list of the message objects retrieved by the search service.
+ * 
+ * @since 1.0
+ *
+ */
 public interface MessageListResult extends StorableListResult<DatastoreMessage>
 {
 

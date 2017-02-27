@@ -13,16 +13,34 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.account.Account;
 
-public class MessageInfo 
+/**
+ * Message information object.<br>
+ * It is used as a container for the user dependent information during the store process (typically {@link Account} informations)
+ * 
+ * @since 1.0
+ *
+ */
+public class MessageInfo
 {
     private Account account;
-    
+
+    /**
+     * Construct a new message information using the given account
+     * 
+     * @param account
+     */
     public MessageInfo(Account account)
     {
         this.account = account;
     }
-    
-    public Account getAccount() {
+
+    /**
+     * Get the account
+     * 
+     * @return
+     */
+    public Account getAccount()
+    {
         return this.account;
     }
 }

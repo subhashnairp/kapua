@@ -23,8 +23,8 @@ import org.elasticsearch.search.sort.SortOrder;
 
 public abstract class AbstractStorableQueryConverter<S extends Storable, Q extends StorableQuery<S>>
 {
-    public SearchRequestBuilder toCountRequestBuilder(String indices, String type, Q query) 
-    		throws EsQueryConversionException, EsClientUnavailableException
+    public SearchRequestBuilder toCountRequestBuilder(String indices, String type, Q query)
+        throws EsQueryConversionException, EsClientUnavailableException
     {
         if (query == null)
             throw new NullPointerException(String.format("Query parameter is undefined"));
@@ -34,16 +34,15 @@ public abstract class AbstractStorableQueryConverter<S extends Storable, Q exten
         searchReqBuilder.setTypes(type)
                         .setQuery(pc.toElasticsearchQuery(query.getPredicate()))
                         .setSize(0);
-        
+
         return searchReqBuilder;
     }
 
-    public SearchRequestBuilder toSearchRequestBuilder(String indices, String type, Q query) 
-    		throws EsQueryConversionException, EsClientUnavailableException 
+    public SearchRequestBuilder toSearchRequestBuilder(String indices, String type, Q query)
+        throws EsQueryConversionException, EsClientUnavailableException
     {
         if (query == null)
             throw new NullPointerException(String.format("Query parameter is undefined"));
-
 
         PredicateConverter pc = new PredicateConverter();
         SearchRequestBuilder searchReqBuilder = ElasticsearchClient.getInstance().prepareSearch(indices);
@@ -66,21 +65,21 @@ public abstract class AbstractStorableQueryConverter<S extends Storable, Q exten
         }
         searchReqBuilder.setFrom(query.getOffset())
                         .setSize(query.getLimit());
-        
+
         String[] includes = this.getIncludes(query.getFetchStyle());
         String[] excludes = this.getExcludes(query.getFetchStyle());
         if (includes != null || excludes != null)
             searchReqBuilder.setFetchSource(includes, excludes);
-        
+
         if (this.getFields() != null && this.getFields().length > 0)
             searchReqBuilder.addFields(this.getFields());
-        
+
         return searchReqBuilder;
     }
-    
+
     protected abstract String[] getIncludes(StorableFetchStyle fetchStyle);
-    
+
     protected abstract String[] getExcludes(StorableFetchStyle fetchStyle);
-    
+
     protected abstract String[] getFields();
 }

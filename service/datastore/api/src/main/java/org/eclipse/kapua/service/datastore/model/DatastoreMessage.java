@@ -31,7 +31,7 @@ public interface DatastoreMessage extends KapuaMessage<KapuaChannel, KapuaPayloa
      * @return
      */
     public StorableId getDatastoreId();
-    
+
     /**
      * Stored message timestamp
      * 

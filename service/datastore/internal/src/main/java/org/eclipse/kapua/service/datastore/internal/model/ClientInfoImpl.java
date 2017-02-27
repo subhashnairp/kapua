@@ -16,20 +16,37 @@ import java.util.Date;
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Client information schema implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ClientInfoImpl implements ClientInfo
 {
     private StorableId id;
-    private String account;
-    private String clientId;
+    private String     account;
+    private String     clientId;
     private Date       messageTimestamp;
     private StorableId messageId;
     private Date       lastMsgTimestamp;
-    
+
+    /**
+     * Construct a client information for the given account
+     * 
+     * @param account
+     */
     public ClientInfoImpl(String account)
     {
         this.account = account;
     }
-   
+
+    /**
+     * Construct a client information for the given account and storable identifier
+     * 
+     * @param account
+     * @param id
+     */
     public ClientInfoImpl(String account, StorableId id)
     {
         this(account);
@@ -41,13 +58,18 @@ public class ClientInfoImpl implements ClientInfo
     {
         return account;
     }
-    
+
     @Override
     public StorableId getId()
     {
         return id;
     }
 
+    /**
+     * Set the storable identifier
+     * 
+     * @param id
+     */
     public void setId(StorableId id)
     {
         this.id = id;
@@ -59,6 +81,7 @@ public class ClientInfoImpl implements ClientInfo
         return clientId;
     }
 
+    @Override
     public void setClientId(String clientId)
     {
         this.clientId = clientId;
@@ -70,6 +93,7 @@ public class ClientInfoImpl implements ClientInfo
         return messageId;
     }
 
+    @Override
     public void setMessageId(StorableId messageId)
     {
         this.messageId = messageId;
@@ -81,6 +105,7 @@ public class ClientInfoImpl implements ClientInfo
         return messageTimestamp;
     }
 
+    @Override
     public void setMessageTimestamp(Date messageTimestamp)
     {
         this.messageTimestamp = messageTimestamp;
@@ -92,6 +117,7 @@ public class ClientInfoImpl implements ClientInfo
         return lastMsgTimestamp;
     }
 
+    @Override
     public void setLastMessageTimestamp(Date lastMsgTimestamp)
     {
         this.lastMsgTimestamp = lastMsgTimestamp;

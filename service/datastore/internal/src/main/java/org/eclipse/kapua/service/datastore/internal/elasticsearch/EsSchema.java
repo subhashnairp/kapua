@@ -39,75 +39,75 @@ public class EsSchema
 
     // TODO move builder methods in a new class to reduce number of lines
     //
-    private static final Logger s_logger                        = LoggerFactory.getLogger(EsSchema.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(EsSchema.class);
 
-    public final static String  MESSAGE_TYPE_NAME               = "message";
-    public final static String  MESSAGE_TIMESTAMP               = "timestamp";
-    public final static String  MESSAGE_RECEIVED_ON             = "received_on";
-    public final static String  MESSAGE_IP_ADDRESS              = "ip_address";
-    public final static String  MESSAGE_ACCOUNT_ID              = "account_id";
-    public final static String  MESSAGE_ACCOUNT                 = "account";
-    public final static String  MESSAGE_DEVICE_ID               = "device_id";
-    public final static String  MESSAGE_CLIENT_ID               = "client_id";
-    public final static String  MESSAGE_CHANNEL               	= "channel";
-    public final static String  MESSAGE_CHANNEL_PARTS           = "channel_parts";
+    public final static String MESSAGE_TYPE_NAME           = "message";
+    public final static String MESSAGE_TIMESTAMP           = "timestamp";
+    public final static String MESSAGE_RECEIVED_ON         = "received_on";
+    public final static String MESSAGE_IP_ADDRESS          = "ip_address";
+    public final static String MESSAGE_ACCOUNT_ID          = "account_id";
+    public final static String MESSAGE_ACCOUNT             = "account";
+    public final static String MESSAGE_DEVICE_ID           = "device_id";
+    public final static String MESSAGE_CLIENT_ID           = "client_id";
+    public final static String MESSAGE_CHANNEL             = "channel";
+    public final static String MESSAGE_CHANNEL_PARTS       = "channel_parts";
     public final static String MESSAGE_CAPTURED_ON         = "captured_on";
     public final static String MESSAGE_SENT_ON             = "sent_on";
-    public final static String  MESSAGE_POSITION                = "position";
-    public final static String  MESSAGE_POS_LOCATION            = "location";
-    public final static String  MESSAGE_POS_LOCATION_FULL       = "position.location";
-    public final static String  MESSAGE_POS_ALT                 = "alt";
-    public final static String  MESSAGE_POS_ALT_FULL            = "position.alt";
-    public final static String  MESSAGE_POS_PRECISION           = "precision";
-    public final static String  MESSAGE_POS_PRECISION_FULL      = "position.precision";
-    public final static String  MESSAGE_POS_HEADING             = "heading";
-    public final static String  MESSAGE_POS_HEADING_FULL        = "position.heading";
-    public final static String  MESSAGE_POS_SPEED               = "speed";
-    public final static String  MESSAGE_POS_SPEED_FULL          = "position.speed";
-    public final static String  MESSAGE_POS_TIMESTAMP           = "timestamp";
-    public final static String  MESSAGE_POS_TIMESTAMP_FULL      = "position.timestamp";
-    public final static String  MESSAGE_POS_SATELLITES          = "satellites";
-    public final static String  MESSAGE_POS_SATELLITES_FULL     = "position.satellites";
-    public final static String  MESSAGE_POS_STATUS              = "status";
-    public final static String  MESSAGE_POS_STATUS_FULL         = "position.status";
+    public final static String MESSAGE_POSITION            = "position";
+    public final static String MESSAGE_POS_LOCATION        = "location";
+    public final static String MESSAGE_POS_LOCATION_FULL   = "position.location";
+    public final static String MESSAGE_POS_ALT             = "alt";
+    public final static String MESSAGE_POS_ALT_FULL        = "position.alt";
+    public final static String MESSAGE_POS_PRECISION       = "precision";
+    public final static String MESSAGE_POS_PRECISION_FULL  = "position.precision";
+    public final static String MESSAGE_POS_HEADING         = "heading";
+    public final static String MESSAGE_POS_HEADING_FULL    = "position.heading";
+    public final static String MESSAGE_POS_SPEED           = "speed";
+    public final static String MESSAGE_POS_SPEED_FULL      = "position.speed";
+    public final static String MESSAGE_POS_TIMESTAMP       = "timestamp";
+    public final static String MESSAGE_POS_TIMESTAMP_FULL  = "position.timestamp";
+    public final static String MESSAGE_POS_SATELLITES      = "satellites";
+    public final static String MESSAGE_POS_SATELLITES_FULL = "position.satellites";
+    public final static String MESSAGE_POS_STATUS          = "status";
+    public final static String MESSAGE_POS_STATUS_FULL     = "position.status";
     public final static String MESSAGE_METRICS             = "metrics";
-    public final static String  MESSAGE_BODY                    = "body";
+    public final static String MESSAGE_BODY                = "body";
 
-    public final static String  CHANNEL_TYPE_NAME               = "channel";
-    public final static String  CHANNEL_NAME                    = "channel";
-    public final static String  CHANNEL_CLIENT_ID               = "client_id";
-    public final static String  CHANNEL_ACCOUNT                 = "account";
-    public final static String  CHANNEL_TIMESTAMP               = "timestamp";
-    public final static String  CHANNEL_MESSAGE_ID              = "message_id";
+    public final static String CHANNEL_TYPE_NAME  = "channel";
+    public final static String CHANNEL_NAME       = "channel";
+    public final static String CHANNEL_CLIENT_ID  = "client_id";
+    public final static String CHANNEL_ACCOUNT    = "account";
+    public final static String CHANNEL_TIMESTAMP  = "timestamp";
+    public final static String CHANNEL_MESSAGE_ID = "message_id";
 
-    public final static String  METRIC_TYPE_NAME            = "metric";
-    public final static String  METRIC_CHANNEL              = "channel";
-    public final static String  METRIC_CLIENT_ID            = "client_id";
-    public final static String  METRIC_ACCOUNT              = "account";
-    public final static String  METRIC_MTR                  = "metric";
-    public final static String  METRIC_MTR_NAME             = "name";
-    public final static String  METRIC_MTR_NAME_FULL        = "metric.name";
-    public final static String  METRIC_MTR_TYPE             = "type";
-    public final static String  METRIC_MTR_TYPE_FULL        = "metric.type";
-    public final static String  METRIC_MTR_VALUE            = "value";
-    public final static String  METRIC_MTR_VALUE_FULL       = "metric.value";
-    public final static String  METRIC_MTR_TIMESTAMP        = "timestamp";
-    public final static String  METRIC_MTR_TIMESTAMP_FULL   = "metric.timestamp";
-    public final static String  METRIC_MTR_MSG_ID           = "message_id";
-    public final static String  METRIC_MTR_MSG_ID_FULL      = "metric.message_id";
+    public final static String METRIC_TYPE_NAME          = "metric";
+    public final static String METRIC_CHANNEL            = "channel";
+    public final static String METRIC_CLIENT_ID          = "client_id";
+    public final static String METRIC_ACCOUNT            = "account";
+    public final static String METRIC_MTR                = "metric";
+    public final static String METRIC_MTR_NAME           = "name";
+    public final static String METRIC_MTR_NAME_FULL      = "metric.name";
+    public final static String METRIC_MTR_TYPE           = "type";
+    public final static String METRIC_MTR_TYPE_FULL      = "metric.type";
+    public final static String METRIC_MTR_VALUE          = "value";
+    public final static String METRIC_MTR_VALUE_FULL     = "metric.value";
+    public final static String METRIC_MTR_TIMESTAMP      = "timestamp";
+    public final static String METRIC_MTR_TIMESTAMP_FULL = "metric.timestamp";
+    public final static String METRIC_MTR_MSG_ID         = "message_id";
+    public final static String METRIC_MTR_MSG_ID_FULL    = "metric.message_id";
 
-    public final static String  CLIENT_TYPE_NAME            = "client";
-    public final static String  CLIENT_ID                   = "client_id";
-    public final static String  CLIENT_ACCOUNT              = "account";
-    public final static String  CLIENT_TIMESTAMP            = "timestamp";
-    public final static String  CLIENT_MESSAGE_ID           = "message_id";
+    public final static String CLIENT_TYPE_NAME  = "client";
+    public final static String CLIENT_ID         = "client_id";
+    public final static String CLIENT_ACCOUNT    = "account";
+    public final static String CLIENT_TIMESTAMP  = "timestamp";
+    public final static String CLIENT_MESSAGE_ID = "message_id";
 
     public class Metadata
     {
 
         // Info fields does not change within the same account name
-        private String                dataIndexName;
-        private String                kapuaIndexName;
+        private String dataIndexName;
+        private String kapuaIndexName;
         //
 
         // Custom mappings can only increase within the same account
@@ -142,281 +142,286 @@ public class EsSchema
     private Object                mappingsSync;
 
     private XContentBuilder getIndexSettings()
-    	throws EsDocumentBuilderException
+        throws EsDocumentBuilderException
     {
-    	try {
-	        DatastoreSettings config = DatastoreSettings.getInstance();
-	        String idxRefreshInterval = String.format("%ss", config.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL));
-	
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	        .startObject()
-	            .startObject("index")
-	                .field("refresh_interval", idxRefreshInterval)
-	            .endObject()
-	        .endObject();
-	
-	        return builder;
-    	} catch (IOException e) {
-    		throw new EsDocumentBuilderException(String.format("Unable to build settings for index"), e);
-    	}
+        try {
+            DatastoreSettings config = DatastoreSettings.getInstance();
+            String idxRefreshInterval = String.format("%ss", config.getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL));
+
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject("index")
+                                                     .field("refresh_interval", idxRefreshInterval)
+                                                     .endObject()
+                                                     .endObject();
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build settings for index"), e);
+        }
     }
 
     private XContentBuilder getClientTypeBuilder(boolean allEnable, boolean sourceEnable)
-    	throws EsDocumentBuilderException
+        throws EsDocumentBuilderException
     {
-    	try {
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	         .startObject()
-	             .startObject(CLIENT_TYPE_NAME)
-	                 .startObject("_source")
-	                     .field("enabled", sourceEnable)
-	                 .endObject()
-	                 .startObject("_all")
-	                     .field("enabled", allEnable)
-	                 .endObject()
-	                 .startObject("properties")
-	                     .startObject(CLIENT_ID)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(CLIENT_TIMESTAMP)
-	                         .field("type", "date")
-	                         // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
-	                     .endObject()
-	                     .startObject(CLIENT_ACCOUNT)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(CLIENT_MESSAGE_ID)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                  .endObject() // End Of Properties
-	             .endObject() // End of type
-	         .endObject();
-	
-	        return builder;
-    	} catch (IOException e) {
-        	throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CLIENT_TYPE_NAME), e);
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject(CLIENT_TYPE_NAME)
+                                                     .startObject("_source")
+                                                     .field("enabled", sourceEnable)
+                                                     .endObject()
+                                                     .startObject("_all")
+                                                     .field("enabled", allEnable)
+                                                     .endObject()
+                                                     .startObject("properties")
+                                                     .startObject(CLIENT_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(CLIENT_TIMESTAMP)
+                                                     .field("type", "date")
+                                                     // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
+                                                     .endObject()
+                                                     .startObject(CLIENT_ACCOUNT)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(CLIENT_MESSAGE_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .endObject() // End Of Properties
+                                                     .endObject() // End of type
+                                                     .endObject();
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CLIENT_TYPE_NAME), e);
         }
     }
 
     private XContentBuilder getMetricTypeBuilder(boolean allEnable, boolean sourceEnable)
-    	throws EsDocumentBuilderException
+        throws EsDocumentBuilderException
     {
-    	try {
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	         .startObject()
-	             .startObject(METRIC_TYPE_NAME)
-	                 .startObject("_source")
-	                     .field("enabled", sourceEnable)
-	                 .endObject()
-	                 .startObject("_all")
-	                     .field("enabled", allEnable)
-	                 .endObject()
-	                 .startObject("properties")
-	                     .startObject(METRIC_ACCOUNT)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(METRIC_CLIENT_ID)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(METRIC_CHANNEL)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(METRIC_MTR)
-	                         .field("type", "object")
-	                         .field("enabled", true)
-	                         .field("dynamic", false)
-	                         .field("include_in_all", false)
-	                         .startObject("properties")
-	                             .startObject(METRIC_MTR_NAME)
-	                                 .field("type", "string")
-	                                 .field("index", "not_analyzed")
-	                             .endObject()
-	                             .startObject(METRIC_MTR_TYPE)
-	                                 .field("type", "string")
-	                                 .field("index", "not_analyzed")
-	                             .endObject()
-	                             .startObject(METRIC_MTR_VALUE)
-	                                 .field("type", "string")
-	                                 .field("index", "not_analyzed")
-	                             .endObject()
-	                             .startObject(METRIC_MTR_TIMESTAMP)
-	                                 .field("type", "date")
-	                             .endObject()
-	                             .startObject(METRIC_MTR_MSG_ID)
-	                                 .field("type", "string")
-	                                 .field("index", "not_analyzed")
-	                             .endObject()
-	                         .endObject() // End of properties
-	                     .endObject() // End of metrics
-	                 .endObject() // End Of Properties
-	             .endObject() // End of type
-	         .endObject();
-	
-	        return builder;
-		} catch (IOException e) {
-	    	throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", METRIC_TYPE_NAME), e);
-	    }
-   }
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject(METRIC_TYPE_NAME)
+                                                     .startObject("_source")
+                                                     .field("enabled", sourceEnable)
+                                                     .endObject()
+                                                     .startObject("_all")
+                                                     .field("enabled", allEnable)
+                                                     .endObject()
+                                                     .startObject("properties")
+                                                     .startObject(METRIC_ACCOUNT)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_CLIENT_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_CHANNEL)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_MTR)
+                                                     .field("type", "object")
+                                                     .field("enabled", true)
+                                                     .field("dynamic", false)
+                                                     .field("include_in_all", false)
+                                                     .startObject("properties")
+                                                     .startObject(METRIC_MTR_NAME)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_MTR_TYPE)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_MTR_VALUE)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(METRIC_MTR_TIMESTAMP)
+                                                     .field("type", "date")
+                                                     .endObject()
+                                                     .startObject(METRIC_MTR_MSG_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .endObject() // End of properties
+                                                     .endObject() // End of metrics
+                                                     .endObject() // End Of Properties
+                                                     .endObject() // End of type
+                                                     .endObject();
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", METRIC_TYPE_NAME), e);
+        }
+    }
 
     private XContentBuilder getChannelTypeBuilder(boolean allEnable, boolean sourceEnable)
-    	throws EsDocumentBuilderException
+        throws EsDocumentBuilderException
     {
-    	try {
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	         .startObject()
-	         	.startObject(CHANNEL_TYPE_NAME)
-	         		.startObject("_source")
-	         			.field("enabled", sourceEnable)
-	         		.endObject()
-	         		.startObject("_all")
-	         			.field("enabled", allEnable)
-	         		.endObject()
-	         		.startObject("properties")
-	         			.startObject(CHANNEL_ACCOUNT)
-	         				.field("type", "string")
-	         				.field("index", "not_analyzed")
-	         			.endObject()
-	         			.startObject(CHANNEL_CLIENT_ID)
-	         				.field("type", "string")
-	         				.field("index", "not_analyzed")
-	         			.endObject()
-	         			.startObject(CHANNEL_NAME)
-	         				.field("type", "string")
-	         				.field("index", "not_analyzed")
-	         			.endObject()
-	         			.startObject(CHANNEL_TIMESTAMP)
-	         				.field("type", "date")
-	         				// .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
-	         			.endObject()
-	         			.startObject(CHANNEL_MESSAGE_ID)
-	         				.field("type", "string")
-	         				.field("index", "not_analyzed")
-	         			.endObject()
-	         		.endObject() // End Of Properties
-	         	.endObject() // End of type
-	         .endObject();
-	
-	        return builder;
-    	} catch (IOException e) {
-	    	throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CHANNEL_TYPE_NAME), e);
-    	}
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject(CHANNEL_TYPE_NAME)
+                                                     .startObject("_source")
+                                                     .field("enabled", sourceEnable)
+                                                     .endObject()
+                                                     .startObject("_all")
+                                                     .field("enabled", allEnable)
+                                                     .endObject()
+                                                     .startObject("properties")
+                                                     .startObject(CHANNEL_ACCOUNT)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(CHANNEL_CLIENT_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(CHANNEL_NAME)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(CHANNEL_TIMESTAMP)
+                                                     .field("type", "date")
+                                                     // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
+                                                     .endObject()
+                                                     .startObject(CHANNEL_MESSAGE_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .endObject() // End Of Properties
+                                                     .endObject() // End of type
+                                                     .endObject();
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CHANNEL_TYPE_NAME), e);
+        }
     }
 
     private XContentBuilder getMessageTypeBuilder(boolean allEnable, boolean sourceEnable)
-    	throws EsDocumentBuilderException
+        throws EsDocumentBuilderException
     {
-    	try {
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	         .startObject()
-	             .startObject(MESSAGE_TYPE_NAME)
-	                 .startObject("_source")
-	                     .field("enabled", sourceEnable)
-	                 .endObject()
-	                 .startObject("_all")
-	                     .field("enabled", allEnable)
-	                 .endObject()
-	                 .startObject("properties")
-	                     .startObject(EsSchema.MESSAGE_TIMESTAMP)
-	                         .field("type", "date")
-	                         // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_RECEIVED_ON)
-	                         .field("type", "date")
-	                         // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_IP_ADDRESS)
-	                         .field("type", "ip")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_ACCOUNT_ID)
-	                     	.field("type", "string")
-	                     	.field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_ACCOUNT)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_DEVICE_ID)
-	                     	.field("type", "string")
-	                     	.field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_CLIENT_ID)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_CHANNEL)
-	                         .field("type", "string")
-	                         .field("index", "not_analyzed")
-	                     .endObject()
-	                     // .startObject(EsSchema.MESSAGE_TOPIC_PARTS)
-	                         // .field("type", "string")
-	                         // .field("index", "not_analyzed")
-	                     // .endObject()
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject(MESSAGE_TYPE_NAME)
+                                                     .startObject("_source")
+                                                     .field("enabled", sourceEnable)
+                                                     .endObject()
+                                                     .startObject("_all")
+                                                     .field("enabled", allEnable)
+                                                     .endObject()
+                                                     .startObject("properties")
+                                                     .startObject(EsSchema.MESSAGE_TIMESTAMP)
+                                                     .field("type", "date")
+                                                     // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_RECEIVED_ON)
+                                                     .field("type", "date")
+                                                     // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_IP_ADDRESS)
+                                                     .field("type", "ip")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_ACCOUNT_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_ACCOUNT)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_DEVICE_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_CLIENT_ID)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_CHANNEL)
+                                                     .field("type", "string")
+                                                     .field("index", "not_analyzed")
+                                                     .endObject()
+                                                     // .startObject(EsSchema.MESSAGE_TOPIC_PARTS)
+                                                     // .field("type", "string")
+                                                     // .field("index", "not_analyzed")
+                                                     // .endObject()
                                                      .startObject(EsSchema.MESSAGE_CAPTURED_ON)
                                                      .field("type", "date")
                                                      .endObject()
                                                      .startObject(EsSchema.MESSAGE_CAPTURED_ON)
                                                      .field("type", "date")
                                                      .endObject()
-	                     .startObject(EsSchema.MESSAGE_POSITION)
-	                         .field("type", "object")
-	                         .field("enabled", true)
-	                         .field("dynamic", false)
-	                         .field("include_in_all", false)
-	                         .startObject("properties")
-	                             .startObject(EsSchema.MESSAGE_POS_LOCATION)
-	                                 .field("type", "geo_point")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_ALT)
-	                                 .field("type", "double")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_PRECISION)
-	                                 .field("type", "double")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_HEADING)
-	                                 .field("type", "double")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_SPEED)
-	                                 .field("type", "double")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_TIMESTAMP)
-	                                 .field("type", "date")
-	                                 // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_SATELLITES)
-	                                 .field("type", "integer")
-	                             .endObject()
-	                             .startObject(EsSchema.MESSAGE_POS_STATUS)
-	                                 .field("type", "integer")
-	                             .endObject()
-	                         .endObject()
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_METRICS)
-	                         .field("type", "object")
-	                         .field("enabled", true)
-	                         .field("dynamic", true)
-	                         .field("include_in_all", false)
-	                     .endObject()
-	                     .startObject(EsSchema.MESSAGE_BODY)
-	                         .field("type", "binary")
-	                         .field("index", "no")
-	                     .endObject()
-	                 .endObject() // End Of Properties
-	             .endObject();
-	
-	        return builder;
-    	} catch (IOException e) {
-	    	throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CHANNEL_TYPE_NAME), e);
-    	}
+                                                     .startObject(EsSchema.MESSAGE_POSITION)
+                                                     .field("type", "object")
+                                                     .field("enabled", true)
+                                                     .field("dynamic", false)
+                                                     .field("include_in_all", false)
+                                                     .startObject("properties")
+                                                     .startObject(EsSchema.MESSAGE_POS_LOCATION)
+                                                     .field("type", "geo_point")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_ALT)
+                                                     .field("type", "double")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_PRECISION)
+                                                     .field("type", "double")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_HEADING)
+                                                     .field("type", "double")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_SPEED)
+                                                     .field("type", "double")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_TIMESTAMP)
+                                                     .field("type", "date")
+                                                     // .field("format", "basic_date_time||basic_date_time_no_millis||epoch_millis")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_SATELLITES)
+                                                     .field("type", "integer")
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_POS_STATUS)
+                                                     .field("type", "integer")
+                                                     .endObject()
+                                                     .endObject()
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_METRICS)
+                                                     .field("type", "object")
+                                                     .field("enabled", true)
+                                                     .field("dynamic", true)
+                                                     .field("include_in_all", false)
+                                                     .endObject()
+                                                     .startObject(EsSchema.MESSAGE_BODY)
+                                                     .field("type", "binary")
+                                                     .field("index", "no")
+                                                     .endObject()
+                                                     .endObject() // End Of Properties
+                                                     .endObject();
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build type mappings for type %s", CHANNEL_TYPE_NAME), e);
+        }
     }
 
-    private XContentBuilder getNewMessageMappingsBuilder(Map<String, EsMetric> esMetrics) 
-    		throws EsDocumentBuilderException
+    private XContentBuilder getNewMessageMappingsBuilder(Map<String, EsMetric> esMetrics)
+        throws EsDocumentBuilderException
     {
         final int METRIC_TERM = 0;
         // final int TYPE_TERM = 1;
@@ -425,62 +430,63 @@ public class EsSchema
             return null;
 
         try {
-	        // It is assumed the mappings (key values) are all of the type
-	        // metrics.metric_name.type
-	        XContentBuilder builder = XContentFactory.jsonBuilder()
-	         .startObject()
-	         .startObject(MESSAGE_TYPE_NAME)
-	         .startObject("properties")
-	         .startObject(EsSchema.MESSAGE_METRICS)
-	         .startObject("properties");
-	
-	        // TODO precondition for the loop: there are no two consecutive mappings for the same field with
-	        // two different types (field are all different)
-	
-	        String[] prevKeySplit = new String[] { "", "" };
-	        Set<String> keys = esMetrics.keySet();
-	        for (String key : keys) {
-	
-	            EsMetric metric = esMetrics.get(key);
-	            String[] keySplit = key.split(Pattern.quote("."));
-	
-	            if (!keySplit[METRIC_TERM].equals(prevKeySplit[METRIC_TERM])) {
-	                if (!prevKeySplit[METRIC_TERM].isEmpty()) {
-	                    builder.endObject(); // Previously open properties section
-	                    builder.endObject(); // Previously open metric-object section
-	                }
-	                builder.startObject(metric.getName()); // Start new metric object
-	                builder.startObject("properties"); // Start new object properties section
-	            }
-	
-	            if (!keySplit[METRIC_TERM].equals(prevKeySplit[METRIC_TERM])) {
-	            	
-	            	builder.startObject(EsUtils.getEsTypeAcronym(metric.getType()));	
-	                builder.field("type", metric.getType());
-	                if (metric.getType().equals("string"))
-	                    builder.field("index", "not_analyzed");
-	                builder.endObject();
-	            }
-	
-	            prevKeySplit = keySplit;
-	        }
-	
-	        if (keys.size() > 0) {
-	            if (!prevKeySplit[METRIC_TERM].isEmpty()) {
-	                builder.endObject(); // Previously open properties section
-	                builder.endObject(); // Previously open metrics-object section
-	            }
-	        }
-	
-	        builder.endObject() // Properties
-	               .endObject() // Metrics
-	               .endObject() // Properties
-	               .endObject() // Type
-	               .endObject(); // Root
-	
-	        return builder;
-        } catch (IOException e) {
-	    	throw new EsDocumentBuilderException(String.format("Unable to build new type mappings for type %s", CHANNEL_TYPE_NAME), e);
+            // It is assumed the mappings (key values) are all of the type
+            // metrics.metric_name.type
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                                                     .startObject()
+                                                     .startObject(MESSAGE_TYPE_NAME)
+                                                     .startObject("properties")
+                                                     .startObject(EsSchema.MESSAGE_METRICS)
+                                                     .startObject("properties");
+
+            // TODO precondition for the loop: there are no two consecutive mappings for the same field with
+            // two different types (field are all different)
+
+            String[] prevKeySplit = new String[] { "", "" };
+            Set<String> keys = esMetrics.keySet();
+            for (String key : keys) {
+
+                EsMetric metric = esMetrics.get(key);
+                String[] keySplit = key.split(Pattern.quote("."));
+
+                if (!keySplit[METRIC_TERM].equals(prevKeySplit[METRIC_TERM])) {
+                    if (!prevKeySplit[METRIC_TERM].isEmpty()) {
+                        builder.endObject(); // Previously open properties section
+                        builder.endObject(); // Previously open metric-object section
+                    }
+                    builder.startObject(metric.getName()); // Start new metric object
+                    builder.startObject("properties"); // Start new object properties section
+                }
+
+                if (!keySplit[METRIC_TERM].equals(prevKeySplit[METRIC_TERM])) {
+
+                    builder.startObject(EsUtils.getEsTypeAcronym(metric.getType()));
+                    builder.field("type", metric.getType());
+                    if (metric.getType().equals("string"))
+                        builder.field("index", "not_analyzed");
+                    builder.endObject();
+                }
+
+                prevKeySplit = keySplit;
+            }
+
+            if (keys.size() > 0) {
+                if (!prevKeySplit[METRIC_TERM].isEmpty()) {
+                    builder.endObject(); // Previously open properties section
+                    builder.endObject(); // Previously open metrics-object section
+                }
+            }
+
+            builder.endObject() // Properties
+                   .endObject() // Metrics
+                   .endObject() // Properties
+                   .endObject() // Type
+                   .endObject(); // Root
+
+            return builder;
+        }
+        catch (IOException e) {
+            throw new EsDocumentBuilderException(String.format("Unable to build new type mappings for type %s", CHANNEL_TYPE_NAME), e);
         }
     }
 
@@ -501,10 +507,11 @@ public class EsSchema
             esClient.admin().indices().preparePutMapping(indexName).setType(MESSAGE_TYPE_NAME).setSource(builder).execute().actionGet();
 
             try {
-				s_logger.trace("Message mapping created: " + builder.string());
-			} catch (IOException e) {
-				s_logger.trace("Message mapping created: (content unavailable)");
-			}
+                s_logger.trace("Message mapping created: " + builder.string());
+            }
+            catch (IOException e) {
+                s_logger.trace("Message mapping created: (content unavailable)");
+            }
         }
     }
 
@@ -525,10 +532,11 @@ public class EsSchema
             esClient.admin().indices().preparePutMapping(indexName).setType(CHANNEL_TYPE_NAME).setSource(builder).execute().actionGet();
 
             try {
-				s_logger.trace("Topic mapping created: " + builder.string());
-			} catch (IOException e) {
-				s_logger.trace("Topic mapping created: (content unavailable)");
-			}
+                s_logger.trace("Topic mapping created: " + builder.string());
+            }
+            catch (IOException e) {
+                s_logger.trace("Topic mapping created: (content unavailable)");
+            }
         }
     }
 
@@ -547,12 +555,13 @@ public class EsSchema
         if (metadata == null) {
             XContentBuilder builder = this.getMetricTypeBuilder(allEnable, sourceEnable);
             esClient.admin().indices().preparePutMapping(indexName).setType(METRIC_TYPE_NAME).setSource(builder).execute().actionGet();
- 
+
             try {
-				s_logger.trace("Topic_metric mapping created: " + builder.string());
-			} catch (IOException e) {
-				s_logger.trace("Topic_metric mapping created: (content unavailable)");
-			}
+                s_logger.trace("Topic_metric mapping created: " + builder.string());
+            }
+            catch (IOException e) {
+                s_logger.trace("Topic_metric mapping created: (content unavailable)");
+            }
         }
     }
 
@@ -571,12 +580,13 @@ public class EsSchema
         if (metadata == null) {
             XContentBuilder builder = this.getClientTypeBuilder(allEnable, sourceEnable);
             esClient.admin().indices().preparePutMapping(indexName).setType(CLIENT_TYPE_NAME).setSource(builder).execute().actionGet();
-            
+
             try {
-				s_logger.trace("Asset mapping created: " + builder.string());
-			} catch (IOException e) {
-				s_logger.trace("Asset mapping created: (content unavailable)");
-			}
+                s_logger.trace("Asset mapping created: " + builder.string());
+            }
+            catch (IOException e) {
+                s_logger.trace("Asset mapping created: (content unavailable)");
+            }
         }
     }
 
@@ -612,22 +622,22 @@ public class EsSchema
         mappingsSync = new Object();
     }
 
-    public static String getDataIndexName(KapuaId scopeId) 
+    public static String getDataIndexName(KapuaId scopeId)
     {
-    	String scopeIdShort = scopeId.toCompactId();
-    	return EsUtils.getDataIndexName(scopeIdShort);
+        String scopeIdShort = scopeId.toCompactId();
+        return EsUtils.getDataIndexName(scopeIdShort);
     }
 
-    public static String getKapuaIndexName(KapuaId scopeId) 
+    public static String getKapuaIndexName(KapuaId scopeId)
     {
-    	String scopeIdShort = scopeId.toCompactId();
-    	return EsUtils.getKapuaIndexName(scopeIdShort);
+        String scopeIdShort = scopeId.toCompactId();
+        return EsUtils.getKapuaIndexName(scopeIdShort);
     }
-    
-    public Metadata synch(KapuaId scopeId, long time) 
-    		throws EsDocumentBuilderException, EsClientUnavailableException
+
+    public Metadata synch(KapuaId scopeId, long time)
+        throws EsDocumentBuilderException, EsClientUnavailableException
     {
-    	String scopeIdShort = scopeId.toCompactId();
+        String scopeIdShort = scopeId.toCompactId();
         String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
 
         synchronized (schemaCacheSync) {
@@ -706,15 +716,15 @@ public class EsSchema
         return currentMetadata;
     }
 
-    public void updateMessageMappings(KapuaId scopeId, long time, Map<String, EsMetric> esMetrics) 
-    		throws EsDocumentBuilderException, EsClientUnavailableException
+    public void updateMessageMappings(KapuaId scopeId, long time, Map<String, EsMetric> esMetrics)
+        throws EsDocumentBuilderException, EsClientUnavailableException
     {
         if (esMetrics == null || esMetrics.size() == 0)
             return;
 
         Metadata currentMetadata = null;
         synchronized (schemaCacheSync) {
-        	String scopeIdShort = scopeId.toCompactId();
+            String scopeIdShort = scopeId.toCompactId();
             String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
             currentMetadata = schemaCache.get(newIndex);
         }
@@ -733,10 +743,10 @@ public class EsSchema
         }
 
         try {
-			s_logger.trace("Sending dynamic message mappings: " + builder.string());
-		} catch (IOException e) {
-		}
-        
+            s_logger.trace("Sending dynamic message mappings: " + builder.string());
+        }
+        catch (IOException e) {}
+
         Client esClient = ElasticsearchClient.getInstance();
         esClient.admin().indices().preparePutMapping(currentMetadata.dataIndexName)
                 .setType(MESSAGE_TYPE_NAME)

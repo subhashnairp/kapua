@@ -13,7 +13,7 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 
-public enum MetricInfoField implements StorableField 
+public enum MetricInfoField implements StorableField
 {
     ACCOUNT(EsSchema.METRIC_ACCOUNT),
     CLIENT_ID(EsSchema.METRIC_CLIENT_ID),
@@ -23,14 +23,14 @@ public enum MetricInfoField implements StorableField
     VALUE_FULL(EsSchema.METRIC_MTR_VALUE_FULL),
     TIMESTAMP_FULL(EsSchema.METRIC_MTR_TIMESTAMP_FULL),
     MESSAGE_ID_FULL(EsSchema.METRIC_MTR_MSG_ID_FULL);
-    
+
     private String field;
-    
+
     private MetricInfoField(String name)
     {
-        this.field= name;
+        this.field = name;
     }
-    
+
     @Override
     public String field()
     {

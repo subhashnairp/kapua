@@ -13,22 +13,30 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-public class MetricXContentBuilder {
-	
-	private String id;
-	private XContentBuilder content;
-	
-	public String getId() {
-		return id;
-	}
-	public XContentBuilder getContent() {
-		return content;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public void setContent(XContentBuilder content) {
-		this.content = content;
-	}
+public class MetricXContentBuilder
+{
+
+    private String          id;
+    private XContentBuilder content;
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public XContentBuilder getContent()
+    {
+        return content;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
+    }
+
+    public void setContent(XContentBuilder content)
+    {
+        this.content = content;
+    }
 
 }

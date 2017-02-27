@@ -11,19 +11,44 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsDatastoreException extends Exception 
+/**
+ * Elasticsearch datastore exception
+ * 
+ * @since 1.0
+ *
+ */
+public class EsDatastoreException extends Exception
 {
     private static final long serialVersionUID = -2766345175377211253L;
 
-    public EsDatastoreException(String message) {
-		super(message);
-	}
-    
-    public EsDatastoreException(Throwable t) {
-    	super(t);
+    /**
+     * Construct the exception with the provided message
+     * 
+     * @param message
+     */
+    public EsDatastoreException(String message)
+    {
+        super(message);
     }
-    
-    public EsDatastoreException(String reason, Throwable t) {
-    	super(reason, t);
+
+    /**
+     * Construct the exception with the provided throwable
+     * 
+     * @param t
+     */
+    public EsDatastoreException(Throwable t)
+    {
+        super(t);
+    }
+
+    /**
+     * Construct the exception with the provided reason and throwable
+     * 
+     * @param reason
+     * @param t
+     */
+    public EsDatastoreException(String reason, Throwable t)
+    {
+        super(reason, t);
     }
 }

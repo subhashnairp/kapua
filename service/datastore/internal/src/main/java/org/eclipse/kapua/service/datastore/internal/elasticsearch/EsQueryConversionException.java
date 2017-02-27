@@ -11,15 +11,37 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsQueryConversionException extends EsDatastoreException {
+/**
+ * Query conversion exception.<br>
+ * This exception is raised if something fails during conversion between Kapua and Elasticsearch query object
+ * 
+ * @since 1.0
+ *
+ */
+public class EsQueryConversionException extends EsDatastoreException
+{
 
-	private static final long serialVersionUID = 8935946838486350152L;
+    private static final long serialVersionUID = 8935946838486350152L;
 
-    public EsQueryConversionException(String message) {
-		super(message);
-	}
-    
-    public EsQueryConversionException(Exception e) {
-    	super(e);
+    /**
+     * Construct the exception with the provided message
+     * 
+     * @param reason
+     * @param t
+     */
+    public EsQueryConversionException(String message)
+    {
+        super(message);
+    }
+
+    /**
+     * Construct the exception with the provided exception
+     * 
+     * @param reason
+     * @param t
+     */
+    public EsQueryConversionException(Exception e)
+    {
+        super(e);
     }
 }

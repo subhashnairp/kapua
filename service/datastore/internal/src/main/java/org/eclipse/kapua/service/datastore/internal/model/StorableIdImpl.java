@@ -13,11 +13,17 @@ package org.eclipse.kapua.service.datastore.internal.model;
 
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Storable identifier implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class StorableIdImpl implements StorableId
 {
     private String sid;
-    
-    public StorableIdImpl(String id) 
+
+    public StorableIdImpl(String id)
     {
         this.sid = id;
     }

@@ -35,135 +35,135 @@ import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Message store service implementation.
+ * 
+ * @since 1.0
+ *
+ */
 @KapuaProvider
 public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService implements MessageStoreService
 {
-    private static final long    serialVersionUID  = 4142282449826005424L;
+    private static final long serialVersionUID = 4142282449826005424L;
 
-    private static final Domain datastoreDomain  = new DatastoreDomain();
-    
+    private static final Domain datastoreDomain = new DatastoreDomain();
+
     @SuppressWarnings("unused")
-    private static final Logger  logger            = LoggerFactory.getLogger(MessageStoreServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageStoreServiceImpl.class);
 
-    private static final KapuaLocator locator 	= KapuaLocator.getInstance();
+    private static final KapuaLocator locator = KapuaLocator.getInstance();
 
-    private final AccountService accountService = locator.getService(AccountService.class);
+    private final AccountService       accountService       = locator.getService(AccountService.class);
     private final AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-    private final PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
-    
-    private final MessageStoreFacade esMessageStoreFacade;
+    private final PermissionFactory    permissionFactory    = locator.getFactory(PermissionFactory.class);
 
+    private final MessageStoreFacade esMessageStoreFacade;
 
     public MessageStoreServiceImpl()
     {
-    	super(MessageStoreService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
+        super(MessageStoreService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
 
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(this, accountService);
         this.esMessageStoreFacade = new MessageStoreFacade(configurationProvider, DatastoreMediator.getInstance());
-    	DatastoreMediator.getInstance().setMessageStoreFacade(esMessageStoreFacade);
+        DatastoreMediator.getInstance().setMessageStoreFacade(esMessageStoreFacade);
     }
 
     @Override
     public StorableId store(KapuaMessage<?, ?> message)
-    		throws KapuaException
+        throws KapuaException
     {
-    	try
-    	{
+        try {
             ArgumentValidator.notNull(message.getScopeId(), "scopeId");
-	
+
             this.checkDataAccess(message.getScopeId(), Actions.write);
-	
+
             return this.esMessageStoreFacade.store(message);
-		} 
-		catch (Exception e) {
-			throw KapuaException.internalError(e);
-		}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try {
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.delete);
-	
-	        this.esMessageStoreFacade.delete(scopeId, id);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.delete);
+
+            this.esMessageStoreFacade.delete(scopeId, id);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public DatastoreMessage find(KapuaId scopeId, StorableId id, StorableFetchStyle fetchStyle)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	
-	        return this.esMessageStoreFacade.find(scopeId, id, fetchStyle);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
+            return this.esMessageStoreFacade.find(scopeId, id, fetchStyle);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public MessageListResult query(KapuaId scopeId, MessageQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	        
-	        return this.esMessageStoreFacade.query(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
+            return this.esMessageStoreFacade.query(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public long count(KapuaId scopeId, MessageQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	        
-	        return this.esMessageStoreFacade.count(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
+            return this.esMessageStoreFacade.count(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public void delete(KapuaId scopeId, MessageQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.delete);
-	
-	        this.esMessageStoreFacade.delete(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.delete);
+
+            this.esMessageStoreFacade.delete(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
-    
+
     private void checkDataAccess(KapuaId scopeId, Actions action)
         throws KapuaException
     {

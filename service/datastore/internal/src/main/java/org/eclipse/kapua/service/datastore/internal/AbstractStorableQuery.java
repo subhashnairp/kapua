@@ -21,18 +21,27 @@ import org.eclipse.kapua.service.datastore.model.query.SortField;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorableQuery;
 
+/**
+ * Abstract storable query implementation.
+ * 
+ * @since 1.0
+ *
+ * @param <S> persisted object type (such as messages, channeles information...)
+ */
 public abstract class AbstractStorableQuery<S extends Storable> implements StorableQuery<S>
 {
     private StorablePredicate predicate = null;
 
-    private int               limit;
-    private Object            keyOffset;
-    private int               indexOffset;
-    private boolean           askTotalCount = false;
+    private int                limit;
+    private Object             keyOffset;
+    private int                indexOffset;
+    private boolean            askTotalCount = false;
     private List<SortField>    sortFields;
     private StorableFetchStyle fetchStyle    = StorableFetchStyle.SOURCE_FULL;
 
-
+    /**
+     * Default constructor
+     */
     public AbstractStorableQuery()
     {
         limit = 50;
@@ -128,7 +137,6 @@ public abstract class AbstractStorableQuery<S extends Storable> implements Stora
         this.fetchStyle = fetchStyle;
     }
 
-    
     @Override
     public void copy(StorableQuery<S> query)
     {
@@ -142,13 +150,14 @@ public abstract class AbstractStorableQuery<S extends Storable> implements Stora
         this.setSortFields(copy(query.getSortFields()));
     }
 
-    private List<SortField> copy(List<SortField> sortFields) {
+    private List<SortField> copy(List<SortField> sortFields)
+    {
         if (sortFields == null) {
             return null;
         }
         else {
             List<SortField> copySortFields = new ArrayList<SortField>();
-            for (int i=0; i<sortFields.size(); i++) {
+            for (int i = 0; i < sortFields.size(); i++) {
                 SortField original = sortFields.get(i);
                 SortField copy = new SortFieldImpl();
                 copy.setField(original.getField());

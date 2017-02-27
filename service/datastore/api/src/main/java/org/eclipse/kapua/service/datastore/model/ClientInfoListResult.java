@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model;
 
+/**
+ * Client information query result list definition.<br>
+ * This object contains the list of the client information objects retrieved by the search service.
+ * 
+ * @since 1.0
+ *
+ */
 public interface ClientInfoListResult extends StorableListResult<ClientInfo>
 {
 

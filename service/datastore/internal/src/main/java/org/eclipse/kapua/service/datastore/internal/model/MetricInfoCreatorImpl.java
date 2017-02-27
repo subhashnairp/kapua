@@ -16,97 +16,124 @@ import java.util.Date;
 import org.eclipse.kapua.service.datastore.model.MetricInfoCreator;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Metric information schema creator implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class MetricInfoCreatorImpl implements MetricInfoCreator
 {
-	private String account;
-	private String clientId;
-	private String channel;
+    private String     account;
+    private String     clientId;
+    private String     channel;
     private StorableId messageId;
     private Date       messageTimestamp;
-	private String name;
-	private String type;
-	private Object value;
+    private String     name;
+    private String     type;
+    private Object     value;
 
-	public MetricInfoCreatorImpl(String account) {
-		this.account = account;
-	}
-	
-	@Override
-	public String getAccount() {
-		return account;
-	}
-	
-	@Override
-	public String getClientId()
-	{
-		return this.clientId;
-	}
-	
-	public void setDevice(String clientId)
-	{
-		this.clientId = clientId;
-	}
+    /**
+     * Construct a metric information creator for the given account
+     * 
+     * @param account
+     */
+    public MetricInfoCreatorImpl(String account)
+    {
+        this.account = account;
+    }
 
-	@Override
-	public String getChannel() {
-		return channel;
-	}
-	
-	@Override
-	public void setChannel(String channel) {
-		this.channel = channel;
-	}
+    @Override
+    public String getAccount()
+    {
+        return account;
+    }
 
-	@Override
+    @Override
+    public String getClientId()
+    {
+        return this.clientId;
+    }
+
+    /**
+     * Set the device identifier
+     * 
+     * @param clientId
+     */
+    public void setDevice(String clientId)
+    {
+        this.clientId = clientId;
+    }
+
+    @Override
+    public String getChannel()
+    {
+        return channel;
+    }
+
+    @Override
+    public void setChannel(String channel)
+    {
+        this.channel = channel;
+    }
+
+    @Override
     public StorableId getMessageId()
     {
         return messageId;
-	}
+    }
 
-	@Override
+    @Override
     public void setMessageId(StorableId messageId)
     {
         this.messageId = messageId;
-	}
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName()
+    {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Override
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    @Override
+    public String getType()
+    {
+        return type;
+    }
 
-	@Override
-	public void setType(String type) {
-		this.type = type;
-	}
+    @Override
+    public void setType(String type)
+    {
+        this.type = type;
+    }
 
-	@Override
-	public <T> T getValue(Class<T> clazz) {
-		return clazz.cast(value);
-	}
+    @Override
+    public <T> T getValue(Class<T> clazz)
+    {
+        return clazz.cast(value);
+    }
 
-	@Override
-	public <T> void setValue(T value) {
-		this.value = value;
-	}
+    @Override
+    public <T> void setValue(T value)
+    {
+        this.value = value;
+    }
 
-	@Override
+    @Override
     public Date getMessageTimestamp()
     {
         return messageTimestamp;
-	}
+    }
 
-	@Override
+    @Override
     public void setMessageTimestamp(Date messageTimestamp)
     {
         this.messageTimestamp = messageTimestamp;
-	}
+    }
 }

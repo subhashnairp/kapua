@@ -11,19 +11,45 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsClientUnavailableException extends EsDatastoreException {
+/**
+ * Elasticsearch client unavailable exception
+ * 
+ * @since 1.0
+ *
+ */
+public class EsClientUnavailableException extends EsDatastoreException
+{
 
-	private static final long serialVersionUID = 2211521053876589804L;
+    private static final long serialVersionUID = 2211521053876589804L;
 
-	public EsClientUnavailableException(String message) {
-		super(message);
-	}
+    /**
+     * Construct the exception with the provided message
+     * 
+     * @param message
+     */
+    public EsClientUnavailableException(String message)
+    {
+        super(message);
+    }
 
-	public EsClientUnavailableException(Throwable e) {
-		super(e);
-	}
+    /**
+     * Construct the exception with the provided throwable
+     * 
+     * @param t
+     */
+    public EsClientUnavailableException(Throwable e)
+    {
+        super(e);
+    }
 
-	public EsClientUnavailableException(String reason, Throwable e) {
-		super(reason, e);
-	}
+    /**
+     * Construct the exception with the provided reason and throwable
+     * 
+     * @param reason
+     * @param t
+     */
+    public EsClientUnavailableException(String reason, Throwable e)
+    {
+        super(reason, e);
+    }
 }

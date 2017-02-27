@@ -42,73 +42,98 @@ import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientInfoRegistryFacade 
+/**
+ * Client information registry facade
+ * 
+ * @since 1.0
+ *
+ */
+public class ClientInfoRegistryFacade
 {
-    // @SuppressWarnings("unused")
-    private static final Logger logger           = LoggerFactory.getLogger(ClientInfoRegistryFacade.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientInfoRegistryFacade.class);
 
     private final ClientInfoRegistryMediator mediator;
-	private final ConfigurationProvider configProvider;
-	private final Object metadataUpdateSync;
+    private final ConfigurationProvider      configProvider;
+    private final Object                     metadataUpdateSync;
 
-	public ClientInfoRegistryFacade(ConfigurationProvider configProvider, ClientInfoRegistryMediator mediator)
-	{
-		this.configProvider = configProvider;
-		this.mediator = mediator;
-		this.metadataUpdateSync = new Object();
-	}
+    public ClientInfoRegistryFacade(ConfigurationProvider configProvider, ClientInfoRegistryMediator mediator)
+    {
+        this.configProvider = configProvider;
+        this.mediator = mediator;
+        this.metadataUpdateSync = new Object();
+    }
 
-	public StorableId upstore(KapuaId scopeId, ClientInfo clientInfo) 
-			throws KapuaIllegalArgumentException, 
-				   EsDocumentBuilderException, 
-				   EsClientUnavailableException, 
-				   EsConfigurationException 
-	{
-		//
-		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(clientInfo, "clientInfoCreator");
+    /**
+     * Update the client information after a message store operation
+     * 
+     * @param scopeId
+     * @param clientInfo
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsDocumentBuilderException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     */
+    public StorableId upstore(KapuaId scopeId, ClientInfo clientInfo)
+        throws KapuaIllegalArgumentException,
+        EsDocumentBuilderException,
+        EsClientUnavailableException,
+        EsConfigurationException
+    {
+        //
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(clientInfo, "clientInfoCreator");
         ArgumentValidator.notNull(clientInfo.getMessageTimestamp(), "clientInfoCreator.messageTimestamp");
 
         ClientInfoXContentBuilder docBuilder = new ClientInfoXContentBuilder();
-		docBuilder.build(clientInfo);
-		
-		// Save client
-		if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
+        docBuilder.build(clientInfo);
 
-			// The code is safe even without the synchronized block
-			// Synchronize in order to let the first thread complete its update
-			// then the others of the same type will find the cache updated and
-			// skip the update.
-			synchronized (this.metadataUpdateSync) {
-				if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
-					UpdateResponse response = null;
-					try 
-					{
+        // Save client
+        if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
+
+            // The code is safe even without the synchronized block
+            // Synchronize in order to let the first thread complete its update
+            // then the others of the same type will find the cache updated and
+            // skip the update.
+            synchronized (this.metadataUpdateSync) {
+                if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
+                    UpdateResponse response = null;
+                    try {
                         Metadata metadata = this.mediator.getMetadata(scopeId, clientInfo.getMessageTimestamp().getTime());
-						String kapuaIndexName = metadata.getKapuaIndexName();
-						
-						response = EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName)
-								.upsert(docBuilder.getClientId(), docBuilder.getClientBuilder());
-						logger.debug(String.format("Upsert on asset succesfully executed [%s.%s, %s]", kapuaIndexName,
-								EsSchema.CHANNEL_TYPE_NAME, response.getId()));
-					} catch (DocumentAlreadyExistsException exc) {
-						logger.trace(String.format("Upsert failed because asset already exists [%s, %s]",
-								docBuilder.getClientId(), exc.getMessage()));
-					}
-					// Update cache if asset update is completed successfully
-					DatastoreCacheManager.getInstance().getClientsCache().put(docBuilder.getClientId(), true);
-				}
-			}
-		}
-		
-		return new StorableIdImpl(docBuilder.getClientId());
-	}
-	
+                        String kapuaIndexName = metadata.getKapuaIndexName();
+
+                        response = EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName)
+                                                  .upsert(docBuilder.getClientId(), docBuilder.getClientBuilder());
+                        logger.debug(String.format("Upsert on asset succesfully executed [%s.%s, %s]", kapuaIndexName,
+                                                   EsSchema.CHANNEL_TYPE_NAME, response.getId()));
+                    }
+                    catch (DocumentAlreadyExistsException exc) {
+                        logger.trace(String.format("Upsert failed because asset already exists [%s, %s]",
+                                                   docBuilder.getClientId(), exc.getMessage()));
+                    }
+                    // Update cache if asset update is completed successfully
+                    DatastoreCacheManager.getInstance().getClientsCache().put(docBuilder.getClientId(), true);
+                }
+            }
+        }
+
+        return new StorableIdImpl(docBuilder.getClientId());
+    }
+
+    /**
+     * Delete client information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @throws KapuaIllegalArgumentException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     */
     public void delete(KapuaId scopeId, StorableId id)
-        throws KapuaIllegalArgumentException, 
-        	   EsClientUnavailableException, 
-        	   EsConfigurationException
+        throws KapuaIllegalArgumentException,
+        EsClientUnavailableException,
+        EsConfigurationException
     {
         //
         // Argument Validation
@@ -117,7 +142,7 @@ public class ClientInfoRegistryFacade
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -127,16 +152,28 @@ public class ClientInfoRegistryFacade
 
         String indexName = EsSchema.getDataIndexName(scopeId);
         EsClientInfoDAO.client(ElasticsearchClient.getInstance())
-                  .index(indexName)
-                  .deleteById(id.toString());
+                       .index(indexName)
+                       .deleteById(id.toString());
     }
 
-    public ClientInfo find(KapuaId scopeId, StorableId id) 
-    		throws KapuaIllegalArgumentException, 
-			   	   EsClientUnavailableException, 
-    			   EsConfigurationException, 
-    			   EsQueryConversionException, 
-    			   EsObjectBuilderException
+    /**
+     * Find client information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public ClientInfo find(KapuaId scopeId, StorableId id)
+        throws KapuaIllegalArgumentException,
+        EsClientUnavailableException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -160,12 +197,24 @@ public class ClientInfoRegistryFacade
         return assetInfo;
     }
 
-    public ClientInfoListResult query(KapuaId scopeId, ClientInfoQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException, 
-    			   EsQueryConversionException, 
-    			   EsClientUnavailableException, 
-    			   EsObjectBuilderException
+    /**
+     * Find clients informations matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     * @throws EsObjectBuilderException
+     */
+    public ClientInfoListResult query(KapuaId scopeId, ClientInfoQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -174,7 +223,7 @@ public class ClientInfoRegistryFacade
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -185,17 +234,28 @@ public class ClientInfoRegistryFacade
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         ClientInfoListResult result = null;
         result = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
-                           .index(indexName)
-                           .query(query);
+                                .index(indexName)
+                                .query(query);
 
         return result;
     }
 
+    /**
+     * Get clients informations count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public long count(KapuaId scopeId, ClientInfoQuery query)
-        throws KapuaIllegalArgumentException, 
-        	   EsConfigurationException, 
-        	   EsQueryConversionException, 
-        	   EsClientUnavailableException
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
     {
         //
         // Argument Validation
@@ -204,7 +264,7 @@ public class ClientInfoRegistryFacade
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -215,17 +275,27 @@ public class ClientInfoRegistryFacade
         String dataIndexName = EsSchema.getKapuaIndexName(scopeId);
         long result;
         result = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
-                           .index(dataIndexName)
-                           .count(query);
+                                .index(dataIndexName)
+                                .count(query);
 
         return result;
     }
 
+    /**
+     * Delete clients informations count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public void delete(KapuaId scopeId, ClientInfoQuery query)
-        throws KapuaIllegalArgumentException, 
-        	   EsConfigurationException, 
-        	   EsQueryConversionException, 
-        	   EsClientUnavailableException
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
     {
         //
         // Argument Validation
@@ -234,7 +304,7 @@ public class ClientInfoRegistryFacade
 
         //
         // Do the find
-		MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -244,8 +314,8 @@ public class ClientInfoRegistryFacade
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         EsClientInfoDAO.client(ElasticsearchClient.getInstance())
-                  .index(indexName)
-                  .deleteByQuery(query);
+                       .index(indexName)
+                       .deleteByQuery(query);
 
         return;
     }

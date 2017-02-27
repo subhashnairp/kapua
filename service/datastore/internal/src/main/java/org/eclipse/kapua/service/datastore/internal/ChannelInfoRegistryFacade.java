@@ -42,80 +42,107 @@ import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChannelInfoRegistryFacade 
+/**
+ * Channel information registry facade
+ * 
+ * @since 1.0
+ *
+ */
+public class ChannelInfoRegistryFacade
 {
-    // @SuppressWarnings("unused")
-    private static final Logger  logger           = LoggerFactory.getLogger(ChannelInfoRegistryFacade.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ChannelInfoRegistryFacade.class);
 
     private final ChannelInfoRegistryMediator mediator;
-	private final ConfigurationProvider configProvider;
-	private final Object metadataUpdateSync;
+    private final ConfigurationProvider       configProvider;
+    private final Object                      metadataUpdateSync;
 
-	public ChannelInfoRegistryFacade(ConfigurationProvider configProvider, ChannelInfoRegistryMediator mediator)
-	{
-		this.configProvider = configProvider;
-		this.mediator = mediator;
-		this.metadataUpdateSync = new Object();
-	}
+    public ChannelInfoRegistryFacade(ConfigurationProvider configProvider, ChannelInfoRegistryMediator mediator)
+    {
+        this.configProvider = configProvider;
+        this.mediator = mediator;
+        this.metadataUpdateSync = new Object();
+    }
 
-	public StorableId upstore(KapuaId scopeId, ChannelInfo channelInfo) 
-			throws KapuaIllegalArgumentException, 
-				   EsDocumentBuilderException, 
-				   EsClientUnavailableException, 
-				   EsConfigurationException 
-	{
-		//
-		// Argument Validation
-		ArgumentValidator.notNull(scopeId, "scopeId");
-		ArgumentValidator.notNull(channelInfo, "channelInfoCreator");
-		ArgumentValidator.notNull(channelInfo.getChannel(), "channelInfoCreator.getChannel");
+    /**
+     * Update the channel information after a message store operation
+     * 
+     * @param scopeId
+     * @param channelInfo
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsDocumentBuilderException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     */
+    public StorableId upstore(KapuaId scopeId, ChannelInfo channelInfo)
+        throws KapuaIllegalArgumentException,
+        EsDocumentBuilderException,
+        EsClientUnavailableException,
+        EsConfigurationException
+    {
+        //
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, "scopeId");
+        ArgumentValidator.notNull(channelInfo, "channelInfoCreator");
+        ArgumentValidator.notNull(channelInfo.getChannel(), "channelInfoCreator.getChannel");
         ArgumentValidator.notNull(channelInfo.getMessageTimestamp(), "channelInfoCreator.messageTimestamp");
-        
+
         String channelInfoId = ChannelInfoXContentBuilder.getOrDeriveId(channelInfo.getId(), channelInfo);
 
-		// Store channel. Look up channel in the cache, and cache it if it doesn't exist
-		if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
+        // Store channel. Look up channel in the cache, and cache it if it doesn't exist
+        if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
 
-			// The code is safe even without the synchronized block
-			// Synchronize in order to let the first thread complete its
-			// update then the others of the same type will find the cache 
-			// updated and skip the update.
-			synchronized (this.metadataUpdateSync) 
-			{
-				if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
-					UpdateResponse response = null;
-					try 
-					{
+            // The code is safe even without the synchronized block
+            // Synchronize in order to let the first thread complete its
+            // update then the others of the same type will find the cache
+            // updated and skip the update.
+            synchronized (this.metadataUpdateSync) {
+                if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
+                    UpdateResponse response = null;
+                    try {
                         Metadata metadata = this.mediator.getMetadata(scopeId, channelInfo.getMessageTimestamp().getTime());
-						String kapuaIndexName = metadata.getKapuaIndexName();
+                        String kapuaIndexName = metadata.getKapuaIndexName();
 
-						response = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-											 .index(metadata.getKapuaIndexName())
-											 .upsert(channelInfo);
-						
-						channelInfoId = response.getId();
-						
-						logger.debug(String.format("Upsert on channel succesfully executed [%s.%s, %s]",
-									 kapuaIndexName, EsSchema.CHANNEL_TYPE_NAME, channelInfoId));
-						
-					} catch (DocumentAlreadyExistsException exc) {
-						logger.trace(String.format("Upsert failed because channel already exists [%s, %s]",
-									 channelInfoId, exc.getMessage()));
-					}
-					// Update cache if channel update is completed successfully
-					DatastoreCacheManager.getInstance().getChannelsCache().put(channelInfoId, true);
-				}
-			}
-		}
-		return new StorableIdImpl(channelInfoId);
-	}
+                        response = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+                                                   .index(metadata.getKapuaIndexName())
+                                                   .upsert(channelInfo);
 
-    public void delete(KapuaId scopeId, StorableId id) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsClientUnavailableException,
-    			   EsConfigurationException, 
-    			   EsQueryConversionException, 
-    			   EsObjectBuilderException
+                        channelInfoId = response.getId();
+
+                        logger.debug(String.format("Upsert on channel succesfully executed [%s.%s, %s]",
+                                                   kapuaIndexName, EsSchema.CHANNEL_TYPE_NAME, channelInfoId));
+
+                    }
+                    catch (DocumentAlreadyExistsException exc) {
+                        logger.trace(String.format("Upsert failed because channel already exists [%s, %s]",
+                                                   channelInfoId, exc.getMessage()));
+                    }
+                    // Update cache if channel update is completed successfully
+                    DatastoreCacheManager.getInstance().getChannelsCache().put(channelInfoId, true);
+                }
+            }
+        }
+        return new StorableIdImpl(channelInfoId);
+    }
+
+    /**
+     * Delete channel information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @throws KapuaIllegalArgumentException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public void delete(KapuaId scopeId, StorableId id)
+        throws KapuaIllegalArgumentException,
+        EsClientUnavailableException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -139,16 +166,28 @@ public class ChannelInfoRegistryFacade
         this.mediator.onBeforeChannelInfoDelete(scopeId, channelInfo);
 
         EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-                  .index(indexName)
-                  .deleteById(id.toString());
+                        .index(indexName)
+                        .deleteById(id.toString());
     }
 
-    public ChannelInfo find(KapuaId scopeId, StorableId id) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException, 
-    			   EsClientUnavailableException, 
-    			   EsQueryConversionException, 
-    			   EsObjectBuilderException
+    /**
+     * Find channel information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public ChannelInfo find(KapuaId scopeId, StorableId id)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException,
+        EsQueryConversionException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -172,12 +211,24 @@ public class ChannelInfoRegistryFacade
         return channelInfo;
     }
 
-    public ChannelInfoListResult query(KapuaId scopeId, ChannelInfoQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException, 
-    			   EsClientUnavailableException, 
-    			   EsQueryConversionException, 
-    			   EsObjectBuilderException
+    /**
+     * Find channels informations matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsClientUnavailableException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
+    public ChannelInfoListResult query(KapuaId scopeId, ChannelInfoQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException,
+        EsQueryConversionException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -197,17 +248,28 @@ public class ChannelInfoRegistryFacade
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         ChannelInfoListResult result = null;
         result = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-                           .index(indexName)
-                           .query(query);
+                                 .index(indexName)
+                                 .query(query);
 
         return result;
     }
 
-    public long count(KapuaId scopeId, ChannelInfoQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsConfigurationException, 
-    			   EsQueryConversionException, 
-    			   EsClientUnavailableException
+    /**
+     * Get channels informations count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaIllegalArgumentException
+     * @throws EsConfigurationException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
+    public long count(KapuaId scopeId, ChannelInfoQuery query)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
     {
         //
         // Argument Validation
@@ -227,18 +289,29 @@ public class ChannelInfoRegistryFacade
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         long result;
         result = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-                           .index(indexName)
-                           .count(query);
+                                 .index(indexName)
+                                 .count(query);
 
         return result;
     }
 
-    public void delete(KapuaId scopeId, ChannelInfoQuery query) 
-    		throws KapuaIllegalArgumentException, 
-    			   EsQueryConversionException, 
-    			   EsClientUnavailableException, 
-    			   EsConfigurationException, 
-    			   EsObjectBuilderException
+    /**
+     * Delete channels informations count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @throws KapuaIllegalArgumentException
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     * @throws EsConfigurationException
+     * @throws EsObjectBuilderException
+     */
+    public void delete(KapuaId scopeId, ChannelInfoQuery query)
+        throws KapuaIllegalArgumentException,
+        EsQueryConversionException,
+        EsClientUnavailableException,
+        EsConfigurationException,
+        EsObjectBuilderException
     {
         //
         // Argument Validation
@@ -264,8 +337,8 @@ public class ChannelInfoRegistryFacade
             this.mediator.onBeforeChannelInfoDelete(scopeId, channelInfo);
 
         EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
-                  .index(indexName)
-                  .deleteByQuery(query);
+                        .index(indexName)
+                        .deleteByQuery(query);
     }
 
 }

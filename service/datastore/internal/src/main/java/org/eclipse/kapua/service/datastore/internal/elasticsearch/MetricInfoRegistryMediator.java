@@ -15,10 +15,17 @@ import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 
-public interface MetricInfoRegistryMediator 
+/**
+ * Metric information registry mediator definition
+ * 
+ * @since 1.0
+ *
+ */
+public interface MetricInfoRegistryMediator
 {
-	public Metadata getMetadata(KapuaId scopeId, long indexedOn) 
-			throws EsDocumentBuilderException, EsClientUnavailableException;
 
-	public void onAfterMetricInfoDelete(KapuaId scopeId, MetricInfo metricInfo);
+    public Metadata getMetadata(KapuaId scopeId, long indexedOn)
+        throws EsDocumentBuilderException, EsClientUnavailableException;
+
+    public void onAfterMetricInfoDelete(KapuaId scopeId, MetricInfo metricInfo);
 }

@@ -13,10 +13,26 @@ package org.eclipse.kapua.service.datastore.internal.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 
+/**
+ * Metrics index by options
+ * 
+ * @since 1.0
+ *
+ */
 @XmlEnum
-public enum MetricsIndexBy 
+public enum MetricsIndexBy
 {
+    /**
+     * By timestamp.<br>
+     * The message will be indexed by the timestamp of the device (capturedOn message field)
+     */
     TIMESTAMP,
+    /**
+     * By value
+     */
     VALUE,
+    /**
+     * No indexing
+     */
     NONE;
 }

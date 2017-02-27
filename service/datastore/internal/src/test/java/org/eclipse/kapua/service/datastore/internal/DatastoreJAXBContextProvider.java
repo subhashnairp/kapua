@@ -33,7 +33,7 @@ public class DatastoreJAXBContextProvider implements JAXBContextProvider
 {
 
     @SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(DatastoreJAXBContextProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(DatastoreJAXBContextProvider.class);
 
     private JAXBContext context;
 

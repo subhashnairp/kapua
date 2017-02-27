@@ -21,26 +21,26 @@ public class MetricInfoQueryConverter extends AbstractStorableQueryConverter<Met
     @Override
     protected String[] getIncludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {""};
+        return new String[] { "" };
     }
 
     @Override
     protected String[] getExcludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {"*"};
+        return new String[] { "*" };
     }
 
     @Override
     protected String[] getFields()
     {
         return new String[] { MetricInfoField.ACCOUNT.field(),
-        					  MetricInfoField.CLIENT_ID.field(),
-        					  MetricInfoField.CHANNEL.field(),
-        					  MetricInfoField.NAME_FULL.field(),
-        					  MetricInfoField.TYPE_FULL.field(),
-        					  MetricInfoField.VALUE_FULL.field(),
-        					  MetricInfoField.TIMESTAMP_FULL.field(),
-        					  MetricInfoField.MESSAGE_ID_FULL.field() };
+                              MetricInfoField.CLIENT_ID.field(),
+                              MetricInfoField.CHANNEL.field(),
+                              MetricInfoField.NAME_FULL.field(),
+                              MetricInfoField.TYPE_FULL.field(),
+                              MetricInfoField.VALUE_FULL.field(),
+                              MetricInfoField.TIMESTAMP_FULL.field(),
+                              MetricInfoField.MESSAGE_ID_FULL.field() };
     }
 
 }

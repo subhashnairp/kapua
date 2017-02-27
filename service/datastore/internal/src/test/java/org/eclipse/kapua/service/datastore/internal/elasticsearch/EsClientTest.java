@@ -18,10 +18,12 @@ import java.net.UnknownHostException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Ignore
-public class EsClientTest {
+public class EsClientTest
+{
 
     @Test
-    public void elascticSearchClientShouldDefaultToLocalhost() throws EsDatastoreException, UnknownHostException {
+    public void elascticSearchClientShouldDefaultToLocalhost() throws EsDatastoreException, UnknownHostException
+    {
         // When
         TransportClient client = (TransportClient) ElasticsearchClient.getInstance();
 

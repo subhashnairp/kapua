@@ -56,18 +56,24 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Metric information registry implementation.
+ * 
+ * @since 1.0
+ *
+ */
 @KapuaProvider
 public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements MetricInfoRegistryService
 {
-    private static final long    serialVersionUID = 7490084233555473342L;
-    
+    private static final long serialVersionUID = 7490084233555473342L;
+
     private static final Domain datastoreDomain = new DatastoreDomain();
 
-    private static final Logger  logger           = LoggerFactory.getLogger(MetricInfoRegistryServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MetricInfoRegistryServiceImpl.class);
 
-    private final AccountService       accountService;
-    private final AuthorizationService authorizationService;
-    private final PermissionFactory    permissionFactory;
+    private final AccountService           accountService;
+    private final AuthorizationService     authorizationService;
+    private final PermissionFactory        permissionFactory;
     private final MetricInfoRegistryFacade metricInfoStoreFacade;
     private final MessageStoreService      messageStoreService;
     private final DatastoreObjectFactory   datastoreObjectFactory;
@@ -82,7 +88,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         permissionFactory = locator.getFactory(PermissionFactory.class);
         messageStoreService = locator.getService(MessageStoreService.class);
         datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
-        
+
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
         this.metricInfoStoreFacade = new MetricInfoRegistryFacade(configurationProvider, DatastoreMediator.getInstance());
@@ -93,59 +99,56 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try 
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        //
-	        // Check Access
-	        this.checkDataAccess(scopeId, Actions.delete);
-	
-	        this.metricInfoStoreFacade.delete(scopeId, id);
-    	}
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+            //
+            // Check Access
+            this.checkDataAccess(scopeId, Actions.delete);
+
+            this.metricInfoStoreFacade.delete(scopeId, id);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public MetricInfo find(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        //
-	        // Check Access
-	        this.checkDataAccess(scopeId, Actions.read);
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+            //
+            // Check Access
+            this.checkDataAccess(scopeId, Actions.read);
 
             // populate the lastMessageTimestamp
             MetricInfo metricInfo = this.metricInfoStoreFacade.find(scopeId, id);
-	
+
             metricInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, metricInfo));
 
             return metricInfo;
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public MetricInfoListResult query(KapuaId scopeId, MetricInfoQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        //
-	        // Check Access
-	        this.checkDataAccess(scopeId, Actions.read);
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+            //
+            // Check Access
+            this.checkDataAccess(scopeId, Actions.read);
 
             MetricInfoListResult result = this.metricInfoStoreFacade.query(scopeId, query);
 
@@ -153,53 +156,51 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             for (MetricInfo metricInfo : result) {
                 metricInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, metricInfo));
             }
-	
+
             return result;
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public long count(KapuaId scopeId, MetricInfoQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        //
-	        // Check Access
-	        this.checkDataAccess(scopeId, Actions.read);
-	
-	        return this.metricInfoStoreFacade.count(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+            //
+            // Check Access
+            this.checkDataAccess(scopeId, Actions.read);
+
+            return this.metricInfoStoreFacade.count(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public void delete(KapuaId scopeId, MetricInfoQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        //
-	        // Check Access
-	        this.checkDataAccess(scopeId, Actions.read);
-	
-	        this.metricInfoStoreFacade.delete(scopeId, query);
-		} 
-		catch (Exception e) {
-			throw KapuaException.internalError(e);
-		}
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            //
+            // Check Access
+            this.checkDataAccess(scopeId, Actions.read);
+
+            this.metricInfoStoreFacade.delete(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     private void checkDataAccess(KapuaId scopeId, Actions action)

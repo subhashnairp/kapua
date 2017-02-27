@@ -15,8 +15,20 @@ import org.eclipse.kapua.service.datastore.internal.AbstractStorableQuery;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 
+/**
+ * Channel information query implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ChannelInfoQueryImpl extends AbstractStorableQuery<ChannelInfo> implements ChannelInfoQuery
 {
+
+    /**
+     * Create and keep a copy of the given query
+     * 
+     * @param query
+     */
     public void copy(ChannelInfoQuery query)
     {
         super.copy(query);

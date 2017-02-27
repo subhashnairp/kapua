@@ -13,6 +13,12 @@ package org.eclipse.kapua.service.datastore.model.query;
 
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 
+/**
+ * Metric information schema query definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface MetricInfoQuery extends StorableQuery<MetricInfo>
 {
 

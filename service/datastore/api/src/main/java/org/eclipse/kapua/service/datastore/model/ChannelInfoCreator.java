@@ -13,21 +13,67 @@ package org.eclipse.kapua.service.datastore.model;
 
 import java.util.Date;
 
+/**
+ * Channel information schema creator definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface ChannelInfoCreator extends StorableCreator<ChannelInfo>
 {
-	public String getAccount();
-	
-	public String getClientId();
-	
+    /**
+     * Get the account
+     * 
+     * @return
+     */
+    public String getAccount();
+
+    /**
+     * Get the client identifier
+     * 
+     * @return
+     */
+    public String getClientId();
+
+    /**
+     * Get the channel
+     * 
+     * @return
+     */
     public String getChannel();
-	
+
+    /**
+     * Set the channel
+     * 
+     * @param channel
+     */
     public void setChannel(String channel);
-    
-    public StorableId getLastMessageId();
-    
-    public void setLastMessageId(StorableId lastMessageId);
-    
-    public Date getLastMessageTimestamp();
-    
-    public void setLastMessageTimestamp(Date lastMessageTimestamp);
+
+    /**
+     * Get the message identifier (of the first message published on this channel)
+     * 
+     * @return
+     */
+    public StorableId getMessageId();
+
+    /**
+     * Set the message identifier (of the first message published on this channel)
+     * 
+     * @param messageId
+     */
+    public void setMessageId(StorableId messageId);
+
+    /**
+     * Get the message timestamp (of the first message published on this channel)
+     * 
+     * @return
+     */
+    public Date getMessageTimestamp();
+
+    /**
+     * Set the message timestamp (of the first message published on this channel)
+     * 
+     * @param messageTimestamp
+     */
+    public void setMessageTimestamp(Date messageTimestamp);
 }

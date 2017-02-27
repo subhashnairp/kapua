@@ -21,23 +21,23 @@ public class ChannelInfoQueryConverter extends AbstractStorableQueryConverter<Ch
     @Override
     protected String[] getIncludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {""};
+        return new String[] { "" };
     }
 
     @Override
     protected String[] getExcludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {"*"};
+        return new String[] { "*" };
     }
 
     @Override
     protected String[] getFields()
     {
-        return new String[] {ChannelInfoField.CHANNEL.field(),
-        					 ChannelInfoField.TIMESTAMP.field(),
-        					 ChannelInfoField.MESSAGE_ID.field(),
-        					 ChannelInfoField.CLIENT_ID.field(),
-        					 ChannelInfoField.ACCOUNT.field()};
+        return new String[] { ChannelInfoField.CHANNEL.field(),
+                              ChannelInfoField.TIMESTAMP.field(),
+                              ChannelInfoField.MESSAGE_ID.field(),
+                              ChannelInfoField.CLIENT_ID.field(),
+                              ChannelInfoField.ACCOUNT.field() };
     }
 
 }

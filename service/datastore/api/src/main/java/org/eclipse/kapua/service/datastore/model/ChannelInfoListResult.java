@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model;
 
+/**
+ * Channel information query result list definition.<br>
+ * This object contains the list of the channel information objects retrieved by the search service.
+ * 
+ * @since 1.0
+ *
+ */
 public interface ChannelInfoListResult extends StorableListResult<ChannelInfo>
 {
 

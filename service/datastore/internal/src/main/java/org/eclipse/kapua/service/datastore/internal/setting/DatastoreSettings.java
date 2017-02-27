@@ -13,9 +13,14 @@ package org.eclipse.kapua.service.datastore.internal.setting;
 
 import org.eclipse.kapua.commons.setting.AbstractKapuaSetting;
 
+/**
+ * Datastore settings implementation
+ * 
+ * @since 1.0
+ */
 public class DatastoreSettings extends AbstractKapuaSetting<DatastoreSettingKey>
 {
-    private static final String    DATASTORE_CONFIG_RESOURCE = "kapua-datastore-setting.properties";
+    private static final String DATASTORE_CONFIG_RESOURCE = "kapua-datastore-setting.properties";
 
     private static final DatastoreSettings instance = new DatastoreSettings();
 
@@ -24,6 +29,10 @@ public class DatastoreSettings extends AbstractKapuaSetting<DatastoreSettingKey>
         super(DATASTORE_CONFIG_RESOURCE);
     }
 
+    /**
+     * Get the datastore setting instance
+     * @return
+     */
     public static DatastoreSettings getInstance()
     {
         return instance;

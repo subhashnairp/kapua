@@ -23,55 +23,68 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfiguratio
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 
-public class ConfigurationProviderImpl implements ConfigurationProvider {
+/**
+ * Datastore configuration provider implementation.
+ * 
+ * @since 1.0
+ *
+ */
+public class ConfigurationProviderImpl implements ConfigurationProvider
+{
 
-	private AccountService accountService;
-	private KapuaConfigurableService configurableService;
-	
-	public ConfigurationProviderImpl(KapuaConfigurableService configurableService, 
+    private AccountService           accountService;
+    private KapuaConfigurableService configurableService;
+
+    public ConfigurationProviderImpl(KapuaConfigurableService configurableService,
                                      AccountService accountService)
     {
-		this.accountService  = accountService;
-		this.configurableService = configurableService;
-	}
-	
-	@Override
-	public MessageStoreConfiguration getConfiguration(KapuaId scopeId) 
-			throws EsConfigurationException {
-		
+        this.accountService = accountService;
+        this.configurableService = configurableService;
+    }
+
+    @Override
+    public MessageStoreConfiguration getConfiguration(KapuaId scopeId)
+        throws EsConfigurationException
+    {
+
         MessageStoreConfiguration messageStoreConfiguration = null;
         try {
             messageStoreConfiguration = new MessageStoreConfiguration(configurableService.getConfigValues(scopeId));
-		} catch (KapuaException e) {
-			throw new EsConfigurationException(e);
-		}
-        
-        return messageStoreConfiguration;
-	}
-	
-	@Override
-    public MessageInfo getInfo(KapuaId scopeId)
-			throws EsConfigurationException {
+        }
+        catch (KapuaException e) {
+            throw new EsConfigurationException(e);
+        }
 
-        Account account = null;        
-		if (scopeId != null) {
-			try {
-				account = KapuaSecurityUtils.doPriviledge(new Callable<Account>() {
-	
-					@Override
-					public Account call() throws Exception {
-						return accountService.find(scopeId);
-					}
-					
-				});
-			} catch (KapuaException exc) {
-				throw new EsConfigurationException(exc);
-			} catch (Exception exc) {
-				throw new EsConfigurationException(exc);
-			}
-		}
-        
+        return messageStoreConfiguration;
+    }
+
+    @Override
+    public MessageInfo getInfo(KapuaId scopeId)
+        throws EsConfigurationException
+    {
+
+        Account account = null;
+        if (scopeId != null) {
+            try {
+                account = KapuaSecurityUtils.doPriviledge(new Callable<Account>() {
+
+                    @Override
+                    public Account call() throws Exception
+                    {
+                        return accountService.find(scopeId);
+                    }
+
+                });
+            }
+            catch (KapuaException exc) {
+                throw new EsConfigurationException(exc);
+            }
+            catch (Exception exc) {
+                throw new EsConfigurationException(exc);
+            }
+        }
+
         return new MessageInfo(account);
-	}
+    }
 
 }

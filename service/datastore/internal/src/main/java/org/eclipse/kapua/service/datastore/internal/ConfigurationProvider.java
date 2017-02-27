@@ -16,11 +16,33 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfiguratio
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
 
-public interface ConfigurationProvider {
+/**
+ * Define a datastore configuration provider.<br>
+ * These service is responsible to get the configuration parameters (profiled by account) such as the data ttl.
+ * 
+ * @since 1.0
+ *
+ */
+public interface ConfigurationProvider
+{
 
-	public MessageStoreConfiguration getConfiguration(KapuaId scopeId) 
-			throws EsConfigurationException;
-	
+    /**
+     * Get the configuration for the given scope
+     * 
+     * @param scopeId
+     * @return
+     * @throws EsConfigurationException
+     */
+    public MessageStoreConfiguration getConfiguration(KapuaId scopeId)
+        throws EsConfigurationException;
+
+    /**
+     * Get the message information for the given scope
+     * 
+     * @param scopeId
+     * @return
+     * @throws EsConfigurationException
+     */
     public MessageInfo getInfo(KapuaId scopeId)
-			throws EsConfigurationException;
+        throws EsConfigurationException;
 }

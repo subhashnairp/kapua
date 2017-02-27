@@ -20,21 +20,67 @@ import org.eclipse.kapua.service.datastore.model.ClientInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 
+/**
+ * Client information registry service definition.<br>
+ * The client information keeps information about the clients that published messages on the platform.
+ * 
+ * @since 1.0
+ *
+ */
 public interface ClientInfoRegistryService extends KapuaService,
-                                       KapuaConfigurableService
+                                           KapuaConfigurableService
 {
+
+    /**
+     * Delete client information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @throws KapuaException
+     */
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException;
 
+    /**
+     * Find client information by identifier
+     * 
+     * @param scopeId
+     * @param id
+     * @return
+     * @throws KapuaException
+     */
     public ClientInfo find(KapuaId scopeId, StorableId id)
         throws KapuaException;
 
+    /**
+     * Query for clients informations objects matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaException
+     */
     public ClientInfoListResult query(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException;
 
+    /**
+     * Get the clients informations count matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @return
+     * @throws KapuaException
+     */
     public long count(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException;
 
+    /**
+     * Delete clients informations matching the given query
+     * 
+     * @param scopeId
+     * @param query
+     * @throws KapuaException
+     */
     public void delete(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException;
 }

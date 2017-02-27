@@ -20,34 +20,55 @@ import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 
-public class ChannelInfoObjectBuilder {
-	
-	private ChannelInfoImpl channelInfo;
-	
-	public ChannelInfoObjectBuilder build(SearchHit searchHit) 
-			throws EsObjectBuilderException
-	{
-		String id = searchHit.getId();
+/**
+ * Channel information object builder.<br>
+ * This object converts the schema coming from an Elasticsearch search hit to a Kapua channel information object (unmarshal).
+ * 
+ * @since 1.0
+ *
+ */
+public class ChannelInfoObjectBuilder
+{
 
-		Map<String, SearchHitField> fields = searchHit.getFields();
-		String channel = fields.get(EsSchema.CHANNEL_NAME).getValue();
-		String lastMsgId = fields.get(EsSchema.CHANNEL_MESSAGE_ID).getValue();
-		String lastMsgTimestampStr = fields.get(EsSchema.CHANNEL_TIMESTAMP).getValue();
-		String clientId = fields.get(EsSchema.CHANNEL_CLIENT_ID).getValue();
-		String account = fields.get(EsSchema.CHANNEL_ACCOUNT).getValue();
-		
-		channelInfo = new ChannelInfoImpl(account, new StorableIdImpl(id));
-		channelInfo.setClientId(clientId);
-		channelInfo.setChannel(channel);
+    private ChannelInfoImpl channelInfo;
+
+    /**
+     * Build a {@link ChannelInfoObjectBuilder} from the Elasticsearch search hit
+     * 
+     * @param searchHit
+     * @return
+     * @throws EsObjectBuilderException
+     */
+    public ChannelInfoObjectBuilder build(SearchHit searchHit)
+        throws EsObjectBuilderException
+    {
+        String id = searchHit.getId();
+
+        Map<String, SearchHitField> fields = searchHit.getFields();
+        String channel = fields.get(EsSchema.CHANNEL_NAME).getValue();
+        String lastMsgId = fields.get(EsSchema.CHANNEL_MESSAGE_ID).getValue();
+        String lastMsgTimestampStr = fields.get(EsSchema.CHANNEL_TIMESTAMP).getValue();
+        String clientId = fields.get(EsSchema.CHANNEL_CLIENT_ID).getValue();
+        String account = fields.get(EsSchema.CHANNEL_ACCOUNT).getValue();
+
+        channelInfo = new ChannelInfoImpl(account, new StorableIdImpl(id));
+        channelInfo.setClientId(clientId);
+        channelInfo.setChannel(channel);
         channelInfo.setMessageId(new StorableIdImpl(lastMsgId));
 
-		Date timestamp = (Date)EsUtils.convertToKapuaObject("date", lastMsgTimestampStr);
+        Date timestamp = (Date) EsUtils.convertToKapuaObject("date", lastMsgTimestampStr);
         channelInfo.setMessageTimestamp(timestamp);
-		
-		return this;
-	}
 
-	public ChannelInfo getChannelInfo() {
-		return this.channelInfo;
-	}
+        return this;
+    }
+
+    /**
+     * Get the built Kapua channel information object
+     * 
+     * @return
+     */
+    public ChannelInfo getChannelInfo()
+    {
+        return this.channelInfo;
+    }
 }

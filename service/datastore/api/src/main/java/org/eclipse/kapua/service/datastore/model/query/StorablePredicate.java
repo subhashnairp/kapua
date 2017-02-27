@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Storable query predicate definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface StorablePredicate
-{
-}
+{}

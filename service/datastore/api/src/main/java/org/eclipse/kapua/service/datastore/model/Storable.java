@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model;
 
+/**
+ * Storable object definition
+ * 
+ * @since 1.0
+ */
 public interface Storable
 {
 

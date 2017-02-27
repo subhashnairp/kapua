@@ -13,33 +13,88 @@ package org.eclipse.kapua.service.datastore.model;
 
 import java.util.Date;
 
+/**
+ * Channel information schema definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface ChannelInfo extends Storable
 {
+    /**
+     * Get the record identifier
+     * 
+     * @return
+     */
     public StorableId getId();
-    
+
+    /**
+     * Get the account
+     * 
+     * @return
+     */
     public String getAccount();
-    
+
+    /**
+     * Get the client identifier
+     * 
+     * @return
+     */
     public String getClientId();
 
+    /**
+     * Get the channel
+     * 
+     * @return
+     */
     public String getChannel();
 
+    /**
+     * Set the channel
+     * 
+     * @param channel
+     */
     public void setChannel(String channel);
-    
+
+    /**
+     * Get the message identifier (of the first message published on this channel)
+     */
     public StorableId getMessageId();
-    
+
+    /**
+     * Set the message identifier (of the first message published on this channel)
+     * 
+     * @param messageId
+     */
     public void setMessageId(StorableId messageId);
-    
+
+    /**
+     * Get the message timestamp (of the first message published on this channel)
+     * 
+     * @return
+     */
     public Date getMessageTimestamp();
-    
+
+    /**
+     * Set the message timestamp (of the first message published on this channel)
+     * 
+     * @param messageTimestamp
+     */
     public void setMessageTimestamp(Date messageTimestamp);
 
     /**
-     * Transient data field (the last publish timestamp should get from the message table by the find service)
+     * Get the timestamp of the last published message for this channel.<br>
+     * <b>Transient data field (the last publish timestamp should get from the message table by the find service)</b>
      * 
      * @return
      */
     public Date getLastMessageTimestamp();
 
+    /**
+     * Set the timestamp of the last published message for this channel.<br>
+     * <b>Transient data field (the last publish timestamp should get from the message table by the find service)</b>
+     * 
+     */
     public void setLastMessageTimestamp(Date lastMessageTimestamp);
 
 }

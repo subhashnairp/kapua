@@ -15,8 +15,20 @@ import org.eclipse.kapua.service.datastore.internal.AbstractStorableQuery;
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 
+/**
+ * Client information query implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ClientInfoQueryImpl extends AbstractStorableQuery<ClientInfo> implements ClientInfoQuery
 {
+
+    /**
+     * Create and keep a copy of the given query
+     * 
+     * @param query
+     */
     public void copy(ClientInfoQuery query)
     {
         super.copy(query);

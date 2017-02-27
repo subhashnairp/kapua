@@ -13,6 +13,11 @@ package org.eclipse.kapua.service.datastore.model.query;
 
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 
+/**
+ * Query message object definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface MessageQuery extends StorableQuery<DatastoreMessage>
-{
-}
+{}

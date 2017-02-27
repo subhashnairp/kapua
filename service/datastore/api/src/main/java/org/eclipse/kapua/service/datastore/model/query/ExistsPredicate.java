@@ -12,7 +12,7 @@
 package org.eclipse.kapua.service.datastore.model.query;
 
 /**
- * Exists Elasticsearch predicate wrapper
+ * Query predicate definition for checking if a field exists
  * 
  * @since 1.0
  *
@@ -21,7 +21,7 @@ public interface ExistsPredicate extends StorablePredicate
 {
 
     /**
-     * Returns the filed name to check
+     * Returns the field name to check
      * 
      * @return
      */

@@ -23,27 +23,36 @@ import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
+/**
+ * Datastore object factory implementation
+ * 
+ * @since 1.0
+ */
 @KapuaProvider
 public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory
 {
 
-	@Override
-	public ClientInfoQuery newClientInfoQuery() {
-		return new ClientInfoQueryImpl();
-	}
+    @Override
+    public ClientInfoQuery newClientInfoQuery()
+    {
+        return new ClientInfoQueryImpl();
+    }
 
-	@Override
-	public ChannelInfoQuery newChannelInfoQuery() {
-		return new ChannelInfoQueryImpl();
-	}
+    @Override
+    public ChannelInfoQuery newChannelInfoQuery()
+    {
+        return new ChannelInfoQueryImpl();
+    }
 
-	@Override
-	public MetricInfoQuery newMetricInfoQuery() {
-		return new MetricInfoQueryImpl();
-	}
+    @Override
+    public MetricInfoQuery newMetricInfoQuery()
+    {
+        return new MetricInfoQueryImpl();
+    }
 
-	@Override
-	public <V> TermPredicate newTermPredicate(StorableField field, V value) {
-		return new TermPredicateImpl(field, value);
-	}
+    @Override
+    public <V> TermPredicate newTermPredicate(StorableField field, V value)
+    {
+        return new TermPredicateImpl(field, value);
+    }
 }

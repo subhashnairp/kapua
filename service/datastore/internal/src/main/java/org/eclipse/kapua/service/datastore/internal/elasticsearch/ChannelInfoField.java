@@ -13,21 +13,21 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 
-public enum ChannelInfoField implements StorableField 
+public enum ChannelInfoField implements StorableField
 {
     CHANNEL(EsSchema.CHANNEL_NAME),
     CLIENT_ID(EsSchema.CHANNEL_CLIENT_ID),
     ACCOUNT(EsSchema.CHANNEL_ACCOUNT),
     TIMESTAMP(EsSchema.CLIENT_TIMESTAMP),
     MESSAGE_ID(EsSchema.CLIENT_MESSAGE_ID);
-    
+
     private String field;
-    
+
     private ChannelInfoField(String name)
     {
-        this.field= name;
+        this.field = name;
     }
-    
+
     @Override
     public String field()
     {

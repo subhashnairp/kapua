@@ -15,6 +15,12 @@ import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 
+/**
+ * Implementation of query predicate for matching range values
+ * 
+ * @since 1.0
+ *
+ */
 public class RangePredicateImpl implements RangePredicate
 {
     private StorableField field;
@@ -25,17 +31,26 @@ public class RangePredicateImpl implements RangePredicate
     {
         if (minValue == null || maxValue == null)
             return;
-        
+
         V min = clazz.cast(minValue);
         V max = clazz.cast(maxValue);
         if (min.compareTo(max) > 0)
             throw KapuaException.internalError("Min value must not be graeter than max value");
     }
-    
-    public RangePredicateImpl()
-    {
-    }
 
+    /**
+     * Default constructor
+     */
+    public RangePredicateImpl()
+    {}
+
+    /**
+     * Construct a range predicate given the field and the values
+     * 
+     * @param field
+     * @param minValue
+     * @param maxValue
+     */
     public <V extends Comparable<V>> RangePredicateImpl(StorableField field, V minValue, V maxValue)
     {
         this.field = field;
@@ -49,6 +64,12 @@ public class RangePredicateImpl implements RangePredicate
         return this.field;
     }
 
+    /**
+     * Get the field
+     * 
+     * @param field
+     * @return
+     */
     public RangePredicate setField(StorableField field)
     {
         this.field = field;
@@ -67,6 +88,14 @@ public class RangePredicateImpl implements RangePredicate
         return clazz.cast(minValue);
     }
 
+    /**
+     * Set the minimum value (typed)
+     * 
+     * @param clazz
+     * @param minValue
+     * @return
+     * @throws KapuaException
+     */
     public <V extends Comparable<V>> RangePredicate setMinValue(Class<V> clazz, V minValue) throws KapuaException
     {
         this.minValue = minValue;
@@ -86,6 +115,14 @@ public class RangePredicateImpl implements RangePredicate
         return clazz.cast(maxValue);
     }
 
+    /**
+     * Set the maximum value (typed)
+     * 
+     * @param clazz
+     * @param maxValue
+     * @return
+     * @throws KapuaException
+     */
     public <V extends Comparable<V>> RangePredicate setMaxValue(Class<V> clazz, V maxValue) throws KapuaException
     {
         this.maxValue = maxValue;

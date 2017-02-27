@@ -30,32 +30,46 @@ import org.elasticsearch.search.SearchHitField;
 
 import com.fasterxml.jackson.core.Base64Variants;
 
+/**
+ * Message object builder.<br>
+ * This object converts the schema coming from an Elasticsearch search hit to a Kapua message object (unmarshal).
+ * 
+ * @since 1.0
+ *
+ */
 public class MessageObjectBuilder
 {
 
     private DatastoreMessage message;
 
-    public MessageObjectBuilder build(SearchHit searchHit, StorableFetchStyle fetchStyle) 
-    		throws EsObjectBuilderException
+    /**
+     * Build a {@link MessageObjectBuilder} from the Elasticsearch search hit
+     * 
+     * @param searchHit
+     * @param fetchStyle
+     * @return
+     * @throws EsObjectBuilderException
+     */
+    public MessageObjectBuilder build(SearchHit searchHit, StorableFetchStyle fetchStyle)
+        throws EsObjectBuilderException
     {
-    	Map<String, SearchHitField> searchHitFields = searchHit.getFields();
-    	String accountId = searchHitFields.get(EsSchema.MESSAGE_ACCOUNT_ID).getValue();
-    	String deviceId = searchHitFields.get(EsSchema.MESSAGE_DEVICE_ID).getValue();
-    	String clientId = searchHitFields.get(EsSchema.MESSAGE_CLIENT_ID).getValue();
+        Map<String, SearchHitField> searchHitFields = searchHit.getFields();
+        String accountId = searchHitFields.get(EsSchema.MESSAGE_ACCOUNT_ID).getValue();
+        String deviceId = searchHitFields.get(EsSchema.MESSAGE_DEVICE_ID).getValue();
+        String clientId = searchHitFields.get(EsSchema.MESSAGE_CLIENT_ID).getValue();
 
         DatastoreMessageImpl tmpMessage = new DatastoreMessageImpl();
         tmpMessage.setId(UUID.fromString(searchHit.getId()));
         KapuaDataChannelImpl dataChannel = new KapuaDataChannelImpl();
         tmpMessage.setChannel(dataChannel);
 
-    	SearchHitField timestampObj = searchHitFields.get(EsSchema.MESSAGE_TIMESTAMP);
-		tmpMessage.setTimestamp((Date) (timestampObj == null ? 
-				null : EsUtils.convertToKapuaObject("date", (String) timestampObj.getValue())));
+        SearchHitField timestampObj = searchHitFields.get(EsSchema.MESSAGE_TIMESTAMP);
+        tmpMessage.setTimestamp((Date) (timestampObj == null ? null : EsUtils.convertToKapuaObject("date", (String) timestampObj.getValue())));
 
- 		tmpMessage.setScopeId((accountId == null ? null : KapuaEid.parseCompactId(accountId)));
- 		tmpMessage.setDeviceId(deviceId == null ? null : KapuaEid.parseCompactId(deviceId));
- 		tmpMessage.setClientId(clientId);
-        tmpMessage.setDatastoreId(new StorableIdImpl(searchHit.getId()));			
+        tmpMessage.setScopeId((accountId == null ? null : KapuaEid.parseCompactId(accountId)));
+        tmpMessage.setDeviceId(deviceId == null ? null : KapuaEid.parseCompactId(deviceId));
+        tmpMessage.setClientId(clientId);
+        tmpMessage.setDatastoreId(new StorableIdImpl(searchHit.getId()));
 
         if (fetchStyle.equals(StorableFetchStyle.FIELDS)) {
             this.message = tmpMessage;
@@ -65,7 +79,7 @@ public class MessageObjectBuilder
         Map<String, Object> source = searchHit.getSource();
 
         @SuppressWarnings("unchecked")
-		List<String> channelParts = (List<String>) source.get(EsSchema.MESSAGE_CHANNEL_PARTS);
+        List<String> channelParts = (List<String>) source.get(EsSchema.MESSAGE_CHANNEL_PARTS);
         dataChannel.setSemanticParts(channelParts);
 
         KapuaDataPayloadImpl payload = new KapuaDataPayloadImpl();
@@ -73,10 +87,10 @@ public class MessageObjectBuilder
         if (source.get(EsSchema.MESSAGE_POSITION) != null) {
 
             @SuppressWarnings("unchecked")
-			Map<String, Object> positionMap = (Map<String, Object>) source.get(EsSchema.MESSAGE_POSITION);
+            Map<String, Object> positionMap = (Map<String, Object>) source.get(EsSchema.MESSAGE_POSITION);
 
             @SuppressWarnings("unchecked")
-			Map<String, Object> locationMap = (Map<String, Object>) positionMap.get(EsSchema.MESSAGE_POS_LOCATION);
+            Map<String, Object> locationMap = (Map<String, Object>) positionMap.get(EsSchema.MESSAGE_POS_LOCATION);
 
             position = new KapuaPositionImpl();
             if (locationMap != null && locationMap.get("lat") != null)
@@ -111,7 +125,7 @@ public class MessageObjectBuilder
 
             obj = positionMap.get(EsSchema.MESSAGE_POS_TIMESTAMP);
             if (obj != null)
-				position.setTimestamp((Date) EsUtils.convertToKapuaObject("date", (String) obj));
+                position.setTimestamp((Date) EsUtils.convertToKapuaObject("date", (String) obj));
 
             tmpMessage.setPosition(position);
         }
@@ -129,14 +143,14 @@ public class MessageObjectBuilder
         if (source.get(EsSchema.MESSAGE_METRICS) != null) {
 
             @SuppressWarnings("unchecked")
-			Map<String, Object> metrics = (Map<String, Object>) source.get(EsSchema.MESSAGE_METRICS);
-            
+            Map<String, Object> metrics = (Map<String, Object>) source.get(EsSchema.MESSAGE_METRICS);
+
             Map<String, Object> payloadMetrics = new HashMap<String, Object>();
-            
+
             String[] metricNames = metrics.keySet().toArray(new String[] {});
             for (String metricsName : metricNames) {
                 @SuppressWarnings("unchecked")
-				Map<String, Object> metricValue = (Map<String, Object>) metrics.get(metricsName);
+                Map<String, Object> metricValue = (Map<String, Object>) metrics.get(metricsName);
                 if (metricValue.size() > 0) {
                     String[] valueTypes = metricValue.keySet().toArray(new String[] {});
                     Object value = metricValue.get(valueTypes[0]);
@@ -146,7 +160,7 @@ public class MessageObjectBuilder
                     payloadMetrics.put(EsUtils.restoreMetricName(metricsName), EsUtils.convertToCorrectType(valueTypes[0], value));
                 }
             }
-            
+
             payload.setProperties(payloadMetrics);
         }
 
@@ -166,6 +180,11 @@ public class MessageObjectBuilder
         return this;
     }
 
+    /**
+     * Get the built Kapua message object
+     * 
+     * @return
+     */
     public DatastoreMessage getMessage()
     {
         return message;

@@ -14,21 +14,31 @@ package org.eclipse.kapua.service.datastore.internal.model.query;
 import org.eclipse.kapua.service.datastore.model.query.ExistsPredicate;
 
 /**
- * Exist predicate wrapper implementation
+ * Implementation of query predicate for checking if a field exists
  * 
  * @since 1.0
- * 
+ *
  */
 public class ExistsPredicateImpl implements ExistsPredicate
 {
 
     private String name;
 
+    /**
+     * Creates an exists predicate for the given field name
+     * 
+     * @param name
+     */
     public ExistsPredicateImpl(String name)
     {
         this.name = name;
     }
 
+    /**
+     * Creates an exists predicate concatenating the given fields name with a dot (useful for composite fileds)
+     * 
+     * @param paths
+     */
     public ExistsPredicateImpl(String... paths)
     {
         StringBuilder builder = new StringBuilder();

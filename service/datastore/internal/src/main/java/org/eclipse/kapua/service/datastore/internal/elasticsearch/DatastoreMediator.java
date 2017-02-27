@@ -38,152 +38,152 @@ import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 
 public class DatastoreMediator implements MessageStoreMediator,
-										ClientInfoRegistryMediator,
-										ChannelInfoRegistryMediator,
-										MetricInfoRegistryMediator
+                               ClientInfoRegistryMediator,
+                               ChannelInfoRegistryMediator,
+                               MetricInfoRegistryMediator
 {
 
-	private static DatastoreMediator instance ;
-	
-	private final EsSchema esSchema;
-	
-	private MessageStoreFacade messageStoreFacade;
-	private ClientInfoRegistryFacade clientInfoStoreFacade;
-	private ChannelInfoRegistryFacade channelInfoStoreFacade;
-	private MetricInfoRegistryFacade metricInfoStoreFacade;
-	
-	static {
-		instance = new DatastoreMediator();
-		
-		// Be sure the data registry services are instantiated
-		KapuaLocator.getInstance().getService(ClientInfoRegistryService.class);
-		KapuaLocator.getInstance().getService(ChannelInfoRegistryService.class);
-		KapuaLocator.getInstance().getService(MetricInfoRegistryService.class);
-	}
-	
-	private DatastoreMediator()
-	{
-		this.esSchema = new EsSchema();
-	}
-	
-	public static DatastoreMediator getInstance()
-	{
-		return instance;
-	}
+    private static DatastoreMediator instance;
 
-	public void setMessageStoreFacade(MessageStoreFacade messageStoreFacade)
-	{
-		this.messageStoreFacade = messageStoreFacade;
-	}
+    private final EsSchema esSchema;
 
-	public void setClientInfoStoreFacade(ClientInfoRegistryFacade clientInfoStoreFacade)
-	{
-		this.clientInfoStoreFacade = clientInfoStoreFacade;
-	}
+    private MessageStoreFacade        messageStoreFacade;
+    private ClientInfoRegistryFacade  clientInfoStoreFacade;
+    private ChannelInfoRegistryFacade channelInfoStoreFacade;
+    private MetricInfoRegistryFacade  metricInfoStoreFacade;
 
-	public void setChannelInfoStoreFacade(ChannelInfoRegistryFacade channelInfoStoreFacade)
-	{
-		this.channelInfoStoreFacade = channelInfoStoreFacade;
-	}
+    static {
+        instance = new DatastoreMediator();
 
-	public void setMetricInfoStoreFacade(MetricInfoRegistryFacade metricInfoStoreFacade)
-	{
-		this.metricInfoStoreFacade = metricInfoStoreFacade;
-	}
-	
-	/*
-	 * Message Store Mediator methods
-	 */
-	
-	@Override
-	public Metadata getMetadata(KapuaId scopeId, long indexedOn) 
-			throws EsDocumentBuilderException, EsClientUnavailableException 
-	{
-		return this.esSchema.synch(scopeId, indexedOn);
-	}
+        // Be sure the data registry services are instantiated
+        KapuaLocator.getInstance().getService(ClientInfoRegistryService.class);
+        KapuaLocator.getInstance().getService(ChannelInfoRegistryService.class);
+        KapuaLocator.getInstance().getService(MetricInfoRegistryService.class);
+    }
 
-	@Override
-	public void onUpdatedMappings(KapuaId scopeId, long indexedOn, Map<String, EsMetric> esMetrics) 
-			throws EsDocumentBuilderException, EsClientUnavailableException 
-	{
-		this.esSchema.updateMessageMappings(scopeId, indexedOn, esMetrics);
-	}
+    private DatastoreMediator()
+    {
+        this.esSchema = new EsSchema();
+    }
 
-	@Override
-	public void onAfterMessageStore(KapuaId scopeId,
-									MessageXContentBuilder docBuilder, 
-									KapuaMessage<?,?> message) 
-			throws KapuaIllegalArgumentException,
-				   EsDocumentBuilderException, 
-				   EsClientUnavailableException, 
-				   EsConfigurationException 
-	{
-		ClientInfoImpl clientInfo = new ClientInfoImpl(docBuilder.getAccountName());
-		clientInfo.setClientId(docBuilder.getClientId());
+    public static DatastoreMediator getInstance()
+    {
+        return instance;
+    }
+
+    public void setMessageStoreFacade(MessageStoreFacade messageStoreFacade)
+    {
+        this.messageStoreFacade = messageStoreFacade;
+    }
+
+    public void setClientInfoStoreFacade(ClientInfoRegistryFacade clientInfoStoreFacade)
+    {
+        this.clientInfoStoreFacade = clientInfoStoreFacade;
+    }
+
+    public void setChannelInfoStoreFacade(ChannelInfoRegistryFacade channelInfoStoreFacade)
+    {
+        this.channelInfoStoreFacade = channelInfoStoreFacade;
+    }
+
+    public void setMetricInfoStoreFacade(MetricInfoRegistryFacade metricInfoStoreFacade)
+    {
+        this.metricInfoStoreFacade = metricInfoStoreFacade;
+    }
+
+    /*
+     * Message Store Mediator methods
+     */
+
+    @Override
+    public Metadata getMetadata(KapuaId scopeId, long indexedOn)
+        throws EsDocumentBuilderException, EsClientUnavailableException
+    {
+        return this.esSchema.synch(scopeId, indexedOn);
+    }
+
+    @Override
+    public void onUpdatedMappings(KapuaId scopeId, long indexedOn, Map<String, EsMetric> esMetrics)
+        throws EsDocumentBuilderException, EsClientUnavailableException
+    {
+        this.esSchema.updateMessageMappings(scopeId, indexedOn, esMetrics);
+    }
+
+    @Override
+    public void onAfterMessageStore(KapuaId scopeId,
+                                    MessageXContentBuilder docBuilder,
+                                    KapuaMessage<?, ?> message)
+        throws KapuaIllegalArgumentException,
+        EsDocumentBuilderException,
+        EsClientUnavailableException,
+        EsConfigurationException
+    {
+        ClientInfoImpl clientInfo = new ClientInfoImpl(docBuilder.getAccountName());
+        clientInfo.setClientId(docBuilder.getClientId());
         clientInfo.setMessageId(docBuilder.getMessageId());
         clientInfo.setMessageTimestamp(docBuilder.getTimestamp());
-		String clientInfoId = ClientInfoXContentBuilder.getOrDeriveId(null, docBuilder.getAccountName(), docBuilder.getClientId());
-		clientInfo.setId(new StorableIdImpl(clientInfoId));
-		this.clientInfoStoreFacade.upstore(scopeId, clientInfo);
-		
-		ChannelInfoImpl channelInfo = new ChannelInfoImpl(docBuilder.getAccountName());
-		channelInfo.setClientId(docBuilder.getClientId());
-		channelInfo.setChannel(docBuilder.getChannel());
+        String clientInfoId = ClientInfoXContentBuilder.getOrDeriveId(null, docBuilder.getAccountName(), docBuilder.getClientId());
+        clientInfo.setId(new StorableIdImpl(clientInfoId));
+        this.clientInfoStoreFacade.upstore(scopeId, clientInfo);
+
+        ChannelInfoImpl channelInfo = new ChannelInfoImpl(docBuilder.getAccountName());
+        channelInfo.setClientId(docBuilder.getClientId());
+        channelInfo.setChannel(docBuilder.getChannel());
         channelInfo.setMessageId(docBuilder.getMessageId());
         channelInfo.setMessageTimestamp(docBuilder.getTimestamp());
-		channelInfo.setId(new StorableIdImpl(ChannelInfoXContentBuilder.getOrDeriveId(null, channelInfo)));
-		this.channelInfoStoreFacade.upstore(scopeId, channelInfo);
-		
-		KapuaPayload payload = message.getPayload();
-		if  (payload == null)
-			return;
-		
-		Map<String, Object> metrics = payload.getProperties();
-		if (metrics == null)
-			return;
-		
-		int i = 0;
-		MetricInfoImpl[] messageMetrics = new MetricInfoImpl[metrics.size()];
-		for(Map.Entry<String, Object> entry:metrics.entrySet()) {
-			MetricInfoImpl metricInfo = new MetricInfoImpl(docBuilder.getAccountName());
-			metricInfo.setClientId(docBuilder.getClientId());
-			metricInfo.setChannel(docBuilder.getChannel());
-			metricInfo.setName(entry.getKey());
-			metricInfo.setType(EsUtils.getEsTypeFromValue(entry.getValue()));
+        channelInfo.setId(new StorableIdImpl(ChannelInfoXContentBuilder.getOrDeriveId(null, channelInfo)));
+        this.channelInfoStoreFacade.upstore(scopeId, channelInfo);
+
+        KapuaPayload payload = message.getPayload();
+        if (payload == null)
+            return;
+
+        Map<String, Object> metrics = payload.getProperties();
+        if (metrics == null)
+            return;
+
+        int i = 0;
+        MetricInfoImpl[] messageMetrics = new MetricInfoImpl[metrics.size()];
+        for (Map.Entry<String, Object> entry : metrics.entrySet()) {
+            MetricInfoImpl metricInfo = new MetricInfoImpl(docBuilder.getAccountName());
+            metricInfo.setClientId(docBuilder.getClientId());
+            metricInfo.setChannel(docBuilder.getChannel());
+            metricInfo.setName(entry.getKey());
+            metricInfo.setType(EsUtils.getEsTypeFromValue(entry.getValue()));
             metricInfo.setMessageId(docBuilder.getMessageId());
             metricInfo.setMessageTimestamp(docBuilder.getTimestamp());
-			metricInfo.setValue(entry.getValue());
-			metricInfo.setId(new StorableIdImpl(MetricInfoXContentBuilder.getOrDeriveId(null, metricInfo)));
-			messageMetrics[i++] = metricInfo;
-		}
-		
-		this.metricInfoStoreFacade.upstore(scopeId, messageMetrics);
-	}
-	
-	/*
-	 * ClientInfo Store Mediator methods
-	 */
+            metricInfo.setValue(entry.getValue());
+            metricInfo.setId(new StorableIdImpl(MetricInfoXContentBuilder.getOrDeriveId(null, metricInfo)));
+            messageMetrics[i++] = metricInfo;
+        }
 
-	@Override
-	public void onAfterClientInfoDelete(KapuaId scopeId, ClientInfo clientInfo) 
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsClientUnavailableException 
-	{
+        this.metricInfoStoreFacade.upstore(scopeId, messageMetrics);
+    }
+
+    /*
+     * ClientInfo Store Mediator methods
+     */
+
+    @Override
+    public void onAfterClientInfoDelete(KapuaId scopeId, ClientInfo clientInfo)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException
+    {
         this.messageStoreFacade.delete(scopeId, clientInfo.getMessageId());
-	}
-	
-	/*
-	 * ChannelInfo Store Mediator methods
-	 */
+    }
 
-	@Override
-	public void onBeforeChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo) 
-			throws KapuaIllegalArgumentException, 
-				   EsConfigurationException, 
-				   EsQueryConversionException, 
-				   EsClientUnavailableException 
-	{
+    /*
+     * ChannelInfo Store Mediator methods
+     */
+
+    @Override
+    public void onBeforeChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException
+    {
         MessageQueryImpl mqi = new MessageQueryImpl();
         ChannelMatchPredicateImpl predicate = new ChannelMatchPredicateImpl(channelInfo.getChannel());
         mqi.setPredicate(predicate);
@@ -192,23 +192,23 @@ public class DatastoreMediator implements MessageStoreMediator,
         MetricInfoQueryImpl miqi = new MetricInfoQueryImpl();
         mqi.setPredicate(predicate);
         this.metricInfoStoreFacade.delete(scopeId, miqi);
-	}
+    }
 
-	@Override
-	public void onAfterChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo) 
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
-	/*
-	 * MetricInfo Store Mediator methods
-	 */
+    @Override
+    public void onAfterChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo)
+    {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void onAfterMetricInfoDelete(KapuaId scopeId, MetricInfo metricInfo) 
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    }
+
+    /*
+     * MetricInfo Store Mediator methods
+     */
+
+    @Override
+    public void onAfterMetricInfoDelete(KapuaId scopeId, MetricInfo metricInfo)
+    {
+        // TODO Auto-generated method stub
+
+    }
 }

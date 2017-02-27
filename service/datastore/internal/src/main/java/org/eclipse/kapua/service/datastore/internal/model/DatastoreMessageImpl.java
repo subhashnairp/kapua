@@ -19,26 +19,46 @@ import org.eclipse.kapua.message.internal.KapuaMessageImpl;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Implementation of the message returned by the data store find services
+ * 
+ * @since 1.0
+ *
+ */
 public class DatastoreMessageImpl extends KapuaMessageImpl<KapuaChannel, KapuaPayload> implements DatastoreMessage
 {
-	private StorableId datastoreId;
-	private Date timestamp;
-	
-	@Override
-	public StorableId getDatastoreId() {
-		return datastoreId;
-	}
-	
-	public void setDatastoreId(StorableId id) {
-		this.datastoreId = id;
-	}
+    private StorableId datastoreId;
+    private Date       timestamp;
 
-	@Override
-	public Date getTimestamp() {
-		return this.timestamp;
-	}
-	
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
+    @Override
+    public StorableId getDatastoreId()
+    {
+        return datastoreId;
+    }
+
+    /**
+     * Set the datastore message identifier
+     * 
+     * @param id
+     */
+    public void setDatastoreId(StorableId id)
+    {
+        this.datastoreId = id;
+    }
+
+    @Override
+    public Date getTimestamp()
+    {
+        return this.timestamp;
+    }
+
+    /**
+     * Set the message timestamp
+     * 
+     * @param timestamp
+     */
+    public void setTimestamp(Date timestamp)
+    {
+        this.timestamp = timestamp;
+    }
 }

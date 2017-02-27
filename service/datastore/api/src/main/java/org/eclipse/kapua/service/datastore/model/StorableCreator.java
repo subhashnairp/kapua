@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model;
 
+/**
+ * Storable object creator definition
+ * 
+ * @since 1.0
+ *
+ * @param <E>
+ */
 public interface StorableCreator<E extends Storable>
 {
 

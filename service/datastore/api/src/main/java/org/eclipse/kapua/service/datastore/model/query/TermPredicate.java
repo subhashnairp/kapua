@@ -11,9 +11,34 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Query predicate definition for matching field value
+ * 
+ * @since 1.0
+ *
+ */
 public interface TermPredicate extends StorablePredicate
 {
+
+    /**
+     * Return the field
+     * 
+     * @return
+     */
     public StorableField getField();
+
+    /**
+     * Return the value
+     * 
+     * @return
+     */
     public Object getValue();
+
+    /**
+     * Return the value (typed)
+     * 
+     * @param clazz
+     * @return
+     */
     public <V> V getValue(Class<V> clazz);
 }

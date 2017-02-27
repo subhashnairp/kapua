@@ -11,7 +11,24 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Fetch style behavior
+ * 
+ * @since 1.0
+ *
+ */
 public enum StorableFetchStyle
 {
-    FIELDS, SOURCE_SELECT, SOURCE_FULL;
+    /**
+     * Only indexed fields
+     */
+    FIELDS,
+    /**
+     * Full document (except the message body)
+     */
+    SOURCE_SELECT,
+    /**
+     * Full document
+     */
+    SOURCE_FULL;
 }

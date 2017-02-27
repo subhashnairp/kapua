@@ -15,20 +15,40 @@ import org.eclipse.kapua.service.datastore.internal.model.query.AbstractStorable
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
 
+/**
+ * Channel information query result list implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ChannelInfoListResultImpl extends AbstractStorableListResult<ChannelInfo> implements ChannelInfoListResult
 {
     private static final long serialVersionUID = -6150141413325816028L;
 
+    /**
+     * Construct a channel info result list
+     */
     public ChannelInfoListResultImpl()
     {
         super();
     }
 
+    /**
+     * Construct a channel info result list linking the next result list
+     * 
+     * @param nextKey
+     */
     public ChannelInfoListResultImpl(Object nextKey)
     {
         super(nextKey);
     }
 
+    /**
+     * Construct a channel info result list linking the next result list and setting the total count
+     * 
+     * @param nextKey
+     * @param totalCount
+     */
     public ChannelInfoListResultImpl(Object nextKey, Long totalCount)
     {
         super(nextKey, totalCount);

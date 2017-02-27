@@ -21,21 +21,21 @@ public class ClientInfoQueryConverter extends AbstractStorableQueryConverter<Cli
     @Override
     protected String[] getIncludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {""};
+        return new String[] { "" };
     }
 
     @Override
     protected String[] getExcludes(StorableFetchStyle fetchStyle)
     {
-        return new String[] {"*"};
+        return new String[] { "*" };
     }
 
     @Override
     protected String[] getFields()
     {
         return new String[] { ClientInfoField.CLIENT_ID.field(),
-        					  ClientInfoField.TIMESTAMP.field(),
-        					  ClientInfoField.ACCOUNT.field(),
-        					  ClientInfoField.MESSAGE_ID.field() };
+                              ClientInfoField.TIMESTAMP.field(),
+                              ClientInfoField.ACCOUNT.field(),
+                              ClientInfoField.MESSAGE_ID.field() };
     }
 }

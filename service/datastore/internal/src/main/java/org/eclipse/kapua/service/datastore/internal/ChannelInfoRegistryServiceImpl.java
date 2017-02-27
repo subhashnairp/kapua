@@ -54,18 +54,24 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Channel info registry implementation
+ * 
+ * @since 1.0
+ *
+ */
 @KapuaProvider
 public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements ChannelInfoRegistryService
 {
-    private static final long   serialVersionUID = 7839070776817998600L;
+    private static final long serialVersionUID = 7839070776817998600L;
 
     private static final Domain datastoreDomain = new DatastoreDomain();
-    
-    private static final Logger logger           = LoggerFactory.getLogger(ChannelInfoRegistryServiceImpl.class);
 
-    private final AccountService      accountService;
-    private final AuthorizationService        authorizationService;
-    private final PermissionFactory           permissionFactory;
+    private static final Logger logger = LoggerFactory.getLogger(ChannelInfoRegistryServiceImpl.class);
+
+    private final AccountService            accountService;
+    private final AuthorizationService      authorizationService;
+    private final PermissionFactory         permissionFactory;
     private final ChannelInfoRegistryFacade channelInfoStoreFacade;
     private final MessageStoreService       messageStoreService;
     private final DatastoreObjectFactory    datastoreObjectFactory;
@@ -80,7 +86,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
         permissionFactory = locator.getFactory(PermissionFactory.class);
         messageStoreService = locator.getService(MessageStoreService.class);
         datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
-        
+
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
         this.channelInfoStoreFacade = new ChannelInfoRegistryFacade(configurationProvider, DatastoreMediator.getInstance());
@@ -91,51 +97,48 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
     public void delete(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.delete);
-	
-	        this.channelInfoStoreFacade.delete(scopeId, id);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.delete);
+
+            this.channelInfoStoreFacade.delete(scopeId, id);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public ChannelInfo find(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	        
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
             ChannelInfo channelInfo = this.channelInfoStoreFacade.find(scopeId, id);
 
             // populate the lastMessageTimestamp
             channelInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, channelInfo));
 
             return channelInfo;
-    	}
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public ChannelInfoListResult query(KapuaId scopeId, ChannelInfoQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	        
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
             ChannelInfoListResult result = this.channelInfoStoreFacade.query(scopeId, query);
 
             // populate the lastMessageTimestamp
@@ -144,44 +147,42 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
             }
 
             return result;
-    	}
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
-   }
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
+    }
 
     @Override
     public long count(KapuaId scopeId, ChannelInfoQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	
-	        this.checkDataAccess(scopeId, Actions.read);
-	
-	        return this.channelInfoStoreFacade.count(scopeId, query);
-    	}
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.read);
+
+            return this.channelInfoStoreFacade.count(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public void delete(KapuaId scopeId, ChannelInfoQuery query)
         throws KapuaException
     {
-    	try
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        this.checkDataAccess(scopeId, Actions.delete);
-	
-	        this.delete(scopeId, query);
-    	}
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkDataAccess(scopeId, Actions.delete);
+
+            this.delete(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     private void checkDataAccess(KapuaId scopeId, Actions action)

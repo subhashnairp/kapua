@@ -13,20 +13,20 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 
-public enum ClientInfoField implements StorableField 
+public enum ClientInfoField implements StorableField
 {
     ACCOUNT(EsSchema.CLIENT_ACCOUNT),
     CLIENT_ID(EsSchema.CLIENT_ID),
     TIMESTAMP(EsSchema.CLIENT_TIMESTAMP),
     MESSAGE_ID(EsSchema.CLIENT_MESSAGE_ID);
-    
+
     private String field;
-    
+
     private ClientInfoField(String name)
     {
-        this.field= name;
+        this.field = name;
     }
-    
+
     @Override
     public String field()
     {

@@ -98,16 +98,16 @@ import org.slf4j.LoggerFactory;
 public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
 {
 
-    private static final Logger s_logger = LoggerFactory.getLogger(MessageStoreServiceTest.class);
+    private static final Logger s_logger                            = LoggerFactory.getLogger(MessageStoreServiceTest.class);
     private static final long   QUERY_TIME_WINDOW                   = 2000l;
     private static final long   PUBLISH_DATE_TEST_CHECK_TIME_WINDOW = 1000l;
 
-    private DeviceRegistryService  deviceRegistryService = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
-    private DeviceFactory         deviceFactory      = KapuaLocator.getInstance().getFactory(DeviceFactory.class);
-    private MessageStoreService   messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
-    private DatastoreObjectFactory datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+    private DeviceRegistryService      deviceRegistryService      = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
+    private DeviceFactory              deviceFactory              = KapuaLocator.getInstance().getFactory(DeviceFactory.class);
+    private MessageStoreService        messageStoreService        = KapuaLocator.getInstance().getService(MessageStoreService.class);
+    private DatastoreObjectFactory     datastoreObjectFactory     = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
     private ChannelInfoRegistryService channelInfoRegistryService = KapuaLocator.getInstance().getService(ChannelInfoRegistryService.class);
-    private MetricInfoRegistryService  metricInfoRegistryService = KapuaLocator.getInstance().getService(MetricInfoRegistryService.class);
+    private MetricInfoRegistryService  metricInfoRegistryService  = KapuaLocator.getInstance().getService(MetricInfoRegistryService.class);
     private ClientInfoRegistryService  clientInfoRegistryService  = KapuaLocator.getInstance().getService(ClientInfoRegistryService.class);
 
     private long elasticsearchRefreshTime = DatastoreSettings.getInstance().getLong(DatastoreSettingKey.ELASTICSEARCH_IDX_REFRESH_INTERVAL) * KapuaDateUtils.SEC_MILLIS;
@@ -201,12 +201,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         Account account = getTestAccountCreator(adminScopeId);
 
         String[] semanticTopic = new String[] {
-                                                        "/bus/route/one",
-                                                        "/bus/route/one",
-                                                        "/bus/route/two/a",
-                                                        "/bus/route/two/b",
-                                                        "/tram/route/one",
-                                                        "/car/one"
+                                                "/bus/route/one",
+                                                "/bus/route/one",
+                                                "/bus/route/two/a",
+                                                "/bus/route/two/b",
+                                                "/tram/route/one",
+                                                "/car/one"
         };
 
         KapuaDataMessage message = null;
@@ -274,7 +274,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         sort.add(sortClientId);
         MessageQuery messageQuery = getMessageOrderedQuery(messagesCount + 1, sort);
         setMessageQueryBaseCriteria(messageQuery, account.getName(), new DateRange(capturedOn1, capturedOn2));
-        
+
         MessageListResult messageList = messageStoreService.query(account.getScopeId(), messageQuery);
         checkMessagesCount(messageList, messagesCount);
         checkMessagesDateBound(messageList, new Date(capturedOn1.getTime()), new Date(capturedOn2.getTime()));
@@ -298,7 +298,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         String clientId = String.format("device-%d", messageTime.getTime());
         DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientId);
         Device device = deviceRegistryService.create(deviceCreator);
-        
+
         String topicSemanticPart = "testStoreWithNullPayload/testStoreWithNullPayload/" + Calendar.getInstance().getTimeInMillis();
         Date sentOn = new Date(new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2015").getTime());
         Date capturedOn = new Date();
@@ -358,7 +358,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         DateRange dateRange = new DateRange(timestampLowerBound, timestampUpperBound);
         MessageQuery messageQuery = getBaseMessageQuery();
         setMessageQueryBaseCriteria(messageQuery, account.getName(), dateRange);
-        
+
         MessageListResult result = messageStoreService.query(account.getScopeId(), messageQuery);
         DatastoreMessage messageQueried = checkMessagesCount(result, 1);
         checkMessageId(messageQueried, messageStoredIds.get(0));
@@ -756,12 +756,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         Account account = getTestAccountCreator(adminScopeId);
 
         String[] semanticTopic = new String[] {
-                                                        "/bus/route/one",
-                                                        "/bus/route/one",
-                                                        "/bus/route/two/a",
-                                                        "/bus/route/two/b",
-                                                        "/tram/route/one",
-                                                        "/car/one"
+                                                "/bus/route/one",
+                                                "/bus/route/one",
+                                                "/bus/route/two/a",
+                                                "/bus/route/two/b",
+                                                "/tram/route/one",
+                                                "/car/one"
         };
         String[] metrics = new String[] { "m_order_metric1", "m_order_metric2", "m_order_metric3", "m_order_metric4", "m_order_metric5", "m_order_metric6" };
         String[] clientIds = new String[] { String.format("device-%d", new Date().getTime()), String.format("device-%d", new Date().getTime() + 100) };
@@ -776,7 +776,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         float[] metricsValuesFloat = new float[] { 0.002f, 10.12f, 20.22f, 33.33f, 44.44f, 55.66f };
         double[] metricsValuesDouble = new double[] { 1.002d, 11.12d, 21.22d, 34.33d, 45.44d, 56.66d };
         boolean[] metricsValuesBoolean = new boolean[] { true, true, false, true, false, false };
-        
+
         DeviceCreator deviceCreator = deviceFactory.newCreator(account.getScopeId(), clientIds[0]);
         Device device1 = deviceRegistryService.create(deviceCreator);
         DeviceCreator deviceCreator2 = deviceFactory.newCreator(account.getScopeId(), clientIds[1]);
@@ -850,7 +850,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
 
         for (MetricInfo metricInfo : metricList) {
             s_logger.debug("metric client id: '" + metricInfo.getClientId() + "' - channel: '" + metricInfo.getChannel() + "' metric name: '" + metricInfo.getName()
-                          + "' metric type: '" + metricInfo.getType() + "' metric value: '" + getPrivateField(metricInfo, "value") + "'");
+                           + "' metric type: '" + metricInfo.getType() + "' metric value: '" + getPrivateField(metricInfo, "value") + "'");
         }
         checkListOrder(metricList, sort);
     }
@@ -1002,7 +1002,6 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         ClientInfoListResult clientList = clientInfoRegistryService.query(account.getScopeId(), clientInfoQuery);
         checkClientInfo(clientList, 1, new String[] { clientIds[0] });
     }
-
 
     @Test
     public void testTopicsByAccount()
@@ -1199,7 +1198,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         query.setSortFields(order);
         return query;
     }
-    
+
     /**
      * Creates a new query setting the default base parameters (fetch style, sort, limit, offset, ...) for the Channel Info schema
      * 
@@ -1875,7 +1874,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
             if (getMethod != null) {
                 return (Comparable) getMethod.invoke(object, new Object[0]);
             }
-            //else try by field access
+            // else try by field access
             String fieldName = getFieldName(field, false);
             Field objField = getField(objetcClass, fieldName);
             if (objField != null) {
@@ -1981,7 +1980,6 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
             return null;
         }
     }
-
 
     //
     // Configuration utility

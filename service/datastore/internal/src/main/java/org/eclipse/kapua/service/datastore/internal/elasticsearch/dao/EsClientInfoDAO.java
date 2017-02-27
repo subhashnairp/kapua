@@ -45,8 +45,7 @@ public class EsClientInfoDAO
     private EsTypeDAO esTypeDAO;
 
     private EsClientInfoDAO()
-    {
-    }
+    {}
 
     public EsClientInfoDAO setListener(EsDaoListener daoListener)
         throws EsDatastoreException
@@ -75,8 +74,8 @@ public class EsClientInfoDAO
         return this;
     }
 
-    public UpdateResponse upsert(ClientInfo clientInfo) 
-    		throws EsDocumentBuilderException 
+    public UpdateResponse upsert(ClientInfo clientInfo)
+        throws EsDocumentBuilderException
     {
         ClientInfoXContentBuilder clientInfoBuilder = new ClientInfoXContentBuilder().build(clientInfo);
         return this.esTypeDAO.upsert(clientInfoBuilder.getClientId(), clientInfoBuilder.getClientBuilder());
@@ -87,8 +86,8 @@ public class EsClientInfoDAO
         return this.esTypeDAO.upsert(id, esClient);
     }
 
-    public UpdateResponse update(ClientInfo clientInfo) 
-    		throws EsDocumentBuilderException 
+    public UpdateResponse update(ClientInfo clientInfo)
+        throws EsDocumentBuilderException
     {
         ClientInfoXContentBuilder clientInfoBuilder = new ClientInfoXContentBuilder().build(clientInfo);
         return this.esTypeDAO.upsert(clientInfoBuilder.getClientId(), clientInfoBuilder.getClientBuilder());
@@ -109,39 +108,39 @@ public class EsClientInfoDAO
                  .get(TimeValue.timeValueMillis(EsUtils.getQueryTimeout()));
     }
 
-    public void deleteByQuery(ClientInfoQuery query) 
-    		throws EsQueryConversionException
+    public void deleteByQuery(ClientInfoQuery query)
+        throws EsQueryConversionException
     {
         PredicateConverter pc = new PredicateConverter();
         this.esTypeDAO.deleteByQuery(pc.toElasticsearchQuery(query.getPredicate()));
     }
-//
-//    public void deleteByAccount(long start, long end)
-//    {
-//        this.deleteByQuery(this.getQueryByAssetAndDate(KapuaTopic.SINGLE_LEVEL_WCARD, true, start, end));
-//    }
-//
-//    public void deleteByAsset(String asset, boolean isAnyAsset)
-//    {
-//        this.deleteByQuery(this.getQueryByAsset(asset, isAnyAsset));
-//    }
+    //
+    // public void deleteByAccount(long start, long end)
+    // {
+    // this.deleteByQuery(this.getQueryByAssetAndDate(KapuaTopic.SINGLE_LEVEL_WCARD, true, start, end));
+    // }
+    //
+    // public void deleteByAsset(String asset, boolean isAnyAsset)
+    // {
+    // this.deleteByQuery(this.getQueryByAsset(asset, isAnyAsset));
+    // }
 
-    public ClientInfoListResult query(ClientInfoQuery query) 
-    		throws EsQueryConversionException, 
-    			   EsClientUnavailableException, 
-    			   EsObjectBuilderException 
+    public ClientInfoListResult query(ClientInfoQuery query)
+        throws EsQueryConversionException,
+        EsClientUnavailableException,
+        EsObjectBuilderException
     {
         ClientInfoQueryImpl localQuery = new ClientInfoQueryImpl();
         localQuery.copy(query);
-        
-        // get one plus (if there is one) to later get the next key value 
-        localQuery.setLimit(query.getLimit()+1);
-        
+
+        // get one plus (if there is one) to later get the next key value
+        localQuery.setLimit(query.getLimit() + 1);
+
         ClientInfoQueryConverter aic = new ClientInfoQueryConverter();
         SearchRequestBuilder builder = aic.toSearchRequestBuilder(esTypeDAO.getIndexName(), esTypeDAO.getTypeName(), localQuery);
         SearchResponse response = builder.get(TimeValue.timeValueMillis(EsUtils.getQueryTimeout()));
         SearchHits searchHits = response.getHits();
-        
+
         if (searchHits == null || searchHits.getTotalHits() == 0)
             return new ClientInfoListResultImpl();
 
@@ -150,29 +149,29 @@ public class EsClientInfoDAO
 
         List<ClientInfo> clientInfos = new ArrayList<ClientInfo>();
         ClientInfoObjectBuilder clientInfoBuilder = new ClientInfoObjectBuilder();
-        for(SearchHit searchHit:searchHits.getHits()) {
+        for (SearchHit searchHit : searchHits.getHits()) {
             if (i < query.getLimit()) {
-				ClientInfo clientInfo = clientInfoBuilder.build(searchHit).getClientInfo();
+                ClientInfo clientInfo = clientInfoBuilder.build(searchHit).getClientInfo();
                 clientInfos.add(clientInfo);
             }
             i++;
         }
-        
+
         // TODO check equivalence with CX
         // TODO what is this nextKey
         Object nextKey = null;
         if (searchHits.getTotalHits() > query.getLimit()) {
             nextKey = query.getLimit();
         }
-        
+
         ClientInfoListResultImpl result = new ClientInfoListResultImpl(nextKey, searchHitsSize);
         result.addAll(clientInfos);
-        
+
         return result;
     }
 
-    public long count(ClientInfoQuery query) 
-    		throws EsQueryConversionException, EsClientUnavailableException
+    public long count(ClientInfoQuery query)
+        throws EsQueryConversionException, EsClientUnavailableException
     {
         ClientInfoQueryConverter converter = new ClientInfoQueryConverter();
         SearchRequestBuilder builder = converter.toSearchRequestBuilder(esTypeDAO.getIndexName(), esTypeDAO.getTypeName(), query);
@@ -184,52 +183,52 @@ public class EsClientInfoDAO
 
         return searchHits.getTotalHits();
     }
-//    
-//    public SearchHits findByAccount(String name,
-//                                    int offset,
-//                                    int size)
-//    {
-//
-//        long timeout = EsUtils.getQueryTimeout();
-//
-//        SearchResponse response = esTypeDAO.getClient().prepareSearch(esTypeDAO.getIndexName())
-//                                           .setTypes(esTypeDAO.getTypeName())
-//                                           .setFetchSource(false)
-//                                           .addFields(EsSchema.ASSET_NAME,
-//                                                      EsSchema.ASSET_TIMESTAMP,
-//                                                      EsSchema.ASSET_ACCOUNT)
-//                                           .setFrom(offset)
-//                                           .setSize(size)
-//                                           .get(TimeValue.timeValueMillis(timeout));
-//
-//        SearchHits searchHits = response.getHits();
-//        return searchHits;
-//    }
-//    
-//    public SearchHits findByAsset(String name,
-//                                  boolean isAnyAccount,
-//                                  String asset,
-//                                  boolean isAnyAsset,
-//                                  int offset,
-//                                  int size)
-//    {
-//
-//        long timeout = EsUtils.getQueryTimeout();
-//
-//        BoolQueryBuilder boolQuery = this.getQueryByAsset(asset, isAnyAsset);
-//
-//        SearchResponse response = esTypeDAO.getClient().prepareSearch(esTypeDAO.getIndexName())
-//                                           .setTypes(esTypeDAO.getTypeName())
-//                                           .setFetchSource(false)
-//                                           .addFields(EsSchema.ASSET_NAME,
-//                                                      EsSchema.ASSET_TIMESTAMP,
-//                                                      EsSchema.ASSET_ACCOUNT)
-//                                           .setQuery(boolQuery)
-//                                           .setFrom(offset)
-//                                           .setSize(size)
-//                                           .get(TimeValue.timeValueMillis(timeout));
-//
-//        SearchHits searchHits = response.getHits();
-//        return searchHits;
-//    }
+    //
+    // public SearchHits findByAccount(String name,
+    // int offset,
+    // int size)
+    // {
+    //
+    // long timeout = EsUtils.getQueryTimeout();
+    //
+    // SearchResponse response = esTypeDAO.getClient().prepareSearch(esTypeDAO.getIndexName())
+    // .setTypes(esTypeDAO.getTypeName())
+    // .setFetchSource(false)
+    // .addFields(EsSchema.ASSET_NAME,
+    // EsSchema.ASSET_TIMESTAMP,
+    // EsSchema.ASSET_ACCOUNT)
+    // .setFrom(offset)
+    // .setSize(size)
+    // .get(TimeValue.timeValueMillis(timeout));
+    //
+    // SearchHits searchHits = response.getHits();
+    // return searchHits;
+    // }
+    //
+    // public SearchHits findByAsset(String name,
+    // boolean isAnyAccount,
+    // String asset,
+    // boolean isAnyAsset,
+    // int offset,
+    // int size)
+    // {
+    //
+    // long timeout = EsUtils.getQueryTimeout();
+    //
+    // BoolQueryBuilder boolQuery = this.getQueryByAsset(asset, isAnyAsset);
+    //
+    // SearchResponse response = esTypeDAO.getClient().prepareSearch(esTypeDAO.getIndexName())
+    // .setTypes(esTypeDAO.getTypeName())
+    // .setFetchSource(false)
+    // .addFields(EsSchema.ASSET_NAME,
+    // EsSchema.ASSET_TIMESTAMP,
+    // EsSchema.ASSET_ACCOUNT)
+    // .setQuery(boolQuery)
+    // .setFrom(offset)
+    // .setSize(size)
+    // .get(TimeValue.timeValueMillis(timeout));
+    //
+    // SearchHits searchHits = response.getHits();
+    // return searchHits;
+    // }
 }

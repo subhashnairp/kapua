@@ -15,8 +15,27 @@ import java.util.Set;
 
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Query predicate definition for matching identifier values fields
+ * 
+ * @since 1.0
+ *
+ */
 public interface IdsPredicate extends StorablePredicate
 {
+
+    /**
+     * Get the identifier type
+     * 
+     * @return
+     */
     public String getType();
+
+    /**
+     * Get the identifier set.<br>
+     * This set is used a comparison term by the query predicate.
+     * 
+     * @return
+     */
     public Set<StorableId> getIdSet();
 }

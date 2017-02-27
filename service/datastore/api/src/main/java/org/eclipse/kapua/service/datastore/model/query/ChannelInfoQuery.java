@@ -13,6 +13,11 @@ package org.eclipse.kapua.service.datastore.model.query;
 
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 
+/**
+ * Channel information schema query definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface ChannelInfoQuery extends StorableQuery<ChannelInfo>
-{
-}
+{}

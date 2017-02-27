@@ -15,8 +15,20 @@ import org.eclipse.kapua.service.datastore.internal.AbstractStorableQuery;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 
+/**
+ * Metric information query implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class MetricInfoQueryImpl extends AbstractStorableQuery<MetricInfo> implements MetricInfoQuery
 {
+
+    /**
+     * Create and keep a copy of the given query
+     * 
+     * @param query
+     */
     public void copy(MetricInfoQuery query)
     {
         super.copy(query);

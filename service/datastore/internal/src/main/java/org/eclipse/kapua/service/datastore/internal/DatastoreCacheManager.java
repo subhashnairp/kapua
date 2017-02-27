@@ -15,10 +15,17 @@ import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettingKey;
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettings;
 
+/**
+ * Datastore cache manager.<br>
+ * It keeps informations about channels, metrics and clients to speed up the store operation and avoid time consuming unnecessary operations.
+ * 
+ * @since 1.0
+ *
+ */
 public class DatastoreCacheManager
 {
-    private static DatastoreCacheManager instance = new DatastoreCacheManager();
-    
+    private static final DatastoreCacheManager instance = new DatastoreCacheManager();
+
     private final LocalCache<String, Boolean> channelsCache;
     private final LocalCache<String, Boolean> metricsCache;
     private final LocalCache<String, Boolean> clientsCache;
@@ -37,20 +44,43 @@ public class DatastoreCacheManager
         clientsCache = new LocalCache<String, Boolean>(sizeMax, expireAfter, false);
     }
 
+    /**
+     * Get the cache manager instance
+     * 
+     * @return
+     */
     public static DatastoreCacheManager getInstance()
     {
         return instance;
     }
-    
-    public LocalCache<String, Boolean> getChannelsCache(){
-       return channelsCache;
+
+    /**
+     * Get the channels informations cache
+     * 
+     * @return
+     */
+    public LocalCache<String, Boolean> getChannelsCache()
+    {
+        return channelsCache;
     }
-    
-    public LocalCache<String, Boolean> getMetricsCache(){
-       return metricsCache;
+
+    /**
+     * Get the metrics informations cache
+     * 
+     * @return
+     */
+    public LocalCache<String, Boolean> getMetricsCache()
+    {
+        return metricsCache;
     }
-    
-    public LocalCache<String, Boolean> getClientsCache(){
-       return clientsCache;
+
+    /**
+     * Get the clients informations cache
+     * 
+     * @return
+     */
+    public LocalCache<String, Boolean> getClientsCache()
+    {
+        return clientsCache;
     }
 }

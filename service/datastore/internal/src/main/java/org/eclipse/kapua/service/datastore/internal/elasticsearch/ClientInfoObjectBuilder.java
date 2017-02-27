@@ -20,32 +20,53 @@ import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 
-public class ClientInfoObjectBuilder {
+/**
+ * Client information object builder.<br>
+ * This object converts the schema coming from an Elasticsearch search hit to a Kapua client information object (unmarshal).
+ * 
+ * @since 1.0
+ *
+ */
+public class ClientInfoObjectBuilder
+{
 
-	private ClientInfoImpl clientInfo;
-	
-	public ClientInfoObjectBuilder build(SearchHit searchHit) 
-			throws EsObjectBuilderException 
-	{	
-		String idStr = searchHit.getId();
+    private ClientInfoImpl clientInfo;
 
-		Map<String, SearchHitField> fields = searchHit.getFields();
-		String clientId = fields.get(ClientInfoField.CLIENT_ID.field()).getValue();
-		String timestampStr = fields.get(ClientInfoField.TIMESTAMP.field()).getValue();
-		String account = fields.get(ClientInfoField.ACCOUNT.field()).getValue();
-		String messageId = fields.get(ClientInfoField.MESSAGE_ID.field()).getValue();
-		
-		this.clientInfo = new ClientInfoImpl(account, new StorableIdImpl(idStr));
-		this.clientInfo.setClientId(clientId);
+    /**
+     * Build a {@link ClientInfoObjectBuilder} from the Elasticsearch search hit
+     * 
+     * @param searchHit
+     * @return
+     * @throws EsObjectBuilderException
+     */
+    public ClientInfoObjectBuilder build(SearchHit searchHit)
+        throws EsObjectBuilderException
+    {
+        String idStr = searchHit.getId();
+
+        Map<String, SearchHitField> fields = searchHit.getFields();
+        String clientId = fields.get(ClientInfoField.CLIENT_ID.field()).getValue();
+        String timestampStr = fields.get(ClientInfoField.TIMESTAMP.field()).getValue();
+        String account = fields.get(ClientInfoField.ACCOUNT.field()).getValue();
+        String messageId = fields.get(ClientInfoField.MESSAGE_ID.field()).getValue();
+
+        this.clientInfo = new ClientInfoImpl(account, new StorableIdImpl(idStr));
+        this.clientInfo.setClientId(clientId);
         this.clientInfo.setMessageId(new StorableIdImpl(messageId));
 
-    	Date timestamp = (Date) EsUtils.convertToKapuaObject("date", timestampStr);
+        Date timestamp = (Date) EsUtils.convertToKapuaObject("date", timestampStr);
         this.clientInfo.setMessageTimestamp(timestamp);
 
         return this;
-	}
-	
-	public ClientInfo getClientInfo() {
-		return this.clientInfo;
-	}
+    }
+
+    /**
+     * Get the built Kapua client information object
+     * 
+     * @return
+     */
+    public ClientInfo getClientInfo()
+    {
+        return this.clientInfo;
+    }
 }

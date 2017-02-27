@@ -16,22 +16,22 @@ public class EsTypeCrudEvent extends EsDaoEvent
 
     public enum Operation
     {
-        INSERT, 
-        UPSERT, 
+        INSERT,
+        UPSERT,
         DELETE
     }
 
     public enum OperationResult
     {
-        SUCCESS, 
+        SUCCESS,
         FAILURE
     }
 
     private Operation       operation;
     private OperationResult operResult;
 
-    private String          account;
-    private String          type;
+    private String account;
+    private String type;
 
     public Operation getOperation()
     {

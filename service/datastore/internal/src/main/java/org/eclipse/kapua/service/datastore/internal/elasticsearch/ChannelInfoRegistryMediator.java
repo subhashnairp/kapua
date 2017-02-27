@@ -16,16 +16,16 @@ import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 
-public interface ChannelInfoRegistryMediator 
+public interface ChannelInfoRegistryMediator
 {
-	public Metadata getMetadata(KapuaId scopeId, long indexedOn) 
-			throws EsDocumentBuilderException, EsClientUnavailableException;
-	
-public void onBeforeChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo)
-		throws KapuaIllegalArgumentException, 
-		   	   EsConfigurationException,
-		   	   EsQueryConversionException, 
-			   EsClientUnavailableException;
+    public Metadata getMetadata(KapuaId scopeId, long indexedOn)
+        throws EsDocumentBuilderException, EsClientUnavailableException;
 
-	public void onAfterChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo);
+    public void onBeforeChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsQueryConversionException,
+        EsClientUnavailableException;
+
+    public void onAfterChannelInfoDelete(KapuaId scopeId, ChannelInfo channelInfo);
 }

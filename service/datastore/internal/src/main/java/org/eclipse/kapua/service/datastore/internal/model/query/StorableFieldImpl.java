@@ -24,6 +24,11 @@ public class StorableFieldImpl implements StorableField
 
     private String field;
 
+    /**
+     * Construct a storable field given the field name
+     * 
+     * @param field
+     */
     public StorableFieldImpl(String field)
     {
         this.field = field;

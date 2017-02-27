@@ -14,27 +14,46 @@ package org.eclipse.kapua.service.datastore.internal.model.query;
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
+/**
+ * Implementation of query predicate for matching field value
+ * 
+ * @since 1.0
+ *
+ */
 public class TermPredicateImpl implements TermPredicate
 {
     private StorableField field;
-    private Object value;
-    
+    private Object        value;
+
+    /**
+     * Default constructor
+     */
     public TermPredicateImpl()
-    {
-    }
-    
+    {}
+
+    /**
+     * Construct a term predicate given the field and value
+     * 
+     * @param field
+     * @param value
+     */
     public <V> TermPredicateImpl(StorableField field, V value)
     {
         this.field = field;
         this.value = value;
     }
-    
+
     @Override
     public StorableField getField()
     {
         return this.field;
     }
-    
+
+    /**
+     * Return the field
+     * 
+     * @return
+     */
     public TermPredicate setField(StorableField field)
     {
         this.field = field;
@@ -53,6 +72,12 @@ public class TermPredicateImpl implements TermPredicate
         return clazz.cast(value);
     }
 
+    /**
+     * Set the value
+     * 
+     * @param value
+     * @return
+     */
     public <V> TermPredicate setValue(V value)
     {
         this.value = value;

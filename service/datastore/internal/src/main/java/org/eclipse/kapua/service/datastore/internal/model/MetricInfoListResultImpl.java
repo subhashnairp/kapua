@@ -15,20 +15,42 @@ import org.eclipse.kapua.service.datastore.internal.model.query.AbstractStorable
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 
+/**
+ * Metric information query result list implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class MetricInfoListResultImpl extends AbstractStorableListResult<MetricInfo> implements MetricInfoListResult
 {
     private static final long serialVersionUID = -829492000973519867L;
 
+    /**
+     * Construct a metric info result list
+     */
     public MetricInfoListResultImpl()
     {
         super();
     }
 
-    public MetricInfoListResultImpl(Object nextKey) {
+    /**
+     * Construct a metric info result list linking the next result list
+     * 
+     * @param nextKey
+     */
+    public MetricInfoListResultImpl(Object nextKey)
+    {
         super(nextKey);
     }
 
-    public MetricInfoListResultImpl(Object nextKey, Long totalCount) {
+    /**
+     * Construct a metric info result list linking the next result list and setting the total count
+     * 
+     * @param nextKey
+     * @param totalCount
+     */
+    public MetricInfoListResultImpl(Object nextKey, Long totalCount)
+    {
         super(nextKey, totalCount);
     }
 }

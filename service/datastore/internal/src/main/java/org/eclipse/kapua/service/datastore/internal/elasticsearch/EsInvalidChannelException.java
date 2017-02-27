@@ -11,11 +11,25 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsInvalidChannelException extends EsDatastoreException {
+/**
+ * Invalid channel exception.<br>
+ * This exceptinis raised if the specified channel is not compliant with the Kapua rules.
+ * 
+ * @since 1.0
+ *
+ */
+public class EsInvalidChannelException extends EsDatastoreException
+{
 
     private static final long serialVersionUID = 2841854292521738239L;
 
-    public EsInvalidChannelException(String channel) {
+    /**
+     * Construct the exception with the provided channel string representation
+     * 
+     * @param t
+     */
+    public EsInvalidChannelException(String channel)
+    {
         super(channel);
     }
 }

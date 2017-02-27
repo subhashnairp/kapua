@@ -16,58 +16,85 @@ import java.util.Date;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.ChannelInfoCreator;
 
+/**
+ * Channel information schema creator implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class ChannelInfoCreatorImpl implements ChannelInfoCreator
 {
-	private String account;
-	private String clientId;
-	private String channel;
-	private StorableId lastMessageId;
-	private Date lastMessageTimestamp;
-	
-	public ChannelInfoCreatorImpl(String account) {
-		this.account = account;
-	}
-	
-	@Override
-	public String getAccount() {
-		return account;
-	}
-	
-	@Override
-	public String getClientId()
-	{
-		return this.clientId;
-	}
-	
-	public void setClientId(String clientId)
-	{
-		this.clientId = clientId;
-	}
-	
-	@Override
-	public String getChannel() {
-		return channel;
-	}
+    private String     account;
+    private String     clientId;
+    private String     channel;
+    private StorableId messageId;
+    private Date       messageTimestamp;
 
-	public void setChannel(String fullChannelName) {
-		this.channel = fullChannelName;
-	}
+    /**
+     * Construct a channel information creator for the given account
+     * 
+     * @param account
+     */
+    public ChannelInfoCreatorImpl(String account)
+    {
+        this.account = account;
+    }
 
-	@Override
-	public StorableId getLastMessageId() {
-		return lastMessageId;
-	}
+    @Override
+    public String getAccount()
+    {
+        return account;
+    }
 
-	public void setLastMessageId(StorableId lastMessageId) {
-		this.lastMessageId = lastMessageId;
-	}
+    @Override
+    public String getClientId()
+    {
+        return this.clientId;
+    }
 
-	@Override
-	public Date getLastMessageTimestamp() {
-		return lastMessageTimestamp;
-	}
+    /**
+     * Set the client identifier
+     * 
+     * @param clientId
+     */
+    public void setClientId(String clientId)
+    {
+        this.clientId = clientId;
+    }
 
-	public void setLastMessageTimestamp(Date lastMessageTimestamp) {
-		this.lastMessageTimestamp = lastMessageTimestamp;
-	}
+    @Override
+    public String getChannel()
+    {
+        return channel;
+    }
+
+    @Override
+    public void setChannel(String fullChannelName)
+    {
+        this.channel = fullChannelName;
+    }
+
+    @Override
+    public StorableId getMessageId()
+    {
+        return messageId;
+    }
+
+    @Override
+    public void setMessageId(StorableId messageId)
+    {
+        this.messageId = messageId;
+    }
+
+    @Override
+    public Date getMessageTimestamp()
+    {
+        return messageTimestamp;
+    }
+
+    @Override
+    public void setMessageTimestamp(Date messageTimestamp)
+    {
+        this.messageTimestamp = messageTimestamp;
+    }
 }

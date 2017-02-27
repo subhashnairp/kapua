@@ -16,13 +16,13 @@ import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
 
-public interface ClientInfoRegistryMediator 
+public interface ClientInfoRegistryMediator
 {
-	public Metadata getMetadata(KapuaId scopeId, long indexedOn) 
-			throws EsDocumentBuilderException, EsClientUnavailableException;
+    public Metadata getMetadata(KapuaId scopeId, long indexedOn)
+        throws EsDocumentBuilderException, EsClientUnavailableException;
 
-	public void onAfterClientInfoDelete(KapuaId scopeId, ClientInfo clientInfo)
-			throws KapuaIllegalArgumentException, 
-			   EsConfigurationException, 
-			   EsClientUnavailableException;
+    public void onAfterClientInfoDelete(KapuaId scopeId, ClientInfo clientInfo)
+        throws KapuaIllegalArgumentException,
+        EsConfigurationException,
+        EsClientUnavailableException;
 }

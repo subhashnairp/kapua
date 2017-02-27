@@ -11,21 +11,55 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsMetric {
-	private String name;
-	private String type;
-	
-	public String getName() {
-		return name;
-	}
-	public String getType() {
-		return type;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
-	
+/**
+ * Metric value object.<br>
+ * 
+ * @since 1.0
+ *
+ */
+public class EsMetric
+{
+    private String name;
+    private String type;
+
+    /**
+     * Get the metric name
+     * 
+     * @return
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Get the metric type
+     * 
+     * @return
+     */
+    public String getType()
+    {
+        return type;
+    }
+
+    /**
+     * Set the metric name
+     * 
+     * @param name
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * Set the metric type
+     * 
+     * @param type
+     */
+    public void setType(String type)
+    {
+        this.type = type;
+    }
+
 }

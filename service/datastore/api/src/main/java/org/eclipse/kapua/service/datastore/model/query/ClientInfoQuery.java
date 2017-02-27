@@ -13,6 +13,12 @@ package org.eclipse.kapua.service.datastore.model.query;
 
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
 
+/**
+ * Client information schema query definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface ClientInfoQuery extends StorableQuery<ClientInfo>
 {
 

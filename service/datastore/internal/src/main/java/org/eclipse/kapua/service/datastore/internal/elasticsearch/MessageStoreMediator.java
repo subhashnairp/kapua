@@ -18,17 +18,17 @@ import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema.Metadata;
 
-public interface MessageStoreMediator 
+public interface MessageStoreMediator
 {
-	public Metadata getMetadata(KapuaId scopeId, long indexedOn) 
-			throws EsDocumentBuilderException, EsClientUnavailableException;
-	
-	public void onUpdatedMappings(KapuaId scopeId, long indexedOn, Map<String, EsMetric> esMetrics) 
-			throws EsDocumentBuilderException, EsClientUnavailableException;
-	
-	public void onAfterMessageStore(KapuaId scopeId, MessageXContentBuilder docBuilder, KapuaMessage<?,?> message)
-			throws KapuaIllegalArgumentException,
-				   EsDocumentBuilderException, 
-			   	   EsClientUnavailableException, 
-			   	   EsConfigurationException;
+    public Metadata getMetadata(KapuaId scopeId, long indexedOn)
+        throws EsDocumentBuilderException, EsClientUnavailableException;
+
+    public void onUpdatedMappings(KapuaId scopeId, long indexedOn, Map<String, EsMetric> esMetrics)
+        throws EsDocumentBuilderException, EsClientUnavailableException;
+
+    public void onAfterMessageStore(KapuaId scopeId, MessageXContentBuilder docBuilder, KapuaMessage<?, ?> message)
+        throws KapuaIllegalArgumentException,
+        EsDocumentBuilderException,
+        EsClientUnavailableException,
+        EsConfigurationException;
 }

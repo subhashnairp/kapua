@@ -11,7 +11,18 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Query predicate definition for matching the channel value
+ * 
+ * @since 1.0
+ *
+ */
 public interface ChannelMatchPredicate extends StorablePredicate
 {
+    /**
+     * Get the channel expression (may use wildcard)
+     * 
+     * @return
+     */
     public String getExpression();
 }

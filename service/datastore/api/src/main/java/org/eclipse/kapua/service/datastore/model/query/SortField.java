@@ -11,15 +11,41 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+/**
+ * Sortable field definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface SortField
 {
 
+    /**
+     * Get the field name
+     * 
+     * @return
+     */
     public String getField();
 
+    /**
+     * Set the field name
+     * 
+     * @param field
+     */
     public void setField(String field);
 
+    /**
+     * Get the sort direction
+     * 
+     * @return
+     */
     public SortDirection getSortDirection();
 
+    /**
+     * Set the sort direction
+     * 
+     * @param sortDirection
+     */
     public void setSortDirection(SortDirection sortDirection);
 
 }

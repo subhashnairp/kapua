@@ -54,19 +54,25 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Client information registry implementation.
+ * 
+ * @since 1.0
+ *
+ */
 @KapuaProvider
 public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements ClientInfoRegistryService
 {
-	private static final long serialVersionUID = 6772144495298409738L;
-	
-	private static final Domain datastoreDomain = new DatastoreDomain();
+    private static final long serialVersionUID = 6772144495298409738L;
 
-	private static final Logger logger = LoggerFactory.getLogger(ClientInfoRegistryServiceImpl.class);
+    private static final Domain datastoreDomain = new DatastoreDomain();
 
-	private final AccountService accountService;
-	private final AuthorizationService authorizationService;
-	private final PermissionFactory permissionFactory;
-	private final ClientInfoRegistryFacade facade;
+    private static final Logger logger = LoggerFactory.getLogger(ClientInfoRegistryServiceImpl.class);
+
+    private final AccountService           accountService;
+    private final AuthorizationService     authorizationService;
+    private final PermissionFactory        permissionFactory;
+    private final ClientInfoRegistryFacade facade;
     private final MessageStoreService      messageStoreService;
     private final DatastoreObjectFactory   datastoreObjectFactory;
 
@@ -80,7 +86,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         permissionFactory = locator.getFactory(PermissionFactory.class);
         messageStoreService = locator.getService(MessageStoreService.class);
         datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
-        
+
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
         this.facade = new ClientInfoRegistryFacade(configurationProvider, DatastoreMediator.getInstance());
@@ -88,54 +94,51 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     }
 
     @Override
-    public void delete(KapuaId scopeId, StorableId id) 
-    		throws KapuaException
+    public void delete(KapuaId scopeId, StorableId id)
+        throws KapuaException
     {
-    	try  
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        this.checkAccess(scopeId, Actions.delete);
-	
-	        this.facade.delete(scopeId, id);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
-     }
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkAccess(scopeId, Actions.delete);
+
+            this.facade.delete(scopeId, id);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
+    }
 
     @Override
     public ClientInfo find(KapuaId scopeId, StorableId id)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        this.checkAccess(scopeId, Actions.read);
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkAccess(scopeId, Actions.read);
 
             ClientInfo clientInfo = this.facade.find(scopeId, id);
 
             // populate the lastMessageTimestamp
             clientInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, clientInfo));
-	
+
             return clientInfo;
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public ClientInfoListResult query(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        this.checkAccess(scopeId, Actions.read);
-	        
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkAccess(scopeId, Actions.read);
+
             ClientInfoListResult result = this.facade.query(scopeId, query);
 
             // populate the lastMessageTimestamp
@@ -144,48 +147,46 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             }
 
             return result;
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public long count(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        //
-	        // Argument Validation
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        //
-	        // Check Access
-	        this.checkAccess(scopeId, Actions.read);
-	
-	        return this.facade.count(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            //
+            // Argument Validation
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            //
+            // Check Access
+            this.checkAccess(scopeId, Actions.read);
+
+            return this.facade.count(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     @Override
     public void delete(KapuaId scopeId, ClientInfoQuery query)
         throws KapuaException
     {
-    	try 
-    	{
-	        ArgumentValidator.notNull(scopeId, "scopeId");
-	        
-	        this.checkAccess(scopeId, Actions.delete);
-	
-	        this.facade.delete(scopeId, query);
-    	} 
-    	catch (Exception e) {
-    		throw KapuaException.internalError(e);
-    	}
+        try {
+            ArgumentValidator.notNull(scopeId, "scopeId");
+
+            this.checkAccess(scopeId, Actions.delete);
+
+            this.facade.delete(scopeId, query);
+        }
+        catch (Exception e) {
+            throw KapuaException.internalError(e);
+        }
     }
 
     private void checkAccess(KapuaId scopeId, Actions action)

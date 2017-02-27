@@ -16,27 +16,44 @@ import java.util.Date;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 
+/**
+ * Metric information schema implementation
+ * 
+ * @since 1.0
+ *
+ */
 public class MetricInfoImpl implements MetricInfo
 {
     private StorableId id;
-    private String account;
-    private String clientId;
-    private String channel;
-    private String name;
-    private String type;
-    private Object value;
+    private String     account;
+    private String     clientId;
+    private String     channel;
+    private String     name;
+    private String     type;
+    private Object     value;
     private StorableId messageId;
     private Date       messageTimestamp;
     private Date       lastMsgTimestamp;
-    
+
+    /**
+     * Construct a metric information for the given scope
+     * 
+     * @param scope
+     */
     public MetricInfoImpl(String scope)
     {
         this.account = scope;
     }
-    
+
+    /**
+     * Construct a metric information for the given scope and storable identifier
+     * 
+     * @param scope
+     * @param id
+     */
     public MetricInfoImpl(String scope, StorableId id)
     {
-    	this(scope);
+        this(scope);
         this.id = id;
     }
 
@@ -46,6 +63,11 @@ public class MetricInfoImpl implements MetricInfo
         return id;
     }
 
+    /**
+     * Set the storable identifier
+     * 
+     * @param id
+     */
     public void setId(StorableId id)
     {
         this.id = id;
@@ -56,17 +78,22 @@ public class MetricInfoImpl implements MetricInfo
     {
         return account;
     }
-	
-	@Override
-	public String getClientId()
-	{
-		return this.clientId;
-	}
-	
-	public void setClientId(String clientId)
-	{
-		this.clientId = clientId;
-	}
+
+    @Override
+    public String getClientId()
+    {
+        return this.clientId;
+    }
+
+    /**
+     * Set the client identifier
+     * 
+     * @param clientId
+     */
+    public void setClientId(String clientId)
+    {
+        this.clientId = clientId;
+    }
 
     @Override
     public String getChannel()
@@ -146,8 +173,9 @@ public class MetricInfoImpl implements MetricInfo
         return lastMsgTimestamp;
     }
 
+    @Override
     public void setLastMessageTimestamp(Date lastMsgTimestamp)
     {
         this.lastMsgTimestamp = lastMsgTimestamp;
     }
- }
+}

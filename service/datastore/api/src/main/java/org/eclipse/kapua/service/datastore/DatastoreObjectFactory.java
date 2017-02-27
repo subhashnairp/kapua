@@ -18,11 +18,42 @@ import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 import org.eclipse.kapua.service.datastore.model.query.StorableField;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
+/**
+ * Datastore object factory definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface DatastoreObjectFactory extends KapuaObjectFactory
 {
-	public ClientInfoQuery newClientInfoQuery();
-	public ChannelInfoQuery newChannelInfoQuery();
-	public MetricInfoQuery newMetricInfoQuery();
-	
-	public <V> TermPredicate newTermPredicate(StorableField field, V value);
+
+    /**
+     * Return a new client information query
+     * 
+     * @return
+     */
+    public ClientInfoQuery newClientInfoQuery();
+
+    /**
+     * Return a new channel information query
+     * 
+     * @return
+     */
+    public ChannelInfoQuery newChannelInfoQuery();
+
+    /**
+     * Return a new metric information query
+     * 
+     * @return
+     */
+    public MetricInfoQuery newMetricInfoQuery();
+
+    /**
+     * Return a new term comparison predicate
+     * 
+     * @param field
+     * @param value
+     * @return
+     */
+    public <V> TermPredicate newTermPredicate(StorableField field, V value);
 }

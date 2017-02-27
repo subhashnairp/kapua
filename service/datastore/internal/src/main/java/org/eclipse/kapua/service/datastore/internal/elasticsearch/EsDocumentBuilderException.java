@@ -11,19 +11,46 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch;
 
-public class EsDocumentBuilderException extends EsDatastoreException {
+/**
+ * Elasticsearch docuemnt builder exception.<br>
+ * This exception is raised during conversion from Kapua to Elasticsearch objects
+ * 
+ * @since 1.0
+ *
+ */
+public class EsDocumentBuilderException extends EsDatastoreException
+{
 
-	private static final long serialVersionUID = -978823971375607146L;
+    private static final long serialVersionUID = -978823971375607146L;
 
-	public EsDocumentBuilderException(String message) {
-		super(message);
-	}
-    
-    public EsDocumentBuilderException(Throwable t) {
-    	super(t);
+    /**
+     * Construct the exception with the provided message
+     * 
+     * @param message
+     */
+    public EsDocumentBuilderException(String message)
+    {
+        super(message);
     }
-    
-    public EsDocumentBuilderException(String reason, Throwable t) {
-    	super(reason, t);
+
+    /**
+     * Construct the exception with the provided throwable
+     * 
+     * @param t
+     */
+    public EsDocumentBuilderException(Throwable t)
+    {
+        super(t);
+    }
+
+    /**
+     * Construct the exception with the provided reason and throwable
+     * 
+     * @param reason
+     * @param t
+     */
+    public EsDocumentBuilderException(String reason, Throwable t)
+    {
+        super(reason, t);
     }
 }
