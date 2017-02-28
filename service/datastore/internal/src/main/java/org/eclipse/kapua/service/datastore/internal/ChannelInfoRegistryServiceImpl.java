@@ -121,7 +121,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
             ChannelInfo channelInfo = this.channelInfoStoreFacade.find(scopeId, id);
 
             // populate the lastMessageTimestamp
-            channelInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, channelInfo));
+            updateLastPublishedFields(scopeId, channelInfo);
 
             return channelInfo;
         }
@@ -143,7 +143,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
 
             // populate the lastMessageTimestamp
             for (ChannelInfo channelInfo : result) {
-                channelInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, channelInfo));
+                updateLastPublishedFields(scopeId, channelInfo);
             }
 
             return result;
@@ -195,16 +195,19 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
     }
 
     /**
-     * Return the last publish date for the specified channel info, so it gets the timestamp of the last published message for the account/clientId in the channel info
+     * Update the last published date and last published message identifier for the specified channel info, so it gets the timestamp and the message id of the last published message for the
+     * account/clientId in the
+     * channel info
      * 
      * @param scopeId
      * @param channelInfo
-     * @return
+     * 
      * @throws KapuaException
      */
-    private Date getLastTimestamp(KapuaId scopeId, ChannelInfo channelInfo) throws KapuaException
+    private void updateLastPublishedFields(KapuaId scopeId, ChannelInfo channelInfo) throws KapuaException
     {
-        Date lastTimestamp = null;
+        StorableId lastPublishedMessageId = null;
+        Date lastPublishedMessageTimestamp = null;
         MessageQuery messageQuery = new MessageQueryImpl();
         messageQuery.setAskTotalCount(true);
         messageQuery.setFetchStyle(StorableFetchStyle.SOURCE_SELECT);
@@ -217,7 +220,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
         sort.add(sortTimestamp);
         messageQuery.setSortFields(sort);
         AndPredicate andPredicate = new AndPredicateImpl();
-        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CHANNEL_TIMESTAMP), channelInfo.getMessageTimestamp(), null);
+        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CHANNEL_TIMESTAMP), channelInfo.getFirstPublishedMessageTimestamp(), null);
         andPredicate.getPredicates().add(messageIdPredicate);
         TermPredicate accountNamePredicate = datastoreObjectFactory.newTermPredicate(MessageField.ACCOUNT, channelInfo.getAccount());
         andPredicate.getPredicates().add(accountNamePredicate);
@@ -228,7 +231,8 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
         messageQuery.setPredicate(andPredicate);
         MessageListResult messageList = messageStoreService.query(scopeId, messageQuery);
         if (messageList.size() == 1) {
-            lastTimestamp = messageList.get(0).getTimestamp();
+            lastPublishedMessageId = messageList.get(0).getDatastoreId();
+            lastPublishedMessageTimestamp = messageList.get(0).getTimestamp();
         }
         else if (messageList.size() == 0) {
             // this condition could happens due to the ttl of the messages (so if it happens, it does not necessarily mean there has been an error!)
@@ -239,6 +243,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
             // if happens it means than an elasticsearch internal error happens and/or our driver didn't set it correctly!
             logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!", new Object[] { channelInfo.getAccount(), channelInfo.getClientId() });
         }
-        return lastTimestamp;
+        channelInfo.setLastPublishedMessageId(lastPublishedMessageId);
+        channelInfo.setLastPublishedMessageTimestamp(lastPublishedMessageTimestamp);
     }
 }

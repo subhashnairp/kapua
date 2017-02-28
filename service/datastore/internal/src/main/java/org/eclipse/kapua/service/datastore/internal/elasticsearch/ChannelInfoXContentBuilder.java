@@ -168,8 +168,8 @@ public class ChannelInfoXContentBuilder
         ChannelInfoImpl channelInfo = new ChannelInfoImpl(channelInfoCreator.getAccount(), id);
         channelInfo.setClientId(channelInfoCreator.getClientId());
         channelInfo.setChannel(channelInfoCreator.getChannel());
-        channelInfo.setMessageId(channelInfoCreator.getMessageId());
-        channelInfo.setMessageTimestamp(channelInfoCreator.getMessageTimestamp());
+        channelInfo.setFirstPublishedMessageId(channelInfoCreator.getMessageId());
+        channelInfo.setFirstPublishedMessageTimestamp(channelInfoCreator.getMessageTimestamp());
 
         return this.build(channelInfo);
     }
@@ -189,8 +189,8 @@ public class ChannelInfoXContentBuilder
         String clientId = channelInfo.getClientId();
         String channel = channelInfo.getChannel();
 
-        StorableId msgId = channelInfo.getMessageId();
-        Date msgTimestamp = channelInfo.getMessageTimestamp();
+        StorableId msgId = channelInfo.getFirstPublishedMessageId();
+        Date msgTimestamp = channelInfo.getFirstPublishedMessageTimestamp();
 
         XContentBuilder channelBuilder;
         channelBuilder = this.build(channel, msgId.toString(), msgTimestamp, clientId, account);

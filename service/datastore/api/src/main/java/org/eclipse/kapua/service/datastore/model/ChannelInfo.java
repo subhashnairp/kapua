@@ -58,29 +58,47 @@ public interface ChannelInfo extends Storable
 
     /**
      * Get the message identifier (of the first message published on this channel)
+     * 
+     * @return
      */
-    public StorableId getMessageId();
+    public StorableId getFirstPublishedMessageId();
 
     /**
      * Set the message identifier (of the first message published on this channel)
      * 
-     * @param messageId
+     * @param firstPublishedMessageId
      */
-    public void setMessageId(StorableId messageId);
+    public void setFirstPublishedMessageId(StorableId firstPublishedMessageId);
 
     /**
      * Get the message timestamp (of the first message published on this channel)
      * 
      * @return
      */
-    public Date getMessageTimestamp();
+    public Date getFirstPublishedMessageTimestamp();
 
     /**
      * Set the message timestamp (of the first message published on this channel)
      * 
-     * @param messageTimestamp
+     * @param firstPublishedMessageTimestamp
      */
-    public void setMessageTimestamp(Date messageTimestamp);
+    public void setFirstPublishedMessageTimestamp(Date firstPublishedMessageTimestamp);
+
+    /**
+     * Get the message identifier of the last published message for this channel.<br>
+     * <b>Transient data field (the last publish message identifier should get from the message table by the find service)</b>
+     * 
+     * @return
+     */
+    public StorableId getLastPublishedMessageId();
+
+    /**
+     * Set the message identifier of the last published message for this channel.<br>
+     * <b>Transient data field (the last publish message identifier should get from the message table by the find service)</b>
+     * 
+     * @param lastPublishedMessageId
+     */
+    public void setLastPublishedMessageId(StorableId lastPublishedMessageId);
 
     /**
      * Get the timestamp of the last published message for this channel.<br>
@@ -88,13 +106,14 @@ public interface ChannelInfo extends Storable
      * 
      * @return
      */
-    public Date getLastMessageTimestamp();
+    public Date getLastPublishedMessageTimestamp();
 
     /**
      * Set the timestamp of the last published message for this channel.<br>
      * <b>Transient data field (the last publish timestamp should get from the message table by the find service)</b>
      * 
+     * @param lastPublishedMessageTimestamp
      */
-    public void setLastMessageTimestamp(Date lastMessageTimestamp);
+    public void setLastPublishedMessageTimestamp(Date lastPublishedMessageTimestamp);
 
 }

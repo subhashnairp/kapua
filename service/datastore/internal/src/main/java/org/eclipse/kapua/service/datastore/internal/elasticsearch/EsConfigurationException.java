@@ -36,7 +36,7 @@ public class EsConfigurationException extends EsDatastoreException
     /**
      * Construct the exception with the provided exception
      * 
-     * @param t
+     * @param e
      */
     public EsConfigurationException(Exception e)
     {

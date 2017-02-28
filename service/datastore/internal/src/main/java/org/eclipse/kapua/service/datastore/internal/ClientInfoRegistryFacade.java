@@ -84,7 +84,8 @@ public class ClientInfoRegistryFacade
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(clientInfo, "clientInfoCreator");
-        ArgumentValidator.notNull(clientInfo.getMessageTimestamp(), "clientInfoCreator.messageTimestamp");
+        ArgumentValidator.notNull(clientInfo.getFirstPublishedMessageId(), "clientInfoCreator.firstPublishedMessageId");
+        ArgumentValidator.notNull(clientInfo.getFirstPublishedMessageTimestamp(), "clientInfoCreator.firstPublishedMessageTimestamp");
 
         ClientInfoXContentBuilder docBuilder = new ClientInfoXContentBuilder();
         docBuilder.build(clientInfo);
@@ -100,7 +101,7 @@ public class ClientInfoRegistryFacade
                 if (!DatastoreCacheManager.getInstance().getClientsCache().get(docBuilder.getClientId())) {
                     UpdateResponse response = null;
                     try {
-                        Metadata metadata = this.mediator.getMetadata(scopeId, clientInfo.getMessageTimestamp().getTime());
+                        Metadata metadata = this.mediator.getMetadata(scopeId, clientInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
                         response = EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName)

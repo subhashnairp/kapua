@@ -54,10 +54,10 @@ public class ChannelInfoObjectBuilder
         channelInfo = new ChannelInfoImpl(account, new StorableIdImpl(id));
         channelInfo.setClientId(clientId);
         channelInfo.setChannel(channel);
-        channelInfo.setMessageId(new StorableIdImpl(lastMsgId));
+        channelInfo.setFirstPublishedMessageId(new StorableIdImpl(lastMsgId));
 
         Date timestamp = (Date) EsUtils.convertToKapuaObject("date", lastMsgTimestampStr);
-        channelInfo.setMessageTimestamp(timestamp);
+        channelInfo.setFirstPublishedMessageTimestamp(timestamp);
 
         return this;
     }

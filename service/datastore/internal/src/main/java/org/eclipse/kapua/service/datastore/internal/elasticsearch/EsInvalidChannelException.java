@@ -26,7 +26,7 @@ public class EsInvalidChannelException extends EsDatastoreException
     /**
      * Construct the exception with the provided channel string representation
      * 
-     * @param t
+     * @param channel
      */
     public EsInvalidChannelException(String channel)
     {

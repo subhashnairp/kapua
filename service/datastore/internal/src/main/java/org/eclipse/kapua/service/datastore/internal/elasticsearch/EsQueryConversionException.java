@@ -26,8 +26,7 @@ public class EsQueryConversionException extends EsDatastoreException
     /**
      * Construct the exception with the provided message
      * 
-     * @param reason
-     * @param t
+     * @param message
      */
     public EsQueryConversionException(String message)
     {
@@ -37,8 +36,7 @@ public class EsQueryConversionException extends EsDatastoreException
     /**
      * Construct the exception with the provided exception
      * 
-     * @param reason
-     * @param t
+     * @param e
      */
     public EsQueryConversionException(Exception e)
     {

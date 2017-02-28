@@ -161,7 +161,6 @@ public class MessageStoreConfiguration
     /**
      * Set the data storage enabled parameter ({@link MessageStoreConfiguration#CONFIGURATION_DATA_STORAGE_ENABLED_KEY}
      * 
-     * @return
      */
     public void setDataStorageEnabled(boolean dataStorageEnabled)
     {
@@ -191,7 +190,6 @@ public class MessageStoreConfiguration
     /**
      * Set the data time to live parameter ({@link MessageStoreConfiguration#CONFIGURATION_DATA_TTL_KEY}
      * 
-     * @return
      */
     public void setDataTimeToLive(int dataTimeToLive)
     {
@@ -216,7 +214,6 @@ public class MessageStoreConfiguration
     /**
      * Set the rx byte limit parameter ({@link MessageStoreConfiguration#CONFIGURATION_RX_BYTE_LIMIT_KEY}
      * 
-     * @return
      */
     public void setRxByteLimit(long rxByteLimit)
     {
@@ -236,7 +233,6 @@ public class MessageStoreConfiguration
     /**
      * Set the data index by parameter ({@link MessageStoreConfiguration#CONFIGURATION_DATA_INDEX_BY_KEY}
      * 
-     * @return
      */
     public void setDataIndexBy(DataIndexBy dataIndexBy)
     {
@@ -256,7 +252,6 @@ public class MessageStoreConfiguration
     /**
      * Set the metrics index by date parameter ({@link MessageStoreConfiguration#CONFIGURATION_METRICS_INDEX_BY_KEY}
      * 
-     * @return
      */
     public void setMetricsIndexBy(MetricsIndexBy metricsIndexBy)
     {

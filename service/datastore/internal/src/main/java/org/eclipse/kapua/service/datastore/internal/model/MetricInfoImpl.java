@@ -31,9 +31,10 @@ public class MetricInfoImpl implements MetricInfo
     private String     name;
     private String     type;
     private Object     value;
-    private StorableId messageId;
-    private Date       messageTimestamp;
-    private Date       lastMsgTimestamp;
+    private StorableId firstPublishedMessageId;
+    private Date       firstPublishedMessageTimestamp;
+    private StorableId lastPublishedMessageId;
+    private Date       lastPublishedMessageTimestamp;
 
     /**
      * Construct a metric information for the given scope
@@ -144,38 +145,50 @@ public class MetricInfoImpl implements MetricInfo
     }
 
     @Override
-    public StorableId getMessageId()
+    public StorableId getFirstPublishedMessageId()
     {
-        return messageId;
+        return firstPublishedMessageId;
     }
 
     @Override
-    public void setMessageId(StorableId messageId)
+    public void setFirstPublishedMessageId(StorableId firstPublishedMessageId)
     {
-        this.messageId = messageId;
+        this.firstPublishedMessageId = firstPublishedMessageId;
     }
 
     @Override
-    public Date getMessageTimestamp()
+    public Date getFirstPublishedMessageTimestamp()
     {
-        return messageTimestamp;
+        return firstPublishedMessageTimestamp;
     }
 
     @Override
-    public void setMessageTimestamp(Date messageTimestamp)
+    public void setFirstPublishedMessageTimestamp(Date firstPublishedMessageTimestamp)
     {
-        this.messageTimestamp = messageTimestamp;
+        this.firstPublishedMessageTimestamp = firstPublishedMessageTimestamp;
     }
 
     @Override
-    public Date getLastMessageTimestamp()
+    public StorableId getLastPublishedMessageId()
     {
-        return lastMsgTimestamp;
+        return lastPublishedMessageId;
     }
 
     @Override
-    public void setLastMessageTimestamp(Date lastMsgTimestamp)
+    public void setLastPublishedMessageId(StorableId lastPublishedMessageId)
     {
-        this.lastMsgTimestamp = lastMsgTimestamp;
+        this.lastPublishedMessageId = lastPublishedMessageId;
+    }
+
+    @Override
+    public Date getLastPublishedMessageTimestamp()
+    {
+        return lastPublishedMessageTimestamp;
+    }
+
+    @Override
+    public void setLastPublishedMessageTimestamp(Date lastPublishedMessageTimestamp)
+    {
+        this.lastPublishedMessageTimestamp = lastPublishedMessageTimestamp;
     }
 }

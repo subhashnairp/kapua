@@ -86,7 +86,8 @@ public class ChannelInfoRegistryFacade
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(channelInfo, "channelInfoCreator");
         ArgumentValidator.notNull(channelInfo.getChannel(), "channelInfoCreator.getChannel");
-        ArgumentValidator.notNull(channelInfo.getMessageTimestamp(), "channelInfoCreator.messageTimestamp");
+        ArgumentValidator.notNull(channelInfo.getFirstPublishedMessageId(), "channelInfoCreator.messageId");
+        ArgumentValidator.notNull(channelInfo.getFirstPublishedMessageTimestamp(), "channelInfoCreator.messageTimestamp");
 
         String channelInfoId = ChannelInfoXContentBuilder.getOrDeriveId(channelInfo.getId(), channelInfo);
 
@@ -101,7 +102,7 @@ public class ChannelInfoRegistryFacade
                 if (!DatastoreCacheManager.getInstance().getChannelsCache().get(channelInfoId)) {
                     UpdateResponse response = null;
                     try {
-                        Metadata metadata = this.mediator.getMetadata(scopeId, channelInfo.getMessageTimestamp().getTime());
+                        Metadata metadata = this.mediator.getMetadata(scopeId, channelInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
                         response = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())

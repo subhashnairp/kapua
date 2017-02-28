@@ -129,7 +129,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             // populate the lastMessageTimestamp
             MetricInfo metricInfo = this.metricInfoStoreFacade.find(scopeId, id);
 
-            metricInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, metricInfo));
+            updateLastPublishedFields(scopeId, metricInfo);
 
             return metricInfo;
         }
@@ -154,7 +154,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 
             // populate the lastMessageTimestamp
             for (MetricInfo metricInfo : result) {
-                metricInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, metricInfo));
+                updateLastPublishedFields(scopeId, metricInfo);
             }
 
             return result;
@@ -213,16 +213,18 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     }
 
     /**
-     * Return the last publish date for the specified metric info, so it gets the timestamp of the last published message for the account/clientId in the metric info
+     * Update the last published date and last published message identifier for the specified metric info, so it gets the timestamp and the message identifier of the last published message for the
+     * account/clientId in the metric info
      * 
      * @param scopeId
      * @param channelInfo
-     * @return
+     * 
      * @throws KapuaException
      */
-    private Date getLastTimestamp(KapuaId scopeId, MetricInfo metricInfo) throws KapuaException
+    private void updateLastPublishedFields(KapuaId scopeId, MetricInfo metricInfo) throws KapuaException
     {
-        Date lastTimestamp = null;
+        StorableId lastPublishedMessageId = null;
+        Date lastPublishedMessageTimestamp = null;
         MessageQuery messageQuery = new MessageQueryImpl();
         messageQuery.setAskTotalCount(true);
         messageQuery.setFetchStyle(StorableFetchStyle.SOURCE_FULL);
@@ -236,7 +238,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         messageQuery.setSortFields(sort);
         AndPredicate andPredicate = new AndPredicateImpl();
         // TODO check if this field is correct (EsSchema.METRIC_MTR_TIMESTAMP)!
-        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.METRIC_MTR_TIMESTAMP), metricInfo.getMessageTimestamp(), null);
+        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.METRIC_MTR_TIMESTAMP), metricInfo.getFirstPublishedMessageTimestamp(), null);
         andPredicate.getPredicates().add(messageIdPredicate);
         TermPredicate accountNamePredicate = datastoreObjectFactory.newTermPredicate(MessageField.ACCOUNT, metricInfo.getAccount());
         andPredicate.getPredicates().add(accountNamePredicate);
@@ -247,7 +249,8 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         messageQuery.setPredicate(andPredicate);
         MessageListResult messageList = messageStoreService.query(scopeId, messageQuery);
         if (messageList.size() == 1) {
-            lastTimestamp = messageList.get(0).getTimestamp();
+            lastPublishedMessageId = messageList.get(0).getDatastoreId();
+            lastPublishedMessageTimestamp = messageList.get(0).getTimestamp();
         }
         else if (messageList.size() == 0) {
             // this condition could happens due to the ttl of the messages (so if it happens, it does not necessarily mean there has been an error!)
@@ -258,7 +261,8 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             // if happens it means than an elasticsearch internal error happens and/or our driver didn't set it correctly!
             logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!", new Object[] { metricInfo.getAccount(), metricInfo.getClientId() });
         }
-        return lastTimestamp;
+        metricInfo.setLastPublishedMessageId(lastPublishedMessageId);
+        metricInfo.setLastPublishedMessageTimestamp(lastPublishedMessageTimestamp);
     }
 
 }

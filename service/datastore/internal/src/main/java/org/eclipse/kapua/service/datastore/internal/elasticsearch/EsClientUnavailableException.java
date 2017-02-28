@@ -35,7 +35,7 @@ public class EsClientUnavailableException extends EsDatastoreException
     /**
      * Construct the exception with the provided throwable
      * 
-     * @param t
+     * @param e
      */
     public EsClientUnavailableException(Throwable e)
     {
@@ -46,7 +46,7 @@ public class EsClientUnavailableException extends EsDatastoreException
      * Construct the exception with the provided reason and throwable
      * 
      * @param reason
-     * @param t
+     * @param e
      */
     public EsClientUnavailableException(String reason, Throwable e)
     {

@@ -466,11 +466,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         // check the channel info date
         for (ChannelInfo channelInfo : channelList) {
             if (clientIds[0].equals(channelInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, channelInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, channelInfo.getLastPublishedMessageTimestamp());
             }
             else if (clientIds[1].equals(channelInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, channelInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, channelInfo.getLastPublishedMessageTimestamp());
             }
+            assertEquals(String.format("Wrong first publish date for the client id [%s]", channelInfo.getClientId()), capturedOn, channelInfo.getFirstPublishedMessageTimestamp());
         }
     }
 
@@ -675,23 +676,24 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         // check the metric info date
         for (MetricInfo metricInfo : metricList) {
             if (clientIds[0].equals(metricInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, metricInfo.getLastPublishedMessageTimestamp());
             }
             else if (clientIds[1].equals(metricInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, metricInfo.getLastPublishedMessageTimestamp());
             }
             if (metrics[0].equals(metricInfo.getName())) {
-                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[0]), capturedOn, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[0]), capturedOn, metricInfo.getLastPublishedMessageTimestamp());
             }
             else if (metrics[1].equals(metricInfo.getName())) {
-                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[1]), capturedOn, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[1]), capturedOn, metricInfo.getLastPublishedMessageTimestamp());
             }
             else if (metrics[2].equals(metricInfo.getName())) {
-                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[2]), capturedOnThirdMessage, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[2]), capturedOnThirdMessage, metricInfo.getLastPublishedMessageTimestamp());
             }
             else if (metrics[3].equals(metricInfo.getName())) {
-                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[3]), capturedOnThirdMessage, metricInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the metric [%s]", metrics[3]), capturedOnThirdMessage, metricInfo.getLastPublishedMessageTimestamp());
             }
+            assertEquals(String.format("Wrong first publish date for the client id [%s]", metricInfo.getClientId()), capturedOn, metricInfo.getFirstPublishedMessageTimestamp());
         }
     }
 
@@ -949,11 +951,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         checkClientInfo(clientList, 2, clientIds);
         for (ClientInfo clientInfo : clientList) {
             if (clientIds[0].equals(clientInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, clientInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[0]), capturedOn, clientInfo.getLastPublishedMessageTimestamp());
             }
             else if (clientIds[1].equals(clientInfo.getClientId())) {
-                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, clientInfo.getLastMessageTimestamp());
+                assertEquals(String.format("Wrong last publish date for the client id [%s]", clientIds[1]), capturedOnThirdMessage, clientInfo.getLastPublishedMessageTimestamp());
             }
+            assertEquals(String.format("Wrong first publish date for the client id [%s]", clientInfo.getClientId()), capturedOn, clientInfo.getFirstPublishedMessageTimestamp());
         }
     }
 
@@ -2163,7 +2166,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         ClientInfo clientInfo = clientInfos.get(0);
 
         assertNotNull(clientInfo);
-        assertTrue(messageId.equals(clientInfo.getMessageId()));
+        assertTrue(messageId.equals(clientInfo.getFirstPublishedMessageId()));
 
         // There must be a channel info entry in the registry
         equalsMessageId = datastoreObjectFactory.newTermPredicate(ChannelInfoField.MESSAGE_ID, messageId);
@@ -2183,7 +2186,7 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         ChannelInfo channelInfo = channelInfos.get(0);
 
         assertNotNull(channelInfo);
-        assertTrue(messageId.equals(channelInfo.getMessageId()));
+        assertTrue(messageId.equals(channelInfo.getFirstPublishedMessageId()));
 
         // There must be two metric info entries in the registry
         equalsMessageId = datastoreObjectFactory.newTermPredicate(MetricInfoField.MESSAGE_ID_FULL, messageId);
@@ -2203,12 +2206,12 @@ public class MessageStoreServiceTest extends AbstractMessageStoreServiceTest
         MetricInfo metricInfo = metricInfos.get(0);
 
         assertNotNull(metricInfo);
-        assertTrue(messageId.equals(metricInfo.getMessageId()));
+        assertTrue(messageId.equals(metricInfo.getFirstPublishedMessageId()));
 
         metricInfo = metricInfos.get(1);
 
         assertNotNull(metricInfo);
-        assertTrue(messageId.equals(metricInfo.getMessageId()));
+        assertTrue(messageId.equals(metricInfo.getFirstPublishedMessageId()));
     }
 
     /**

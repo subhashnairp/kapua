@@ -168,8 +168,8 @@ public class ClientInfoXContentBuilder
     {
         String accountName = clientInfo.getAccount();
         String clientId = clientInfo.getClientId();
-        StorableId msgId = clientInfo.getMessageId();
-        Date msgTimestamp = clientInfo.getMessageTimestamp();
+        StorableId msgId = clientInfo.getFirstPublishedMessageId();
+        Date msgTimestamp = clientInfo.getFirstPublishedMessageTimestamp();
 
         clientBuilder = this.getClientBuilder(clientId, msgId.toString(), msgTimestamp, accountName);
 

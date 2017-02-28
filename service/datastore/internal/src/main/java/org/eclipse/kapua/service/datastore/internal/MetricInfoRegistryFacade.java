@@ -87,7 +87,8 @@ public class MetricInfoRegistryFacade
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(metricInfo, "metricInfoCreator");
-        ArgumentValidator.notNull(metricInfo.getMessageTimestamp(), "metricInfoCreator.messageTimestamp");
+        ArgumentValidator.notNull(metricInfo.getFirstPublishedMessageId(), "metricInfoCreator.firstPublishedMessageId");
+        ArgumentValidator.notNull(metricInfo.getFirstPublishedMessageTimestamp(), "metricInfoCreator.firstPublishedMessageTimestamp");
 
         String metricInfoId = MetricInfoXContentBuilder.getOrDeriveId(metricInfo.getId(), metricInfo);
 
@@ -102,7 +103,7 @@ public class MetricInfoRegistryFacade
                 if (!DatastoreCacheManager.getInstance().getChannelsCache().get(metricInfoId)) {
                     UpdateResponse response = null;
                     try {
-                        Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getMessageTimestamp().getTime());
+                        Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
                         response = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
@@ -157,7 +158,7 @@ public class MetricInfoRegistryFacade
             if (DatastoreCacheManager.getInstance().getMetricsCache().get(metricInfoId))
                 continue;
 
-            Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getMessageTimestamp().getTime());
+            Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getFirstPublishedMessageTimestamp().getTime());
             String kapuaIndexName = metadata.getKapuaIndexName();
 
             EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName);

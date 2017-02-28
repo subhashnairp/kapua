@@ -287,8 +287,8 @@ public class MetricInfoXContentBuilder
         MetricInfoImpl metricInfo = new MetricInfoImpl(metricInfoCreator.getAccount(), id);
         metricInfo.setClientId(metricInfoCreator.getClientId());
         metricInfo.setChannel(metricInfoCreator.getChannel());
-        metricInfo.setMessageId(metricInfoCreator.getMessageId());
-        metricInfo.setMessageTimestamp(metricInfoCreator.getMessageTimestamp());
+        metricInfo.setFirstPublishedMessageId(metricInfoCreator.getMessageId());
+        metricInfo.setFirstPublishedMessageTimestamp(metricInfoCreator.getMessageTimestamp());
         metricInfo.setName(metricInfoCreator.getName());
         metricInfo.setType(metricInfoCreator.getType());
         metricInfo.setValue(metricInfoCreator.getValue(Object.class));
@@ -306,8 +306,8 @@ public class MetricInfoXContentBuilder
     public MetricInfoXContentBuilder build(MetricInfo metricInfo)
         throws EsDocumentBuilderException
     {
-        StorableId msgId = metricInfo.getMessageId();
-        Date msgTimestamp = metricInfo.getMessageTimestamp();
+        StorableId msgId = metricInfo.getFirstPublishedMessageId();
+        Date msgTimestamp = metricInfo.getFirstPublishedMessageTimestamp();
         String metricName = metricInfo.getName();
         Object value = metricInfo.getValue(Object.class);
 

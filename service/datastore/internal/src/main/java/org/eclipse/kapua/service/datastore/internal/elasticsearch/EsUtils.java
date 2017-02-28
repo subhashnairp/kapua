@@ -21,6 +21,12 @@ import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Elasticsearch utility class
+ * 
+ * @since 1.0
+ *
+ */
 public class EsUtils
 {
 
@@ -68,6 +74,13 @@ public class EsUtils
         return normName;
     }
 
+    /**
+     * Normalize the metric name to be compliant to Kapua/Elasticserach constraints.<br>
+     * It escapes the '$' and '.'
+     * 
+     * @param name
+     * @return
+     */
     public static String normalizeMetricName(String name)
     {
         String newName = name;
@@ -80,6 +93,12 @@ public class EsUtils
         return newName;
     }
 
+    /**
+     * Restore the metric name, so switch back to the 'not escaped' values for '$' and '.'
+     * 
+     * @param normalizedName
+     * @return
+     */
     public static String restoreMetricName(String normalizedName)
     {
         String oldName = normalizedName;
@@ -90,6 +109,12 @@ public class EsUtils
         return oldName;
     }
 
+    /**
+     * Return the metric parts for the composed metric name (split the metric name by '.')
+     * 
+     * @param fullName
+     * @return
+     */
     public static String[] getMetricParts(String fullName)
     {
         return fullName == null ? null : fullName.split(Pattern.quote("."));
@@ -156,12 +181,26 @@ public class EsUtils
         return indexName;
     }
 
+    /**
+     * Get the full metric name used to store the metric in Elasticsearch.<br>
+     * The full metric name is composed by the metric and the type acronym as suffix ('.' is used as separator between the 2 parts)
+     * 
+     * @param name
+     * @param type
+     * @return
+     */
     public static String getMetricValueQualifier(String name, String type)
     {
         String shortType = EsUtils.getEsTypeAcronym(type);
         return String.format("%s.%s", name, shortType);
     }
 
+    /**
+     * Get the Elasticsearch metric type from the metric value type
+     * 
+     * @param value
+     * @return
+     */
     public static String getEsTypeFromValue(Object value)
     {
         if (value == null)
@@ -194,6 +233,12 @@ public class EsUtils
         throw new IllegalArgumentException(String.format("Metric value type for "));
     }
 
+    /**
+     * Get the Elasticsearch metric type acronym for the given Elasticsearch metric type full name
+     * 
+     * @param esType
+     * @return
+     */
     public static String getEsTypeAcronym(String esType)
     {
         if (esType.equals("string"))
@@ -224,14 +269,14 @@ public class EsUtils
         throw new IllegalArgumentException(String.format("Unknown type [%s]", esType));
     }
 
-    public static void main(String[] args)
-    {
-        System.out.println((new byte[] {}).getClass().getName());
-    }
-
+    /**
+     * Convert the metric value class type (Kapua side) to the proper string type description (Elasticsearch side)
+     * 
+     * @param aClass
+     * @return
+     */
     public static <T> String convertToEsType(Class<T> aClass)
     {
-
         if (aClass == String.class)
             return ES_TYPE_STRING;
 
@@ -260,90 +305,109 @@ public class EsUtils
         throw new IllegalArgumentException(String.format("Unknown type [%s]", aClass.getName()));
     }
 
+    /**
+     * Convert the Kapua metric type to the corresponding Elasticsearch type
+     * 
+     * @param kapuaType
+     * @return
+     */
     public static String convertToEsType(String kapuaType)
     {
 
-        if (kapuaType.equals("string") || kapuaType.equals("String"))
+        if ("string".equals(kapuaType) || "String".equals(kapuaType))
             return ES_TYPE_STRING;
 
-        if (kapuaType.equals("integer") || kapuaType.equals("Integer"))
+        if ("integer".equals(kapuaType) || "Integer".equals(kapuaType))
             return ES_TYPE_INTEGER;
 
-        if (kapuaType.equals("long") || kapuaType.equals("Long"))
+        if ("long".equals(kapuaType) || "Long".equals(kapuaType))
             return ES_TYPE_LONG;
 
-        if (kapuaType.equals("float") || kapuaType.equals("Float"))
+        if ("float".equals(kapuaType) || "Float".equals(kapuaType))
             return ES_TYPE_FLOAT;
 
-        if (kapuaType.equals("double") || kapuaType.equals("Double"))
+        if ("double".equals(kapuaType) || "Double".equals(kapuaType))
             return ES_TYPE_DOUBLE;
 
-        if (kapuaType.equals("boolean") || kapuaType.equals("Boolean"))
+        if ("boolean".equals(kapuaType) || "Boolean".equals(kapuaType))
             return ES_TYPE_BOOL;
 
-        if (kapuaType.equals("date") || kapuaType.equals("Date"))
+        if ("date".equals(kapuaType) || "Date".equals(kapuaType))
             return ES_TYPE_DATE;
 
-        if (kapuaType.equals("base64Binary")) {
+        if ("base64Binary".equals(kapuaType)) {
             return ES_TYPE_BINARY;
         }
 
         throw new IllegalArgumentException(String.format("Unknown type [%s]", kapuaType));
     }
 
+    /**
+     * Convert the Elasticsearch metric type to the corresponding Kapua type
+     * 
+     * @param esType
+     * @return
+     */
     public static String convertToKapuaType(String esType)
     {
 
-        if (esType.equals(ES_TYPE_STRING))
+        if (ES_TYPE_STRING.equals(esType))
             return "string";
 
-        if (esType.equals(ES_TYPE_INTEGER))
+        if (ES_TYPE_INTEGER.equals(esType))
             return "int";
 
-        if (esType.equals(ES_TYPE_LONG))
+        if (ES_TYPE_LONG.equals(esType))
             return "long";
 
-        if (esType.equals(ES_TYPE_FLOAT))
+        if (ES_TYPE_FLOAT.equals(esType))
             return "float";
 
-        if (esType.equals(ES_TYPE_DOUBLE))
+        if (ES_TYPE_DOUBLE.equals(esType))
             return "double";
 
-        if (esType.equals(ES_TYPE_BOOL))
+        if (ES_TYPE_BOOL.equals(esType))
             return "boolean";
 
-        if (esType.equals(ES_TYPE_DATE))
+        if (ES_TYPE_DATE.equals(esType))
             return "date";
 
-        if (esType.equals(ES_TYPE_BINARY)) {
+        if (ES_TYPE_BINARY.equals(esType)) {
             return "base64Binary";
         }
 
         throw new IllegalArgumentException(String.format("Unknown type [%s]", esType));
     }
 
+    /**
+     * Convert the Elasticsearch metric value to the proper Kapua object
+     * 
+     * @param type
+     * @param value
+     * @return
+     */
     public static Object convertToKapuaObject(String type, String value)
     {
 
-        if (type.equals("string"))
+        if ("string".equals(type))
             return value;
 
-        if (type.equals("int"))
+        if ("int".equals(type))
             return value == null ? null : Integer.parseInt(value);
 
-        if (type.equals("long"))
+        if ("long".equals(type))
             return value == null ? null : Long.parseLong(value);
 
-        if (type.equals("float"))
+        if ("float".equals(type))
             return value == null ? null : Float.parseFloat(value);
 
-        if (type.equals("double"))
+        if ("double".equals(type))
             return value == null ? null : Double.parseDouble(value);
 
-        if (type.equals("boolean"))
+        if ("boolean".equals(type))
             return value == null ? null : Boolean.parseBoolean(value);
 
-        if (type.equals("date")) {
+        if ("date".equals(type)) {
             try {
                 SimpleDateFormat simplWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                 simplWithMillis.setTimeZone(KapuaDateUtils.getKapuaTimeZone());
@@ -361,54 +425,24 @@ public class EsUtils
             }
         }
 
-        if (type.equals("base64Binary")) {
+        if ("base64Binary".equals(type)) {
             return value;
         }
 
         throw new IllegalArgumentException(String.format("Unknown type [%s]", type));
     }
 
-    public static Object convertToEsObject(String type, String value)
-    {
-        if (type.equals("string") || type.equals("str"))
-            return value;
-
-        if (type.equals("int") || type.equals("int"))
-            return value == null ? null : Integer.parseInt(value);
-
-        if (type.equals("long") || type.equals("lng"))
-            return value == null ? null : Long.parseLong(value);
-
-        if (type.equals("float") || type.equals("flt"))
-            return value == null ? null : Float.parseFloat(value);
-
-        if (type.equals("double") || type.equals("dbl"))
-            return value == null ? null : Double.parseDouble(value);
-
-        if (type.equals("boolean") || type.equals("bln"))
-            return value == null ? null : Boolean.parseBoolean(value);
-
-        if (type.equals("date") || type.equals("dte")) {
-            try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                return value == null ? null : simpleDateFormat.parse(value);
-            }
-            catch (ParseException e) {
-                throw new IllegalArgumentException(String.format("Unknown date format [%s]", value));
-            }
-        }
-
-        if (type.equals("binary") || type.equals("bin")) {
-            return value;
-        }
-
-        throw new IllegalArgumentException(String.format("Unknown type [%s]", type));
-    }
-
+    /**
+     * Convert the metric value to the correct type using the metric acronym type
+     * 
+     * @param acronymType
+     * @param value
+     * @return
+     */
     public static Object convertToCorrectType(String acronymType, Object value)
     {
         Object convertedValue = null;
-        if (acronymType.equals(ES_TYPE_SHORT_DOUBLE)) {
+        if (ES_TYPE_SHORT_DOUBLE.equals(acronymType)) {
             if (value instanceof Number) {
                 convertedValue = new Double(((Number) value).doubleValue());
             }
@@ -419,7 +453,7 @@ public class EsUtils
                 throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
             }
         }
-        else if (acronymType.equals(ES_TYPE_SHORT_FLOAT)) {
+        else if (ES_TYPE_SHORT_FLOAT.equals(acronymType)) {
             if (value instanceof Number) {
                 convertedValue = new Float(((Number) value).floatValue());
             }
@@ -430,7 +464,7 @@ public class EsUtils
                 throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
             }
         }
-        else if (acronymType.equals(ES_TYPE_SHORT_INTEGER)) {
+        else if (ES_TYPE_SHORT_INTEGER.equals(acronymType)) {
             if (value instanceof Number) {
                 convertedValue = new Integer(((Number) value).intValue());
             }
@@ -441,7 +475,7 @@ public class EsUtils
                 throw new IllegalArgumentException(String.format("Type [%s] cannot be converted to Double!", value.getClass()));
             }
         }
-        else if (acronymType.equals(ES_TYPE_SHORT_LONG)) {
+        else if (ES_TYPE_SHORT_LONG.equals(acronymType)) {
             if (value instanceof Number) {
                 convertedValue = new Long(((Number) value).longValue());
             }
@@ -459,11 +493,21 @@ public class EsUtils
         return convertedValue;
     }
 
+    /**
+     * Get the query timeout (default value)
+     * 
+     * @return
+     */
     public static long getQueryTimeout()
     {
         return 15000;
     }
 
+    /**
+     * Get the scroll timeout (default value)
+     * 
+     * @return
+     */
     public static long getScrollTimeout()
     {
         return 60000;

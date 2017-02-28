@@ -121,7 +121,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             ClientInfo clientInfo = this.facade.find(scopeId, id);
 
             // populate the lastMessageTimestamp
-            clientInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, clientInfo));
+            updateLastPublishedFields(scopeId, clientInfo);
 
             return clientInfo;
         }
@@ -143,7 +143,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 
             // populate the lastMessageTimestamp
             for (ClientInfo clientInfo : result) {
-                clientInfo.setLastMessageTimestamp(getLastTimestamp(scopeId, clientInfo));
+                updateLastPublishedFields(scopeId, clientInfo);
             }
 
             return result;
@@ -199,16 +199,18 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     }
 
     /**
-     * Return the last publish date for the specified client info, so it gets the timestamp of the last published message for the account/clientId in the client info
+     * Update the last published date and last published message identifier for the specified client info, so it gets the timestamp and the message identifier of the last published message for the
+     * account/clientId in the client info
      * 
      * @param scopeId
      * @param channelInfo
-     * @return
+     * 
      * @throws KapuaException
      */
-    private Date getLastTimestamp(KapuaId scopeId, ClientInfo clientInfo) throws KapuaException
+    private void updateLastPublishedFields(KapuaId scopeId, ClientInfo clientInfo) throws KapuaException
     {
-        Date lastTimestamp = null;
+        StorableId lastPublishedMessageId = null;
+        Date lastPublishedMessageTimestamp = null;
         MessageQuery messageQuery = new MessageQueryImpl();
         messageQuery.setAskTotalCount(true);
         messageQuery.setFetchStyle(StorableFetchStyle.SOURCE_SELECT);
@@ -221,7 +223,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         sort.add(sortTimestamp);
         messageQuery.setSortFields(sort);
         AndPredicate andPredicate = new AndPredicateImpl();
-        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CLIENT_TIMESTAMP), clientInfo.getMessageTimestamp(), null);
+        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CLIENT_TIMESTAMP), clientInfo.getFirstPublishedMessageTimestamp(), null);
         andPredicate.getPredicates().add(messageIdPredicate);
         TermPredicate accountNamePredicate = datastoreObjectFactory.newTermPredicate(MessageField.ACCOUNT, clientInfo.getAccount());
         andPredicate.getPredicates().add(accountNamePredicate);
@@ -230,7 +232,8 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         messageQuery.setPredicate(andPredicate);
         MessageListResult messageList = messageStoreService.query(scopeId, messageQuery);
         if (messageList.size() == 1) {
-            lastTimestamp = messageList.get(0).getTimestamp();
+            lastPublishedMessageId = messageList.get(0).getDatastoreId();
+            lastPublishedMessageTimestamp = messageList.get(0).getTimestamp();
         }
         else if (messageList.size() == 0) {
             // this condition could happens due to the ttl of the messages (so if it happens, it does not necessarily mean there has been an error!)
@@ -241,6 +244,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             // if happens it means than an elasticsearch internal error happens and/or our driver didn't set it correctly!
             logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!", new Object[] { clientInfo.getAccount(), clientInfo.getClientId() });
         }
-        return lastTimestamp;
+        clientInfo.setLastPublishedMessageId(lastPublishedMessageId);
+        clientInfo.setLastPublishedMessageTimestamp(lastPublishedMessageTimestamp);
     }
 }

@@ -57,13 +57,13 @@ public class MetricInfoObjectBuilder
         MetricInfoImpl finalMetricInfo = new MetricInfoImpl(account, new StorableIdImpl(id));
         finalMetricInfo.setClientId(clientId);
         finalMetricInfo.setChannel(channel);
-        finalMetricInfo.setMessageId(new StorableIdImpl(lastMsgId));
+        finalMetricInfo.setFirstPublishedMessageId(new StorableIdImpl(lastMsgId));
 
         String metricName = EsUtils.restoreMetricName(name);
         finalMetricInfo.setName(metricName);
 
         Date timestamp = (Date) EsUtils.convertToKapuaObject("date", lastMsgTimestamp);
-        finalMetricInfo.setMessageTimestamp(timestamp);
+        finalMetricInfo.setFirstPublishedMessageTimestamp(timestamp);
 
         if (EsUtils.ES_TYPE_STRING.equals(type)) {
             finalMetricInfo.setType(EsUtils.convertToKapuaType(type));

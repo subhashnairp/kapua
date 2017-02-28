@@ -27,10 +27,11 @@ public class ChannelInfoImpl implements ChannelInfo
     private StorableId id;
     private String     account;
     private String     clientId;
-    private StorableId msgId;
-    private Date       msgTimestamp;
     private String     channel;
-    private Date       lastMsgTimestamp;
+    private StorableId firstPublishedMessageId;
+    private Date       firstPublishedMessageTimestamp;
+    private StorableId lastPublishedMessageId;
+    private Date       lastPublishedMessageTimestamp;
 
     /**
      * Construct a channel information for the given scope
@@ -93,30 +94,6 @@ public class ChannelInfoImpl implements ChannelInfo
     }
 
     @Override
-    public StorableId getMessageId()
-    {
-        return this.msgId;
-    }
-
-    @Override
-    public void setMessageId(StorableId msgId)
-    {
-        this.msgId = msgId;
-    }
-
-    @Override
-    public Date getMessageTimestamp()
-    {
-        return msgTimestamp;
-    }
-
-    @Override
-    public void setMessageTimestamp(Date msgTimestamp)
-    {
-        this.msgTimestamp = msgTimestamp;
-    }
-
-    @Override
     public String getChannel()
     {
         return channel;
@@ -129,15 +106,51 @@ public class ChannelInfoImpl implements ChannelInfo
     }
 
     @Override
-    public Date getLastMessageTimestamp()
+    public StorableId getFirstPublishedMessageId()
     {
-        return lastMsgTimestamp;
+        return this.firstPublishedMessageId;
     }
 
     @Override
-    public void setLastMessageTimestamp(Date lastMsgTimestamp)
+    public void setFirstPublishedMessageId(StorableId firstPublishedMessageId)
     {
-        this.lastMsgTimestamp = lastMsgTimestamp;
+        this.firstPublishedMessageId = firstPublishedMessageId;
+    }
+
+    @Override
+    public Date getFirstPublishedMessageTimestamp()
+    {
+        return firstPublishedMessageTimestamp;
+    }
+
+    @Override
+    public void setFirstPublishedMessageTimestamp(Date firstPublishedMessageTimestamp)
+    {
+        this.firstPublishedMessageTimestamp = firstPublishedMessageTimestamp;
+    }
+
+    @Override
+    public StorableId getLastPublishedMessageId()
+    {
+        return this.lastPublishedMessageId;
+    }
+
+    @Override
+    public void setLastPublishedMessageId(StorableId lastPublishedMessageId)
+    {
+        this.lastPublishedMessageId = lastPublishedMessageId;
+    }
+
+    @Override
+    public Date getLastPublishedMessageTimestamp()
+    {
+        return lastPublishedMessageTimestamp;
+    }
+
+    @Override
+    public void setLastPublishedMessageTimestamp(Date lastPublishedMessageTimestamp)
+    {
+        this.lastPublishedMessageTimestamp = lastPublishedMessageTimestamp;
     }
 
 }
