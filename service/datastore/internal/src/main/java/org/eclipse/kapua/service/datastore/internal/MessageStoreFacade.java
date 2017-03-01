@@ -21,7 +21,6 @@ import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreChannel;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
@@ -53,7 +52,6 @@ import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +69,12 @@ public final class MessageStoreFacade
     private final MessageStoreMediator  mediator;
     private final ConfigurationProvider configProvider;
 
+    /**
+     * Constructs the message store facade
+     * 
+     * @param confProvider
+     * @param mediator
+     */
     public MessageStoreFacade(ConfigurationProvider confProvider, MessageStoreMediator mediator)
     {
         this.configProvider = confProvider;
@@ -145,8 +149,7 @@ public final class MessageStoreFacade
 
         // Save message (the big one)
         // TODO check response
-        Client client = ElasticsearchClient.getInstance();
-        EsMessageDAO.client(client)
+        EsMessageDAO.getInstance()
                     .index(indexName)
                     .upsert(docBuilder.getMessageId().toString(), docBuilder.getBuilder());
 
@@ -185,7 +188,7 @@ public final class MessageStoreFacade
         }
 
         String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        EsMessageDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+        EsMessageDAO.getInstance().index(dataIndexName)
                     .deleteById(id.toString());
     }
 
@@ -224,7 +227,7 @@ public final class MessageStoreFacade
 
         MessageListResult result = null;
         String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        result = EsMessageDAO.client(ElasticsearchClient.getInstance())
+        result = EsMessageDAO.getInstance()
                              .index(dataIndexName)
                              .query(idsQuery);
 
@@ -269,7 +272,7 @@ public final class MessageStoreFacade
 
         String dataIndexName = EsSchema.getDataIndexName(scopeId);
         MessageListResult result = null;
-        result = EsMessageDAO.client(ElasticsearchClient.getInstance())
+        result = EsMessageDAO.getInstance()
                              .index(dataIndexName)
                              .query(query);
 
@@ -310,7 +313,7 @@ public final class MessageStoreFacade
 
         String dataIndexName = EsSchema.getDataIndexName(scopeId);
         long result;
-        result = EsMessageDAO.client(ElasticsearchClient.getInstance())
+        result = EsMessageDAO.getInstance()
                              .index(dataIndexName)
                              .count(query);
 
@@ -349,7 +352,7 @@ public final class MessageStoreFacade
         }
 
         String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        EsMessageDAO.client(ElasticsearchClient.getInstance())
+        EsMessageDAO.getInstance()
                     .index(dataIndexName)
                     .deleteByQuery(query);
 
@@ -398,7 +401,7 @@ public final class MessageStoreFacade
 
         // Remove metrics
         while (totalHits > 0) {
-            MetricInfoListResult metrics = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+            MetricInfoListResult metrics = EsMetricInfoDAO.getInstance()
                                                           .index(dataIndexName).query(metricQuery);
 
             totalHits = metrics.size();
@@ -417,7 +420,7 @@ public final class MessageStoreFacade
 
         logger.debug(String.format("Removed cached channel metrics for [%s]", channel));
 
-        EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+        EsMetricInfoDAO.getInstance().index(dataIndexName)
                        .deleteByQuery(metricQuery);
 
         logger.debug(String.format("Removed channel metrics for [%s]", channel));
@@ -435,7 +438,7 @@ public final class MessageStoreFacade
         offset = 0;
         totalHits = 1;
         while (totalHits > 0) {
-            ChannelInfoListResult channels = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+            ChannelInfoListResult channels = EsChannelInfoDAO.getInstance()
                                                              .index(dataIndexName).query(channelQuery);
 
             totalHits = channels.size();
@@ -453,7 +456,7 @@ public final class MessageStoreFacade
 
         logger.debug(String.format("Removed cached channels for [%s]", channel));
 
-        EsChannelInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+        EsChannelInfoDAO.getInstance().index(dataIndexName)
                         .deleteByQuery(channelQuery);
 
         logger.debug(String.format("Removed channels for [%s]", channel));
@@ -473,7 +476,7 @@ public final class MessageStoreFacade
             offset = 0;
             totalHits = 1;
             while (totalHits > 0) {
-                ClientInfoListResult clients = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+                ClientInfoListResult clients = EsClientInfoDAO.getInstance()
                                                               .index(dataIndexName).query(clientInfoQuery);
 
                 totalHits = clients.size();
@@ -491,7 +494,7 @@ public final class MessageStoreFacade
 
             logger.debug(String.format("Removed cached clients for [%s]", channel));
 
-            EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(dataIndexName)
+            EsClientInfoDAO.getInstance().index(dataIndexName)
                            .deleteByQuery(clientInfoQuery);
 
             logger.debug(String.format("Removed clients for [%s]", channel));

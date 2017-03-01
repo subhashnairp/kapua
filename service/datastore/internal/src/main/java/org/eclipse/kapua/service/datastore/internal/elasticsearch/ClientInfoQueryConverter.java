@@ -15,6 +15,13 @@ import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 
+/**
+ * Client info query converter.<br>
+ * This object adds the specific client info included and excluded fields definition to the abstract query converter.
+ * 
+ * @since 1.0
+ *
+ */
 public class ClientInfoQueryConverter extends AbstractStorableQueryConverter<ClientInfo, ClientInfoQuery>
 {
 

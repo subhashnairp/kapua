@@ -24,8 +24,23 @@ import org.eclipse.kapua.service.datastore.model.MetricInfo;
 public interface MetricInfoRegistryMediator
 {
 
+    /**
+     * Get the metric info metadata
+     * 
+     * @param scopeId
+     * @param indexedOn
+     * @return
+     * @throws EsDocumentBuilderException
+     * @throws EsClientUnavailableException
+     */
     public Metadata getMetadata(KapuaId scopeId, long indexedOn)
         throws EsDocumentBuilderException, EsClientUnavailableException;
 
+    /**
+     * On after metric info delete event handler
+     * 
+     * @param scopeId
+     * @param metricInfo
+     */
     public void onAfterMetricInfoDelete(KapuaId scopeId, MetricInfo metricInfo);
 }

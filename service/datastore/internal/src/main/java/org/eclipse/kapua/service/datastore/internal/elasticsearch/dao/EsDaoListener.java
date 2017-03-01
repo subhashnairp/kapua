@@ -11,7 +11,19 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
+/**
+ * Elasticsearch dao listener definition
+ * 
+ * @since 1.0
+ *
+ */
 public interface EsDaoListener
 {
+
+    /**
+     * Notify event
+     * 
+     * @param anEvent
+     */
     public void notify(EsDaoEvent anEvent);
 }

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
-import java.util.Map;
-
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDatastoreException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -30,6 +28,12 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
+/**
+ * Type dao
+ * 
+ * @since 1.0
+ *
+ */
 public class EsTypeDAO
 {
     private static final String CLIENT_UNDEFINED_MSG    = "ES client must be not null";
@@ -41,8 +45,10 @@ public class EsTypeDAO
     private String        typeName;
     private EsDaoListener eventListener;
 
-    protected EsTypeDAO()
-    {}
+    public EsTypeDAO(Client client)
+    {
+        this.client = client;
+    }
 
     protected Client getClient()
     {
@@ -59,6 +65,13 @@ public class EsTypeDAO
         return typeName;
     }
 
+    /**
+     * Set the dao listener
+     * 
+     * @param eventListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsTypeDAO setListener(EsDaoListener eventListener)
         throws EsDatastoreException
     {
@@ -69,6 +82,13 @@ public class EsTypeDAO
         return this;
     }
 
+    /**
+     * Unset the dao listener
+     * 
+     * @param eventListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsTypeDAO unsetListener(EsDaoListener eventListener)
         throws EsDatastoreException
     {
@@ -79,13 +99,13 @@ public class EsTypeDAO
         return this;
     }
 
-    public static EsTypeDAO client(Client client)
-    {
-        EsTypeDAO esTypeDAO = new EsTypeDAO();
-        esTypeDAO.client = client;
-        return esTypeDAO;
-    }
-
+    /**
+     * Set the DAO type by index and type name (schema)
+     * 
+     * @param indexName
+     * @param typeName
+     * @return
+     */
     public EsTypeDAO type(String indexName, String typeName)
     {
         this.indexName = indexName;
@@ -93,6 +113,12 @@ public class EsTypeDAO
         return this;
     }
 
+    /**
+     * Insert action (insert the document into the database)
+     * 
+     * @param esClient
+     * @return
+     */
     public String insert(XContentBuilder esClient)
     {
         if (this.client == null)
@@ -105,6 +131,13 @@ public class EsTypeDAO
         return response.getId();
     }
 
+    /**
+     * Update action (update the document into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse update(String id, XContentBuilder esClient)
     {
         if (this.client == null)
@@ -118,17 +151,13 @@ public class EsTypeDAO
         return response;
     }
 
-    public UpdateRequest getUpsertRequest(String id, Map<String, Object> esClient)
-    {
-        if (this.client == null)
-            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esClient);
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esClient);
-        updRequest.upsert(idxRequest);
-        return updRequest;
-    }
-
+    /**
+     * Build the upsert request
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateRequest getUpsertRequest(String id, XContentBuilder esClient)
     {
         if (this.client == null)
@@ -140,6 +169,13 @@ public class EsTypeDAO
         return updRequest;
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
         if (this.client == null)
@@ -153,19 +189,11 @@ public class EsTypeDAO
         return response;
     }
 
-    public UpdateResponse upsert(String id, Map<String, Object> esMessage)
-    {
-        if (this.client == null)
-            throw new IllegalStateException(CLIENT_UNDEFINED_MSG);
-
-        long timeout = EsUtils.getQueryTimeout();
-
-        IndexRequest idxRequest = new IndexRequest(this.indexName, this.typeName, id).source(esMessage);
-        UpdateRequest updRequest = new UpdateRequest(this.indexName, this.typeName, id).doc(esMessage);
-        UpdateResponse response = this.client.update(updRequest.upsert(idxRequest)).actionGet(TimeValue.timeValueMillis(timeout));
-        return response;
-    }
-
+    /**
+     * Delete query action (delete documents from the database)
+     * 
+     * @param query
+     */
     public void deleteByQuery(QueryBuilder query)
     {
         TimeValue queryTimeout = TimeValue.timeValueMillis(EsUtils.getQueryTimeout());
@@ -211,6 +239,12 @@ public class EsTypeDAO
         }
     }
 
+    /**
+     * Execute bulk request
+     * 
+     * @param bulkRequest
+     * @return
+     */
     public BulkResponse bulk(BulkRequest bulkRequest)
     {
         if (this.client == null)

@@ -21,8 +21,26 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
+/**
+ * Abstract storable query converter implementation.<br>
+ * This object defines common method to all the query converter used by Kapua.
+ *
+ * @param <S> persisted object type (such as messages, channeles information...)
+ * @param <Q>
+ */
 public abstract class AbstractStorableQueryConverter<S extends Storable, Q extends StorableQuery<S>>
 {
+
+    /**
+     * Convert to a count query
+     * 
+     * @param indices
+     * @param type
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public SearchRequestBuilder toCountRequestBuilder(String indices, String type, Q query)
         throws EsQueryConversionException, EsClientUnavailableException
     {
@@ -38,6 +56,16 @@ public abstract class AbstractStorableQueryConverter<S extends Storable, Q exten
         return searchReqBuilder;
     }
 
+    /**
+     * Convert to a search query
+     * 
+     * @param indices
+     * @param type
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public SearchRequestBuilder toSearchRequestBuilder(String indices, String type, Q query)
         throws EsQueryConversionException, EsClientUnavailableException
     {
@@ -77,9 +105,28 @@ public abstract class AbstractStorableQueryConverter<S extends Storable, Q exten
         return searchReqBuilder;
     }
 
+    /**
+     * Query included fields list.<br>
+     * The list may use the fetchStyle parameter to differentiate the included fields list (depending on the type of the entity)
+     * 
+     * @param fetchStyle
+     * @return
+     */
     protected abstract String[] getIncludes(StorableFetchStyle fetchStyle);
 
+    /**
+     * Query excluded fields list.<br>
+     * The list may use the fetchStyle parameter to differentiate the excluded fields list (depending on the type of the entity)
+     * 
+     * @param fetchStyle
+     * @return
+     */
     protected abstract String[] getExcludes(StorableFetchStyle fetchStyle);
 
+    /**
+     * Query fields list
+     * 
+     * @return
+     */
     protected abstract String[] getFields();
 }

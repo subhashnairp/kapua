@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoObjectBuilder;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoQueryConverter;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoXContentBuilder;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDatastoreException;
@@ -33,20 +34,39 @@ import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
+/**
+ * Client information DAO
+ *
+ * @since 1.0
+ *
+ */
 public class EsClientInfoDAO
 {
 
     private EsTypeDAO esTypeDAO;
 
-    private EsClientInfoDAO()
-    {}
+    /**
+     * Default constructor
+     * 
+     * @throws EsClientUnavailableException
+     */
+    public EsClientInfoDAO() throws EsClientUnavailableException
+    {
+        esTypeDAO = new EsTypeDAO(ElasticsearchClient.getInstance());
+    }
 
+    /**
+     * Set the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsClientInfoDAO setListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -54,6 +74,13 @@ public class EsClientInfoDAO
         return this;
     }
 
+    /**
+     * Unset the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsClientInfoDAO unsetListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -61,19 +88,36 @@ public class EsClientInfoDAO
         return this;
     }
 
-    public static EsClientInfoDAO client(Client client)
+    /**
+     * Client information DAO instance factory
+     * 
+     * @return
+     * @throws EsClientUnavailableException
+     */
+    public static EsClientInfoDAO getInstance() throws EsClientUnavailableException
     {
-        EsClientInfoDAO esClientInfoDAO = new EsClientInfoDAO();
-        esClientInfoDAO.esTypeDAO = EsTypeDAO.client(client);
-        return esClientInfoDAO;
+        return new EsClientInfoDAO();
     }
 
+    /**
+     * Set the index name
+     * 
+     * @param indexName
+     * @return
+     */
     public EsClientInfoDAO index(String indexName)
     {
         this.esTypeDAO.type(indexName, EsSchema.CLIENT_TYPE_NAME);
         return this;
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param clientInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse upsert(ClientInfo clientInfo)
         throws EsDocumentBuilderException
     {
@@ -81,11 +125,25 @@ public class EsClientInfoDAO
         return this.esTypeDAO.upsert(clientInfoBuilder.getClientId(), clientInfoBuilder.getClientBuilder());
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
         return this.esTypeDAO.upsert(id, esClient);
     }
 
+    /**
+     * Update action (update the document into the database)
+     * 
+     * @param clientInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse update(ClientInfo clientInfo)
         throws EsDocumentBuilderException
     {
@@ -93,11 +151,23 @@ public class EsClientInfoDAO
         return this.esTypeDAO.upsert(clientInfoBuilder.getClientId(), clientInfoBuilder.getClientBuilder());
     }
 
+    /**
+     * Update action (update the document into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse update(String id, XContentBuilder esClient)
     {
         return this.esTypeDAO.update(id, esClient);
     }
 
+    /**
+     * Delete query action (delete document from the database by id)
+     * 
+     * @param id
+     */
     public void deleteById(String id)
     {
 
@@ -108,6 +178,12 @@ public class EsClientInfoDAO
                  .get(TimeValue.timeValueMillis(EsUtils.getQueryTimeout()));
     }
 
+    /**
+     * Delete query action (delete documents from the database)
+     * 
+     * @param query
+     * @throws EsQueryConversionException
+     */
     public void deleteByQuery(ClientInfoQuery query)
         throws EsQueryConversionException
     {
@@ -125,6 +201,15 @@ public class EsClientInfoDAO
     // this.deleteByQuery(this.getQueryByAsset(asset, isAnyAsset));
     // }
 
+    /**
+     * Query action (return objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     * @throws EsObjectBuilderException
+     */
     public ClientInfoListResult query(ClientInfoQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException,
@@ -170,6 +255,14 @@ public class EsClientInfoDAO
         return result;
     }
 
+    /**
+     * Query count action (return the count of the objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public long count(ClientInfoQuery query)
         throws EsQueryConversionException, EsClientUnavailableException
     {

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.model.id.KapuaId;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
@@ -59,6 +58,12 @@ public class MetricInfoRegistryFacade
     private final ConfigurationProvider      configProvider;
     private final Object                     metadataUpdateSync;
 
+    /**
+     * Constructs the metric info registry facade
+     * 
+     * @param configProvider
+     * @param mediator
+     */
     public MetricInfoRegistryFacade(ConfigurationProvider configProvider, MetricInfoRegistryMediator mediator)
     {
         this.configProvider = configProvider;
@@ -106,7 +111,7 @@ public class MetricInfoRegistryFacade
                         Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
-                        response = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+                        response = EsMetricInfoDAO.getInstance()
                                                   .index(metadata.getKapuaIndexName())
                                                   .upsert(metricInfo);
 
@@ -161,9 +166,9 @@ public class MetricInfoRegistryFacade
             Metadata metadata = this.mediator.getMetadata(scopeId, metricInfo.getFirstPublishedMessageTimestamp().getTime());
             String kapuaIndexName = metadata.getKapuaIndexName();
 
-            EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName);
+            EsMetricInfoDAO.getInstance().index(kapuaIndexName);
 
-            bulkRequest.add(EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+            bulkRequest.add(EsMetricInfoDAO.getInstance()
                                            .index(kapuaIndexName)
                                            .getUpsertRequest(metricInfo));
         }
@@ -178,7 +183,7 @@ public class MetricInfoRegistryFacade
         // then the others of the same type will find the cache updated and
         // skip the update.
         synchronized (this.metadataUpdateSync) {
-            BulkResponse response = EsMetricInfoDAO.client(ElasticsearchClient.getInstance()).bulk(bulkRequest);
+            BulkResponse response = EsMetricInfoDAO.getInstance().bulk(bulkRequest);
             BulkItemResponse[] itemResponses = response.getItems();
             idResults = new StorableId[itemResponses.length];
 
@@ -242,7 +247,7 @@ public class MetricInfoRegistryFacade
         }
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
-        EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+        EsMetricInfoDAO.getInstance()
                        .index(indexName)
                        .deleteById(id.toString());
     }
@@ -324,7 +329,7 @@ public class MetricInfoRegistryFacade
 
         String indexNme = EsSchema.getKapuaIndexName(scopeId);
         MetricInfoListResult result = null;
-        result = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsMetricInfoDAO.getInstance()
                                 .index(indexNme)
                                 .query(query);
 
@@ -365,7 +370,7 @@ public class MetricInfoRegistryFacade
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         long result;
-        result = EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsMetricInfoDAO.getInstance()
                                 .index(indexName)
                                 .count(query);
 
@@ -403,7 +408,7 @@ public class MetricInfoRegistryFacade
         }
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
-        EsMetricInfoDAO.client(ElasticsearchClient.getInstance())
+        EsMetricInfoDAO.getInstance()
                        .index(indexName)
                        .deleteByQuery(query);
 

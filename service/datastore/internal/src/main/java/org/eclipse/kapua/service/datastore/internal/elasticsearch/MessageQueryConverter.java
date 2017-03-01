@@ -15,6 +15,13 @@ import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
 
+/**
+ * Message query converter.<br>
+ * This object adds the specific message included and excluded fields definition to the abstract query converter.
+ * 
+ * @since 1.0
+ *
+ */
 public class MessageQueryConverter extends AbstractStorableQueryConverter<DatastoreMessage, MessageQuery>
 {
     @Override

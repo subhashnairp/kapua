@@ -18,7 +18,6 @@ import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoRegistryMediator;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoXContentBuilder;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
@@ -57,6 +56,12 @@ public class ChannelInfoRegistryFacade
     private final ConfigurationProvider       configProvider;
     private final Object                      metadataUpdateSync;
 
+    /**
+     * Constructs the channel info registry facade
+     * 
+     * @param configProvider
+     * @param mediator
+     */
     public ChannelInfoRegistryFacade(ConfigurationProvider configProvider, ChannelInfoRegistryMediator mediator)
     {
         this.configProvider = configProvider;
@@ -105,7 +110,7 @@ public class ChannelInfoRegistryFacade
                         Metadata metadata = this.mediator.getMetadata(scopeId, channelInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
-                        response = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+                        response = EsChannelInfoDAO.getInstance()
                                                    .index(metadata.getKapuaIndexName())
                                                    .upsert(channelInfo);
 
@@ -166,7 +171,7 @@ public class ChannelInfoRegistryFacade
 
         this.mediator.onBeforeChannelInfoDelete(scopeId, channelInfo);
 
-        EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+        EsChannelInfoDAO.getInstance()
                         .index(indexName)
                         .deleteById(id.toString());
     }
@@ -248,7 +253,7 @@ public class ChannelInfoRegistryFacade
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         ChannelInfoListResult result = null;
-        result = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsChannelInfoDAO.getInstance()
                                  .index(indexName)
                                  .query(query);
 
@@ -289,7 +294,7 @@ public class ChannelInfoRegistryFacade
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         long result;
-        result = EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsChannelInfoDAO.getInstance()
                                  .index(indexName)
                                  .count(query);
 
@@ -337,7 +342,7 @@ public class ChannelInfoRegistryFacade
         for (ChannelInfo channelInfo : channels)
             this.mediator.onBeforeChannelInfoDelete(scopeId, channelInfo);
 
-        EsChannelInfoDAO.client(ElasticsearchClient.getInstance())
+        EsChannelInfoDAO.getInstance()
                         .index(indexName)
                         .deleteByQuery(query);
     }

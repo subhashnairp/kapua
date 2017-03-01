@@ -13,8 +13,8 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDatastoreException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilderException;
@@ -33,20 +33,39 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
+/**
+ * Message DAO
+ *
+ * @since 1.0
+ *
+ */
 public class EsMessageDAO
 {
 
     private EsTypeDAO esTypeDAO;
 
-    private EsMessageDAO()
-    {}
+    /**
+     * Default constructor
+     * 
+     * @throws EsClientUnavailableException
+     */
+    public EsMessageDAO() throws EsClientUnavailableException
+    {
+        esTypeDAO = new EsTypeDAO(ElasticsearchClient.getInstance());
+    }
 
+    /**
+     * Set the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsMessageDAO setListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -54,6 +73,13 @@ public class EsMessageDAO
         return this;
     }
 
+    /**
+     * Unset the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsMessageDAO unsetListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -61,169 +87,75 @@ public class EsMessageDAO
         return this;
     }
 
-    public static EsMessageDAO client(Client client)
+    /**
+     * Message DAO instance factory
+     * 
+     * @return
+     * @throws EsClientUnavailableException
+     */
+    public static EsMessageDAO getInstance() throws EsClientUnavailableException
     {
-        EsMessageDAO esMessageDAO = new EsMessageDAO();
-        esMessageDAO.esTypeDAO = EsTypeDAO.client(client);
-        return esMessageDAO;
+        return new EsMessageDAO();
     }
 
+    /**
+     * Set the index name
+     * 
+     * @param indexName
+     * @return
+     */
     public EsMessageDAO index(String indexName)
     {
         this.esTypeDAO.type(indexName, EsSchema.MESSAGE_TYPE_NAME);
         return this;
     }
 
-    public UpdateRequest getUpsertReq(String id, Map<String, Object> esClient)
+    /**
+     * Build the upsert request
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
+    public UpdateRequest getUpsertRequest(String id, XContentBuilder esClient)
     {
         return this.esTypeDAO.getUpsertRequest(id, esClient);
     }
 
-    public UpdateRequest getUpsertReq(String id, XContentBuilder esClient)
-    {
-        return this.esTypeDAO.getUpsertRequest(id, esClient);
-    }
-
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
         return this.esTypeDAO.upsert(id, esClient);
     }
 
-    public UpdateResponse upsert(String id, Map<String, Object> esClient)
-    {
-        return this.esTypeDAO.upsert(id, esClient);
-    }
-
+    /**
+     * Delete query action (delete documents from the database)
+     * 
+     * @param query
+     * @throws EsQueryConversionException
+     */
     public void deleteByQuery(MessageQuery query)
         throws EsQueryConversionException
     {
         PredicateConverter pc = new PredicateConverter();
         this.esTypeDAO.deleteByQuery(pc.toElasticsearchQuery(query.getPredicate()));
     }
-    //
-    // public BoolQueryBuilder getQueryByAccountAndDate(String account, boolean isAnyAccount, long start, long end)
-    // {
-    //
-    // BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-    //
-    // // Timestamp clauses
-    // QueryBuilder dateQuery = QueryBuilders.rangeQuery(EsSchema.MESSAGE_TIMESTAMP).from(start).to(end);
-    // boolQuery.must(dateQuery);
-    //
-    // return boolQuery;
-    // }
-    //
-    // public BoolQueryBuilder getQueryByAssetAndDate(String asset, boolean isAnyAsset, long start, long end)
-    // {
-    //
-    // BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-    //
-    // // Asset clauses
-    // QueryBuilder assetQuery = null;
-    // if (!isAnyAsset) {
-    // assetQuery = QueryBuilders.termQuery(EsSchema.MESSAGE_AS_NAME, asset);
-    // boolQuery.must(assetQuery);
-    // }
-    //
-    // // Timestamp clauses
-    // QueryBuilder dateQuery = QueryBuilders.rangeQuery(EsSchema.MESSAGE_TIMESTAMP).from(start).to(end);
-    // boolQuery.must(dateQuery);
-    //
-    // return boolQuery;
-    // }
-    //
-    // public BoolQueryBuilder getQueryByTopic(String asset,
-    // boolean isAnyAsset,
-    // String semTopic,
-    // boolean isAnySubtopic)
-    // {
-    //
-    // // Asset clauses
-    // QueryBuilder assetQuery = null;
-    // if (!isAnyAsset) {
-    // assetQuery = QueryBuilders.termQuery(EsSchema.MESSAGE_AS_NAME, asset);
-    // }
-    //
-    // // Topic clauses
-    // QueryBuilder topicQuery = null;
-    // if (isAnySubtopic) {
-    // topicQuery = QueryBuilders.prefixQuery(EsSchema.MESSAGE_SEM_TOPIC, semTopic);
-    // }
-    // else {
-    // topicQuery = QueryBuilders.termQuery(EsSchema.MESSAGE_SEM_TOPIC, semTopic);
-    // }
-    //
-    // // Composite clause
-    // BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-    // if (assetQuery != null)
-    // boolQuery.must(assetQuery);
-    // boolQuery.must(topicQuery);
-    // //
-    // return boolQuery;
-    // }
-    //
-    // public BoolQueryBuilder getQueryByTopicAndDate(String asset,
-    // boolean isAnyAsset,
-    // String semTopic,
-    // boolean isAnySubtopic,
-    // long start,
-    // long end)
-    // {
-    //
-    // BoolQueryBuilder boolQuery = this.getQueryByTopic(asset, isAnyAsset, semTopic, isAnySubtopic);
-    //
-    // // Timestamp clauses
-    // QueryBuilder dateQuery = QueryBuilders.rangeQuery(EsSchema.MESSAGE_TIMESTAMP).from(start).to(end);
-    // boolQuery.must(dateQuery);
-    //
-    // return boolQuery;
-    // }
-    //
-    // public BoolQueryBuilder getQueryByMetricValueAndDate(String asset,
-    // boolean isAnyAsset,
-    // String semTopic,
-    // boolean isAnySubtopic,
-    // String fullMetricName,
-    // long start,
-    // long end,
-    // Object min,
-    // Object max)
-    // {
-    //
-    // BoolQueryBuilder boolQuery = this.getQueryByTopic(asset, isAnyAsset, semTopic, isAnySubtopic);
-    //
-    // // Timestamp clauses
-    // QueryBuilder dateQuery = QueryBuilders.rangeQuery(EsSchema.MESSAGE_TIMESTAMP).from(start).to(end);
-    // boolQuery.must(dateQuery);
-    //
-    // // Metric value clause
-    // QueryBuilder valueQuery = QueryBuilders.rangeQuery(fullMetricName).gte(min).lte(max);
-    // boolQuery.must(valueQuery);
-    // //
-    //
-    // return boolQuery;
-    // }
-    //
-    // public void deleteByTopic(String asset,
-    // boolean isAnyAsset,
-    // String semTopic,
-    // boolean isAnySubtopic,
-    // long start,
-    // long end)
-    // {
-    // BoolQueryBuilder boolQuery = this.getQueryByTopicAndDate(asset, isAnyAsset, semTopic, isAnySubtopic, start, end);
-    // this.esTypeDAO.deleteByQuery(boolQuery);
-    // }
-    //
-    // public void deleteByAccount(long start,
-    // long end)
-    // {
-    // // Query clauses
-    // boolean isAnyAccount = true;
-    // BoolQueryBuilder boolQuery = this.getQueryByAccountAndDate(null, isAnyAccount, start, end);
-    // this.esTypeDAO.deleteByQuery(boolQuery);
-    // }
 
+    /**
+     * Query action (return objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     * @throws EsObjectBuilderException
+     */
     public MessageListResult query(MessageQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException,
@@ -276,6 +208,14 @@ public class EsMessageDAO
         return result;
     }
 
+    /**
+     * Query count action (return the count of the objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public long count(MessageQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException

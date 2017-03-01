@@ -15,6 +15,13 @@ import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 
+/**
+ * Metric info query converter.<br>
+ * This object adds the specific metric info included and excluded fields definition to the abstract query converter.
+ * 
+ * @since 1.0
+ *
+ */
 public class MetricInfoQueryConverter extends AbstractStorableQueryConverter<MetricInfo, MetricInfoQuery>
 {
 

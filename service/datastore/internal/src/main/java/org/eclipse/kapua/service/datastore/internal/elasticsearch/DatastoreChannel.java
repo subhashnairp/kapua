@@ -18,9 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Models a topic for messages posted to the Kapua platform.
+ * Models a topic for messages posted to the Kapua platform.<br>
  * Topic are expected to be in the form of "account/clientId/&lt;application_specific&gt;";
  * system topic starts with the $EDC account.
+ * 
+ * @since 1.0
  */
 public class DatastoreChannel
 {
@@ -89,6 +91,14 @@ public class DatastoreChannel
         }
     }
 
+    /**
+     * Construct a datastore channel given the account, client identifier and the list of the channel parts.
+     * 
+     * @param account
+     * @param clientId
+     * @param channelParts
+     * @throws EsInvalidChannelException
+     */
     public DatastoreChannel(String account, String clientId, List<String> channelParts) throws EsInvalidChannelException
     {
         this(account, clientId, (new Object() {
@@ -100,11 +110,25 @@ public class DatastoreChannel
         }).toString());
     }
 
+    /**
+     * Construct a datastore channel given the account, client identifier and the full channel string.
+     * 
+     * @param account
+     * @param clientId
+     * @param channel
+     * @throws EsInvalidChannelException
+     */
     public DatastoreChannel(String account, String clientId, String channel) throws EsInvalidChannelException
     {
         init(account, clientId, channel);
     }
 
+    /**
+     * Construct a datastore channel given full channel string.
+     * 
+     * @param fullName
+     * @throws EsInvalidChannelException
+     */
     public DatastoreChannel(String fullName) throws EsInvalidChannelException
     {
 
@@ -119,36 +143,76 @@ public class DatastoreChannel
         init(parts[0], parts[1], fullName.substring(parts[0].length() + parts[1].length() + 2));
     }
 
+    /**
+     * Get the account
+     * 
+     * @return
+     */
     public String getAccount()
     {
         return account;
     }
 
+    /**
+     * Check if the channel admit any account (so if the channel starts with a specific wildcard).<br>
+     * In the MQTT word this method return true if the topic starts with '+/'.
+     * 
+     * @return
+     */
     public boolean isAnyAccount()
     {
         return SINGLE_LEVEL_WCARD.equals(this.account);
     }
 
+    /**
+     * Get the client identifier
+     * 
+     * @return
+     */
     public String getClientId()
     {
         return clientId;
     }
 
+    /**
+     * Check if the channel admit any client identifier (so if the channel has a specific wildcard in the second topic level).<br>
+     * In the MQTT word this method return true if the topic starts with 'account/+/'.
+     * 
+     * @param clientId
+     * @return
+     */
     public static boolean isAnyClientId(String clientId)
     {
         return SINGLE_LEVEL_WCARD.equals(clientId);
     }
 
+    /**
+     * {@link DatastoreChannel#isAnyClientId(String clientId)}
+     * 
+     * @return
+     */
     public boolean isAnyClientId()
     {
         return isAnyClientId(clientId);
     }
 
+    /**
+     * Check if the channel is an alert channel, so if it has 'ALERT' as third level topic (and no more topics level).<br>
+     * In the MQTT word this method return true if the topic is like 'account/client/ALERT'.
+     * 
+     * @param channel
+     * @return
+     */
     public static boolean isAlertTopic(String channel)
     {
         return ALERT_TOPIC.equals(channel);
     }
 
+    /**
+     * {@link DatastoreChannel#isAlertTopic(String channel)}
+     * 
+     * @return
+     */
     public boolean isAlertTopic()
     {
         return isAlertTopic(channel);
@@ -199,6 +263,12 @@ public class DatastoreChannel
         return (channel != null && channel.endsWith(multilevelAnySubtopic));
     }
 
+    /**
+     * Get the channel formatted string given the topic parts
+     * 
+     * @param parts
+     * @return
+     */
     public static String getChannel(List<String> parts)
     {
         StringBuilder channelBuilder = new StringBuilder();
@@ -214,22 +284,42 @@ public class DatastoreChannel
         }
     }
 
+    /**
+     * Get the channel
+     * 
+     * @return
+     */
     public String getChannel()
     {
         return channel;
     }
 
+    /**
+     * Get the last topic part (leaf)
+     * 
+     * @return
+     */
     public String getLeafName()
     {
         return this.channelParts[this.channelParts.length - 1];
     }
 
+    /**
+     * Get the parent topic
+     * 
+     * @return
+     */
     public String getParentTopic()
     {
         int iLastSlash = channel.lastIndexOf(TOPIC_SEPARATOR);
         return iLastSlash != -1 ? channel.substring(0, iLastSlash) : null;
     }
 
+    /**
+     * Get the grand parent topic
+     * 
+     * @return
+     */
     public String getGrandParentTopic()
     {
         String parentTopic = getParentTopic();
@@ -242,11 +332,21 @@ public class DatastoreChannel
         }
     }
 
+    /**
+     * Get the channel parts
+     * 
+     * @return
+     */
     public String[] getParts()
     {
         return channelParts;
     }
 
+    /**
+     * Get the full channel name
+     * 
+     * @return
+     */
     public String getFullName()
     {
         return account + TOPIC_SEPARATOR + clientId + TOPIC_SEPARATOR + channel;

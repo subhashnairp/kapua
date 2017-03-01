@@ -37,6 +37,12 @@ import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 
+/**
+ * Datastore mediator definition
+ * 
+ * @since 1.0
+ *
+ */
 public class DatastoreMediator implements MessageStoreMediator,
                                ClientInfoRegistryMediator,
                                ChannelInfoRegistryMediator,
@@ -66,26 +72,51 @@ public class DatastoreMediator implements MessageStoreMediator,
         this.esSchema = new EsSchema();
     }
 
+    /**
+     * Get the {@link DatastoreMediator} instance (singleton)
+     * 
+     * @return
+     */
     public static DatastoreMediator getInstance()
     {
         return instance;
     }
 
+    /**
+     * Set the message store facade
+     * 
+     * @param messageStoreFacade
+     */
     public void setMessageStoreFacade(MessageStoreFacade messageStoreFacade)
     {
         this.messageStoreFacade = messageStoreFacade;
     }
 
+    /**
+     * Set the client info facade
+     * 
+     * @param clientInfoStoreFacade
+     */
     public void setClientInfoStoreFacade(ClientInfoRegistryFacade clientInfoStoreFacade)
     {
         this.clientInfoStoreFacade = clientInfoStoreFacade;
     }
 
+    /**
+     * Set the channel info facade
+     * 
+     * @param channelInfoStoreFacade
+     */
     public void setChannelInfoStoreFacade(ChannelInfoRegistryFacade channelInfoStoreFacade)
     {
         this.channelInfoStoreFacade = channelInfoStoreFacade;
     }
 
+    /**
+     * Set the metric info facade
+     * 
+     * @param metricInfoStoreFacade
+     */
     public void setMetricInfoStoreFacade(MetricInfoRegistryFacade metricInfoStoreFacade)
     {
         this.metricInfoStoreFacade = metricInfoStoreFacade;

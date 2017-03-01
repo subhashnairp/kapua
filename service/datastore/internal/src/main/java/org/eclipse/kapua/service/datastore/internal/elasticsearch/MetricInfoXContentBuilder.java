@@ -36,8 +36,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.hash.Hashing;
 
 /**
- * Metric information object content builder.<br>
- * This object creates an ElasticSearch {@link XContentBuilder} from the Kapua metric information object (marshal).
+ * Metrics information object content builder.<br>
+ * This object creates an ElasticSearch {@link XContentBuilder} from the Kapua metrics information object (marshal).<br>
+ * It uses {@link MetricXContentBuilder} as a container for the content builders used to build every metric.
  * 
  * @since 1.0
  *

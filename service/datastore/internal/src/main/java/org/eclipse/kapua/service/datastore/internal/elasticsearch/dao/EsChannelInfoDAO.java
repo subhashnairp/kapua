@@ -25,6 +25,7 @@ import org.eclipse.kapua.service.datastore.internal.elasticsearch.PredicateConve
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoObjectBuilder;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoQueryConverter;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoXContentBuilder;
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.model.ChannelInfoListResultImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ChannelInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
@@ -35,7 +36,6 @@ import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -51,9 +51,23 @@ public class EsChannelInfoDAO
 
     private EsTypeDAO esTypeDAO;
 
-    private EsChannelInfoDAO()
-    {}
+    /**
+     * Default constructor
+     * 
+     * @throws EsClientUnavailableException
+     */
+    public EsChannelInfoDAO() throws EsClientUnavailableException
+    {
+        esTypeDAO = new EsTypeDAO(ElasticsearchClient.getInstance());
+    }
 
+    /**
+     * Set the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsChannelInfoDAO setListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -61,6 +75,13 @@ public class EsChannelInfoDAO
         return this;
     }
 
+    /**
+     * Unset the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsChannelInfoDAO unsetListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -68,25 +89,36 @@ public class EsChannelInfoDAO
         return this;
     }
 
-    public static EsChannelInfoDAO client(Client client)
+    /**
+     * Channel information DAO instance factory
+     * 
+     * @return
+     * @throws EsClientUnavailableException
+     */
+    public static EsChannelInfoDAO getInstance() throws EsClientUnavailableException
     {
-        EsChannelInfoDAO esChannelDAO = new EsChannelInfoDAO();
-        esChannelDAO.esTypeDAO = EsTypeDAO.client(client);
-        return esChannelDAO;
+        return new EsChannelInfoDAO();
     }
 
+    /**
+     * Set the index name
+     * 
+     * @param indexName
+     * @return
+     */
     public EsChannelInfoDAO index(String indexName)
     {
         this.esTypeDAO.type(indexName, EsSchema.CHANNEL_TYPE_NAME);
         return this;
     }
 
-    //
-    // public UpdateRequest getUpsertRequest(String id, XContentBuilder esClient)
-    // {
-    // return this.esTypeDAO.getUpsertRequest(id, esClient);
-    // }
-
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param channelInfoCreator
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse upsert(ChannelInfoCreator channelInfoCreator)
         throws EsDocumentBuilderException
     {
@@ -94,6 +126,13 @@ public class EsChannelInfoDAO
         return this.esTypeDAO.upsert(documentBuilder.getChannelId(), documentBuilder.getBuilder());
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param channelInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse upsert(ChannelInfo channelInfo)
         throws EsDocumentBuilderException
     {
@@ -101,11 +140,25 @@ public class EsChannelInfoDAO
         return this.esTypeDAO.upsert(documentBuilder.getChannelId(), documentBuilder.getBuilder());
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param id
+     * @param esClient
+     * @return
+     */
     public UpdateResponse upsert(String id, XContentBuilder esClient)
     {
         return this.esTypeDAO.upsert(id, esClient);
     }
 
+    /**
+     * Update action (update the document into the database)
+     * 
+     * @param channelInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse update(ChannelInfo channelInfo)
         throws EsDocumentBuilderException
     {
@@ -113,11 +166,23 @@ public class EsChannelInfoDAO
         return this.esTypeDAO.update(documentBuilder.getChannelId(), documentBuilder.getBuilder());
     }
 
+    /**
+     * Update action (update the document into the database)
+     * 
+     * @param id
+     * @param esAsset
+     * @return
+     */
     public UpdateResponse update(String id, XContentBuilder esAsset)
     {
         return this.esTypeDAO.update(id, esAsset);
     }
 
+    /**
+     * Delete query action (delete document from the database by id)
+     * 
+     * @param id
+     */
     public void deleteById(String id)
     {
 
@@ -128,6 +193,12 @@ public class EsChannelInfoDAO
                  .get(TimeValue.timeValueMillis(EsUtils.getQueryTimeout()));
     }
 
+    /**
+     * Delete query action (delete documents from the database)
+     * 
+     * @param query
+     * @throws EsQueryConversionException
+     */
     public void deleteByQuery(ChannelInfoQuery query)
         throws EsQueryConversionException
     {
@@ -262,6 +333,15 @@ public class EsChannelInfoDAO
     // return searchHits;
     // }
 
+    /**
+     * Query action (return objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsClientUnavailableException
+     * @throws EsQueryConversionException
+     * @throws EsObjectBuilderException
+     */
     public ChannelInfoListResult query(ChannelInfoQuery query)
         throws EsClientUnavailableException,
         EsQueryConversionException,
@@ -308,6 +388,14 @@ public class EsChannelInfoDAO
         return result;
     }
 
+    /**
+     * Query count action (return the count of the objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public long count(ChannelInfoQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException

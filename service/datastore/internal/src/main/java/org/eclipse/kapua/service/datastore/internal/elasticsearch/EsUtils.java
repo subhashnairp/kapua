@@ -120,6 +120,12 @@ public class EsUtils
         return fullName == null ? null : fullName.split(Pattern.quote("."));
     }
 
+    /**
+     * Check the index alias correctness.<br>
+     * The alias cnnot be null, starts with '_', contains uppercase character or contains {@link EsUtils#ILLEGAL_CHARS}
+     * 
+     * @param alias
+     */
     public static void checkIdxAliasName(String alias)
     {
         if (alias == null || alias.isEmpty())
@@ -137,11 +143,22 @@ public class EsUtils
             throw new IllegalArgumentException(String.format("Alias name cannot contain special chars [found oneof %s]", ILLEGAL_CHARS));
     }
 
+    /**
+     * Check the index name ({@link EsUtils#checkIdxAliasName(String index)}
+     * 
+     * @param index
+     */
     public static void checkIdxName(String index)
     {
         EsUtils.checkIdxAliasName(index);
     }
 
+    /**
+     * Normalize the index alias name and replace the '-' with '_'
+     * 
+     * @param alias
+     * @return
+     */
     public static String normalizeIndexAliasName(String alias)
     {
         String aliasName = normalizeIndexName(alias);
@@ -149,6 +166,12 @@ public class EsUtils
         return aliasName;
     }
 
+    /**
+     * Normalize the account index name and and the suffix '-*'
+     * 
+     * @param accountName
+     * @return
+     */
     public static String getDataIndexName(String accountName)
     {
         String actualName = EsUtils.normalizedIndexName(accountName);
@@ -156,6 +179,13 @@ public class EsUtils
         return actualName;
     }
 
+    /**
+     * Get the data index for the specified base name and timestamp
+     * 
+     * @param baseName
+     * @param timestamp
+     * @return
+     */
     public static String getDataIndexName(String baseName, long timestamp)
     {
         String actualName = EsUtils.normalizedIndexName(baseName);
@@ -167,6 +197,12 @@ public class EsUtils
         return actualName;
     }
 
+    /**
+     * Get the Kapua index name for the specified base name
+     * 
+     * @param baseName
+     * @return
+     */
     public static String getKapuaIndexName(String baseName)
     {
         String actualName = EsUtils.normalizedIndexName(baseName);
@@ -174,11 +210,15 @@ public class EsUtils
         return actualName;
     }
 
+    /**
+     * Normalize the index ({@link EsUtils#normalizeIndexName(String index)}
+     * 
+     * @param index
+     * @return
+     */
     public static String normalizedIndexName(String index)
     {
-
-        String indexName = normalizeIndexName(index);
-        return indexName;
+        return normalizeIndexName(index);
     }
 
     /**

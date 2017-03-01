@@ -11,6 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 
+/**
+ * Elasticsearch dao event definition
+ * 
+ * @since 1.0
+ *
+ */
 public class EsDaoEvent
 {
 

@@ -15,6 +15,13 @@ import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 
+/**
+ * Channel info query converter.<br>
+ * This object adds the specific channel info included and excluded fields definition to the abstract query converter.
+ * 
+ * @since 1.0
+ *
+ */
 public class ChannelInfoQueryConverter extends AbstractStorableQueryConverter<ChannelInfo, ChannelInfoQuery>
 {
 

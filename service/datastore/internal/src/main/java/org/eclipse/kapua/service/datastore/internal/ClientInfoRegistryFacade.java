@@ -18,7 +18,6 @@ import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoRegistryMediator;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ClientInfoXContentBuilder;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
@@ -56,6 +55,12 @@ public class ClientInfoRegistryFacade
     private final ConfigurationProvider      configProvider;
     private final Object                     metadataUpdateSync;
 
+    /**
+     * Constructs the client info registry facade
+     * 
+     * @param configProvider
+     * @param mediator
+     */
     public ClientInfoRegistryFacade(ConfigurationProvider configProvider, ClientInfoRegistryMediator mediator)
     {
         this.configProvider = configProvider;
@@ -104,7 +109,7 @@ public class ClientInfoRegistryFacade
                         Metadata metadata = this.mediator.getMetadata(scopeId, clientInfo.getFirstPublishedMessageTimestamp().getTime());
                         String kapuaIndexName = metadata.getKapuaIndexName();
 
-                        response = EsClientInfoDAO.client(ElasticsearchClient.getInstance()).index(kapuaIndexName)
+                        response = EsClientInfoDAO.getInstance().index(kapuaIndexName)
                                                   .upsert(docBuilder.getClientId(), docBuilder.getClientBuilder());
                         logger.debug(String.format("Upsert on asset succesfully executed [%s.%s, %s]", kapuaIndexName,
                                                    EsSchema.CHANNEL_TYPE_NAME, response.getId()));
@@ -152,7 +157,7 @@ public class ClientInfoRegistryFacade
         }
 
         String indexName = EsSchema.getDataIndexName(scopeId);
-        EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+        EsClientInfoDAO.getInstance()
                        .index(indexName)
                        .deleteById(id.toString());
     }
@@ -234,7 +239,7 @@ public class ClientInfoRegistryFacade
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
         ClientInfoListResult result = null;
-        result = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsClientInfoDAO.getInstance()
                                 .index(indexName)
                                 .query(query);
 
@@ -275,7 +280,7 @@ public class ClientInfoRegistryFacade
 
         String dataIndexName = EsSchema.getKapuaIndexName(scopeId);
         long result;
-        result = EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+        result = EsClientInfoDAO.getInstance()
                                 .index(dataIndexName)
                                 .count(query);
 
@@ -314,7 +319,7 @@ public class ClientInfoRegistryFacade
         }
 
         String indexName = EsSchema.getKapuaIndexName(scopeId);
-        EsClientInfoDAO.client(ElasticsearchClient.getInstance())
+        EsClientInfoDAO.getInstance()
                        .index(indexName)
                        .deleteByQuery(query);
 

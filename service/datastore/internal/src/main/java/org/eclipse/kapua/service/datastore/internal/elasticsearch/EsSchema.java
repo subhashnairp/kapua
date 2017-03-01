@@ -34,6 +34,12 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Elasticsearch schema
+ * 
+ * @since 1.0
+ *
+ */
 public class EsSchema
 {
 
@@ -41,105 +47,413 @@ public class EsSchema
     //
     private static final Logger s_logger = LoggerFactory.getLogger(EsSchema.class);
 
+    /**
+     * Message schema name
+     */
     public final static String MESSAGE_TYPE_NAME           = "message";
+    /**
+     * Message timestamp
+     */
     public final static String MESSAGE_TIMESTAMP           = "timestamp";
+    /**
+     * Message received on timestamp
+     */
     public final static String MESSAGE_RECEIVED_ON         = "received_on";
+    /**
+     * Message received by address
+     */
     public final static String MESSAGE_IP_ADDRESS          = "ip_address";
+    /**
+     * Message account identifier
+     */
     public final static String MESSAGE_ACCOUNT_ID          = "account_id";
+    /**
+     * Message account name
+     */
     public final static String MESSAGE_ACCOUNT             = "account";
+    /**
+     * Message device identifier
+     */
     public final static String MESSAGE_DEVICE_ID           = "device_id";
+    /**
+     * Message client identifier
+     */
     public final static String MESSAGE_CLIENT_ID           = "client_id";
+    /**
+     * Message channel
+     */
     public final static String MESSAGE_CHANNEL             = "channel";
+    /**
+     * Message channel parts
+     */
     public final static String MESSAGE_CHANNEL_PARTS       = "channel_parts";
+    /**
+     * Message captured on timestamp
+     */
     public final static String MESSAGE_CAPTURED_ON         = "captured_on";
+    /**
+     * Message sent on timestamp
+     */
     public final static String MESSAGE_SENT_ON             = "sent_on";
+    /**
+     * Message position - (composed object)
+     */
     public final static String MESSAGE_POSITION            = "position";
+    /**
+     * Message position - location (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_LOCATION        = "location";
+    /**
+     * Message position - location (full field name)
+     */
     public final static String MESSAGE_POS_LOCATION_FULL   = "position.location";
+    /**
+     * Message position - altitude (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_ALT             = "alt";
+    /**
+     * Message position - altitude (full field name)
+     */
     public final static String MESSAGE_POS_ALT_FULL        = "position.alt";
+    /**
+     * Message position - precision (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_PRECISION       = "precision";
+    /**
+     * Message position - precision (full field name)
+     */
     public final static String MESSAGE_POS_PRECISION_FULL  = "position.precision";
+    /**
+     * Message position - heading (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_HEADING         = "heading";
+    /**
+     * Message position - heading (full field name)
+     */
     public final static String MESSAGE_POS_HEADING_FULL    = "position.heading";
+    /**
+     * Message position - speed (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_SPEED           = "speed";
+    /**
+     * Message position - speed (full field name)
+     */
     public final static String MESSAGE_POS_SPEED_FULL      = "position.speed";
+    /**
+     * Message position - timestamp (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_TIMESTAMP       = "timestamp";
+    /**
+     * Message position - timestamp (full field name)
+     */
     public final static String MESSAGE_POS_TIMESTAMP_FULL  = "position.timestamp";
+    /**
+     * Message position - satellites (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_SATELLITES      = "satellites";
+    /**
+     * Message position - satellites (full field name)
+     */
     public final static String MESSAGE_POS_SATELLITES_FULL = "position.satellites";
+    /**
+     * Message position - status (field name relative to the position object)
+     */
     public final static String MESSAGE_POS_STATUS          = "status";
+    /**
+     * Message position - status (full field name)
+     */
     public final static String MESSAGE_POS_STATUS_FULL     = "position.status";
+    /**
+     * Message metrics
+     */
     public final static String MESSAGE_METRICS             = "metrics";
+    /**
+     * Message body
+     */
     public final static String MESSAGE_BODY                = "body";
 
+    /**
+     * Channel information schema name
+     */
     public final static String CHANNEL_TYPE_NAME  = "channel";
+    /**
+     * Channel information - channel
+     */
     public final static String CHANNEL_NAME       = "channel";
+    /**
+     * Channel information - client identifier
+     */
     public final static String CHANNEL_CLIENT_ID  = "client_id";
+    /**
+     * Channel information - account
+     */
     public final static String CHANNEL_ACCOUNT    = "account";
+    /**
+     * Channel information - message timestamp (of the first message published in this channel)
+     */
     public final static String CHANNEL_TIMESTAMP  = "timestamp";
+    /**
+     * Channel information - message identifier (of the first message published in this channel)
+     */
     public final static String CHANNEL_MESSAGE_ID = "message_id";
 
+    /**
+     * Metric information schema name
+     */
     public final static String METRIC_TYPE_NAME          = "metric";
+    /**
+     * Metric information - channel
+     */
     public final static String METRIC_CHANNEL            = "channel";
+    /**
+     * Metric information - client identifier
+     */
     public final static String METRIC_CLIENT_ID          = "client_id";
+    /**
+     * Metric information - account name
+     */
     public final static String METRIC_ACCOUNT            = "account";
+    /**
+     * Metric information - metric map prefix
+     */
     public final static String METRIC_MTR                = "metric";
+    /**
+     * Metric information - name
+     */
     public final static String METRIC_MTR_NAME           = "name";
+    /**
+     * Metric information - full name (so with the metric type suffix)
+     */
     public final static String METRIC_MTR_NAME_FULL      = "metric.name";
+    /**
+     * Metric information - type
+     */
     public final static String METRIC_MTR_TYPE           = "type";
+    /**
+     * Metric information - full type (so with the metric type suffix)
+     */
     public final static String METRIC_MTR_TYPE_FULL      = "metric.type";
+    /**
+     * Metric information - value
+     */
     public final static String METRIC_MTR_VALUE          = "value";
+    /**
+     * Metric information - full value (so with the metric type suffix)
+     */
     public final static String METRIC_MTR_VALUE_FULL     = "metric.value";
+    /**
+     * Metric information - message timestamp (of the first message published in this channel)
+     */
     public final static String METRIC_MTR_TIMESTAMP      = "timestamp";
+    /**
+     * Metric information - message timestamp (of the first message published in this channel, with the metric type suffix)
+     */
     public final static String METRIC_MTR_TIMESTAMP_FULL = "metric.timestamp";
+    /**
+     * Metric information - message identifier (of the first message published in this channel)
+     */
     public final static String METRIC_MTR_MSG_ID         = "message_id";
+    /**
+     * Metric information - full message identifier (of the first message published in this channel, with the metric type suffix)
+     */
     public final static String METRIC_MTR_MSG_ID_FULL    = "metric.message_id";
 
+    /**
+     * Client information schema name
+     */
     public final static String CLIENT_TYPE_NAME  = "client";
+    /**
+     * Client information - client identifier
+     */
     public final static String CLIENT_ID         = "client_id";
+    /**
+     * Client information - account name
+     */
     public final static String CLIENT_ACCOUNT    = "account";
+    /**
+     * Client information - message timestamp (of the first message published in this channel)
+     */
     public final static String CLIENT_TIMESTAMP  = "timestamp";
+    /**
+     * Client information - message identifier (of the first message published in this channel)
+     */
     public final static String CLIENT_MESSAGE_ID = "message_id";
-
-    public class Metadata
-    {
-
-        // Info fields does not change within the same account name
-        private String dataIndexName;
-        private String kapuaIndexName;
-        //
-
-        // Custom mappings can only increase within the same account
-        // No removal of existing cached mappings or changes in the
-        // existing mappings.
-        private Map<String, EsMetric> messageMappingsCache;
-        //
-
-        private Map<String, EsMetric> getMessageMappingsCache()
-        {
-            return messageMappingsCache;
-        }
-
-        public Metadata()
-        {
-            messageMappingsCache = new HashMap<String, EsMetric>(100);
-        }
-
-        public String getDataIndexName()
-        {
-            return this.dataIndexName;
-        }
-
-        public String getKapuaIndexName()
-        {
-            return this.kapuaIndexName;
-        }
-    }
 
     private Map<String, Metadata> schemaCache;
     private Object                schemaCacheSync;
     private Object                mappingsSync;
+
+    /**
+     * Construct the Elasticsearch schema
+     */
+    public EsSchema()
+    {
+        schemaCache = new HashMap<String, Metadata>();
+        schemaCacheSync = new Object();
+        mappingsSync = new Object();
+    }
+
+    /**
+     * Get the Elasticsearch data index name
+     * 
+     * @param scopeId
+     * @return
+     */
+    public static String getDataIndexName(KapuaId scopeId)
+    {
+        String scopeIdShort = scopeId.toCompactId();
+        return EsUtils.getDataIndexName(scopeIdShort);
+    }
+
+    /**
+     * Get the Kapua data index name
+     * 
+     * @param scopeId
+     * @return
+     */
+    public static String getKapuaIndexName(KapuaId scopeId)
+    {
+        String scopeIdShort = scopeId.toCompactId();
+        return EsUtils.getKapuaIndexName(scopeIdShort);
+    }
+
+    /**
+     * Synchronize metadata
+     * 
+     * @param scopeId
+     * @param time
+     * @return
+     * @throws EsDocumentBuilderException
+     * @throws EsClientUnavailableException
+     */
+    public Metadata synch(KapuaId scopeId, long time)
+        throws EsDocumentBuilderException, EsClientUnavailableException
+    {
+        String scopeIdShort = scopeId.toCompactId();
+        String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
+
+        synchronized (schemaCacheSync) {
+            if (schemaCache.containsKey(newIndex)) {
+                Metadata currentMetadata = schemaCache.get(newIndex);
+                return currentMetadata;
+            }
+        }
+
+        s_logger.info("Before entering updating metadata");
+
+        Metadata currentMetadata = null;
+        synchronized (mappingsSync) {
+            s_logger.info("Entered updating metadata");
+            currentMetadata = new Metadata();
+
+            IndicesExistsResponse existsResponse = null;
+            Client esClient = ElasticsearchClient.getInstance();
+
+            // Check existence of the data index
+            existsResponse = esClient.admin().indices()
+                                     .exists(new IndicesExistsRequest(newIndex))
+                                     .actionGet();
+
+            boolean indexExists = existsResponse.isExists();
+            if (!indexExists) {
+                esClient.admin().indices()
+                        .prepareCreate(newIndex)
+                        .setSettings(this.getIndexSettings())
+                        .execute()
+                        .actionGet();
+
+                s_logger.info("Data index created: " + newIndex);
+            }
+
+            boolean enableAllField = false;
+            boolean enableSourceField = true;
+
+            this.initMessageMappings(newIndex, enableAllField, enableSourceField);
+
+            // Check existence of the kapua internal index
+            String newKapuaMetadataIdx = EsUtils.getKapuaIndexName(scopeIdShort);
+            existsResponse = esClient.admin().indices()
+                                     .exists(new IndicesExistsRequest(newKapuaMetadataIdx))
+                                     .actionGet();
+
+            indexExists = existsResponse.isExists();
+            if (!indexExists) {
+                esClient.admin()
+                        .indices()
+                        .prepareCreate(newKapuaMetadataIdx)
+                        .setSettings(this.getIndexSettings())
+                        .execute()
+                        .actionGet();
+
+                s_logger.info("Metadata index created: " + newKapuaMetadataIdx);
+
+                this.initTopicMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
+                this.initMetricMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
+                this.initClientMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
+            }
+
+            currentMetadata.dataIndexName = newIndex;
+            currentMetadata.kapuaIndexName = newKapuaMetadataIdx;
+            s_logger.info("Leaving updating metadata");
+        }
+
+        synchronized (schemaCacheSync) {
+            // Current metadata can only increase the custom mappings
+            // other fields does not change within the same account id
+            // and custom mappings are not and must not be exposed to
+            // outside this class to preserve thread safetyness
+            schemaCache.put(newIndex, currentMetadata);
+        }
+
+        return currentMetadata;
+    }
+
+    /**
+     * Update metric mappings
+     * 
+     * @param scopeId
+     * @param time
+     * @param esMetrics
+     * @throws EsDocumentBuilderException
+     * @throws EsClientUnavailableException
+     */
+    public void updateMessageMappings(KapuaId scopeId, long time, Map<String, EsMetric> esMetrics)
+        throws EsDocumentBuilderException, EsClientUnavailableException
+    {
+        if (esMetrics == null || esMetrics.size() == 0)
+            return;
+
+        Metadata currentMetadata = null;
+        synchronized (schemaCacheSync) {
+            String scopeIdShort = scopeId.toCompactId();
+            String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
+            currentMetadata = schemaCache.get(newIndex);
+        }
+
+        XContentBuilder builder = null;
+        Map<String, EsMetric> diffs = null;
+
+        synchronized (mappingsSync) {
+
+            // Update mappings only if a metric is new (not in cache)
+            diffs = this.getMessageMappingDiffs(currentMetadata, esMetrics);
+            if (diffs == null || diffs.size() == 0)
+                return;
+
+            builder = this.getNewMessageMappingsBuilder(diffs);
+        }
+
+        try {
+            s_logger.trace("Sending dynamic message mappings: " + builder.string());
+        }
+        catch (IOException e) {}
+
+        Client esClient = ElasticsearchClient.getInstance();
+        esClient.admin().indices().preparePutMapping(currentMetadata.dataIndexName)
+                .setType(MESSAGE_TYPE_NAME)
+                .setSource(builder)
+                .execute().actionGet();
+    }
 
     private XContentBuilder getIndexSettings()
         throws EsDocumentBuilderException
@@ -615,142 +929,58 @@ public class EsSchema
         return diffs;
     }
 
-    public EsSchema()
+    /**
+     * Metadata object
+     * 
+     * @since 1.0
+     *
+     */
+    public class Metadata
     {
-        schemaCache = new HashMap<String, Metadata>();
-        schemaCacheSync = new Object();
-        mappingsSync = new Object();
+
+        // Info fields does not change within the same account name
+        private String dataIndexName;
+        private String kapuaIndexName;
+        //
+
+        // Custom mappings can only increase within the same account
+        // No removal of existing cached mappings or changes in the
+        // existing mappings.
+        private Map<String, EsMetric> messageMappingsCache;
+        //
+
+        private Map<String, EsMetric> getMessageMappingsCache()
+        {
+            return messageMappingsCache;
+        }
+
+        /**
+         * Contruct metadata
+         */
+        public Metadata()
+        {
+            messageMappingsCache = new HashMap<String, EsMetric>(100);
+        }
+
+        /**
+         * Get the Elasticsearch data index name
+         * 
+         * @return
+         */
+        public String getDataIndexName()
+        {
+            return this.dataIndexName;
+        }
+
+        /**
+         * Get the Kapua data index name
+         * 
+         * @return
+         */
+        public String getKapuaIndexName()
+        {
+            return this.kapuaIndexName;
+        }
     }
 
-    public static String getDataIndexName(KapuaId scopeId)
-    {
-        String scopeIdShort = scopeId.toCompactId();
-        return EsUtils.getDataIndexName(scopeIdShort);
-    }
-
-    public static String getKapuaIndexName(KapuaId scopeId)
-    {
-        String scopeIdShort = scopeId.toCompactId();
-        return EsUtils.getKapuaIndexName(scopeIdShort);
-    }
-
-    public Metadata synch(KapuaId scopeId, long time)
-        throws EsDocumentBuilderException, EsClientUnavailableException
-    {
-        String scopeIdShort = scopeId.toCompactId();
-        String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
-
-        synchronized (schemaCacheSync) {
-            if (schemaCache.containsKey(newIndex)) {
-                Metadata currentMetadata = schemaCache.get(newIndex);
-                return currentMetadata;
-            }
-        }
-
-        s_logger.info("Before entering updating metadata");
-
-        Metadata currentMetadata = null;
-        synchronized (mappingsSync) {
-            s_logger.info("Entered updating metadata");
-            currentMetadata = new Metadata();
-
-            IndicesExistsResponse existsResponse = null;
-            Client esClient = ElasticsearchClient.getInstance();
-
-            // Check existence of the data index
-            existsResponse = esClient.admin().indices()
-                                     .exists(new IndicesExistsRequest(newIndex))
-                                     .actionGet();
-
-            boolean indexExists = existsResponse.isExists();
-            if (!indexExists) {
-                esClient.admin().indices()
-                        .prepareCreate(newIndex)
-                        .setSettings(this.getIndexSettings())
-                        .execute()
-                        .actionGet();
-
-                s_logger.info("Data index created: " + newIndex);
-            }
-
-            boolean enableAllField = false;
-            boolean enableSourceField = true;
-
-            this.initMessageMappings(newIndex, enableAllField, enableSourceField);
-
-            // Check existence of the kapua internal index
-            String newKapuaMetadataIdx = EsUtils.getKapuaIndexName(scopeIdShort);
-            existsResponse = esClient.admin().indices()
-                                     .exists(new IndicesExistsRequest(newKapuaMetadataIdx))
-                                     .actionGet();
-
-            indexExists = existsResponse.isExists();
-            if (!indexExists) {
-                esClient.admin()
-                        .indices()
-                        .prepareCreate(newKapuaMetadataIdx)
-                        .setSettings(this.getIndexSettings())
-                        .execute()
-                        .actionGet();
-
-                s_logger.info("Metadata index created: " + newKapuaMetadataIdx);
-
-                this.initTopicMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
-                this.initMetricMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
-                this.initClientMappings(newKapuaMetadataIdx, enableAllField, enableSourceField);
-            }
-
-            currentMetadata.dataIndexName = newIndex;
-            currentMetadata.kapuaIndexName = newKapuaMetadataIdx;
-            s_logger.info("Leaving updating metadata");
-        }
-
-        synchronized (schemaCacheSync) {
-            // Current metadata can only increase the custom mappings
-            // other fields does not change within the same account id
-            // and custom mappings are not and must not be exposed to
-            // outside this class to preserve thread safetyness
-            schemaCache.put(newIndex, currentMetadata);
-        }
-
-        return currentMetadata;
-    }
-
-    public void updateMessageMappings(KapuaId scopeId, long time, Map<String, EsMetric> esMetrics)
-        throws EsDocumentBuilderException, EsClientUnavailableException
-    {
-        if (esMetrics == null || esMetrics.size() == 0)
-            return;
-
-        Metadata currentMetadata = null;
-        synchronized (schemaCacheSync) {
-            String scopeIdShort = scopeId.toCompactId();
-            String newIndex = EsUtils.getDataIndexName(scopeIdShort, time);
-            currentMetadata = schemaCache.get(newIndex);
-        }
-
-        XContentBuilder builder = null;
-        Map<String, EsMetric> diffs = null;
-
-        synchronized (mappingsSync) {
-
-            // Update mappings only if a metric is new (not in cache)
-            diffs = this.getMessageMappingDiffs(currentMetadata, esMetrics);
-            if (diffs == null || diffs.size() == 0)
-                return;
-
-            builder = this.getNewMessageMappingsBuilder(diffs);
-        }
-
-        try {
-            s_logger.trace("Sending dynamic message mappings: " + builder.string());
-        }
-        catch (IOException e) {}
-
-        Client esClient = ElasticsearchClient.getInstance();
-        esClient.admin().indices().preparePutMapping(currentMetadata.dataIndexName)
-                .setType(MESSAGE_TYPE_NAME)
-                .setSource(builder)
-                .execute().actionGet();
-    }
 }

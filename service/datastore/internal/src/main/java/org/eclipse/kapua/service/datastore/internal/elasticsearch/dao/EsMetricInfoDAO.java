@@ -14,6 +14,7 @@ package org.eclipse.kapua.service.datastore.internal.elasticsearch.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.kapua.service.datastore.internal.elasticsearch.ElasticsearchClient;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDatastoreException;
@@ -41,19 +42,38 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
+/**
+ * Metric information DAO
+ *
+ * @since 1.0
+ * 
+ */
 public class EsMetricInfoDAO
 {
 
     private EsTypeDAO esTypeDAO;
 
-    private EsMetricInfoDAO()
-    {}
+    /**
+     * Default constructor
+     * 
+     * @throws EsClientUnavailableException
+     */
+    public EsMetricInfoDAO() throws EsClientUnavailableException
+    {
+        esTypeDAO = new EsTypeDAO(ElasticsearchClient.getInstance());
+    }
 
+    /**
+     * Set the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsMetricInfoDAO setListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -61,6 +81,13 @@ public class EsMetricInfoDAO
         return this;
     }
 
+    /**
+     * Unset the dao listener
+     * 
+     * @param daoListener
+     * @return
+     * @throws EsDatastoreException
+     */
     public EsMetricInfoDAO unsetListener(EsDaoListener daoListener)
         throws EsDatastoreException
     {
@@ -68,19 +95,36 @@ public class EsMetricInfoDAO
         return this;
     }
 
-    public static EsMetricInfoDAO client(Client client)
+    /**
+     * Metric information DAO instance factory
+     * 
+     * @return
+     * @throws EsClientUnavailableException
+     */
+    public static EsMetricInfoDAO getInstance() throws EsClientUnavailableException
     {
-        EsMetricInfoDAO metricDAO = new EsMetricInfoDAO();
-        metricDAO.esTypeDAO = EsTypeDAO.client(client);
-        return metricDAO;
+        return new EsMetricInfoDAO();
     }
 
+    /**
+     * Set the index name
+     * 
+     * @param indexName
+     * @return
+     */
     public EsMetricInfoDAO index(String indexName)
     {
         this.esTypeDAO.type(indexName, EsSchema.METRIC_TYPE_NAME);
         return this;
     }
 
+    /**
+     * Build the upsert request
+     * 
+     * @param metricInfoCreator
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateRequest getUpsertRequest(MetricInfoCreator metricInfoCreator)
         throws EsDocumentBuilderException
     {
@@ -97,6 +141,13 @@ public class EsMetricInfoDAO
         return this.getUpsertRequest(metricInfo);
     }
 
+    /**
+     * Build the upsert request
+     * 
+     * @param metricInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateRequest getUpsertRequest(MetricInfo metricInfo)
         throws EsDocumentBuilderException
     {
@@ -106,11 +157,24 @@ public class EsMetricInfoDAO
         return this.esTypeDAO.getUpsertRequest(metricBuilders.get(0).getId(), metricBuilders.get(0).getContent());
     }
 
+    /**
+     * Build the upsert request
+     * 
+     * @param esChannelMetric
+     * @return
+     */
     public UpdateRequest getUpsertRequest(MetricXContentBuilder esChannelMetric)
     {
         return this.esTypeDAO.getUpsertRequest(esChannelMetric.getId(), esChannelMetric.getContent());
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param metricInfoCreator
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse upsert(MetricInfoCreator metricInfoCreator)
         throws EsDocumentBuilderException
     {
@@ -126,6 +190,13 @@ public class EsMetricInfoDAO
         return this.upsert(metricInfo);
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param metricInfo
+     * @return
+     * @throws EsDocumentBuilderException
+     */
     public UpdateResponse upsert(MetricInfo metricInfo)
         throws EsDocumentBuilderException
     {
@@ -134,6 +205,12 @@ public class EsMetricInfoDAO
         return esTypeDAO.upsert(metricInfos.get(0).getId(), metricInfos.get(0).getContent());
     }
 
+    /**
+     * Upsert action (insert the document (if not present) or update the document (if present) into the database)
+     * 
+     * @param esChannelMetric
+     * @return
+     */
     public UpdateResponse upsert(MetricXContentBuilder esChannelMetric)
     {
         return esTypeDAO.upsert(esChannelMetric.getId(), esChannelMetric.getContent());
@@ -193,6 +270,11 @@ public class EsMetricInfoDAO
     // return boolQuery;
     // }
 
+    /**
+     * Delete query action (delete document from the database by id)
+     * 
+     * @param id
+     */
     public void deleteById(String id)
     {
 
@@ -203,6 +285,12 @@ public class EsMetricInfoDAO
                  .get(TimeValue.timeValueMillis(EsUtils.getQueryTimeout()));
     }
 
+    /**
+     * Delete query action (delete documents from the database)
+     * 
+     * @param query
+     * @throws EsQueryConversionException
+     */
     public void deleteByQuery(MetricInfoQuery query)
         throws EsQueryConversionException
     {
@@ -252,11 +340,26 @@ public class EsMetricInfoDAO
     // this.deleteByTopic(asset, anyAsset, semTopic, topicPrefix, start, end);
     // }
 
+    /**
+     * Execute bulk request
+     * 
+     * @param aBulkRequest
+     * @return
+     */
     public BulkResponse bulk(BulkRequest aBulkRequest)
     {
         return this.esTypeDAO.bulk(aBulkRequest);
     }
 
+    /**
+     * Query action (return objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     * @throws EsObjectBuilderException
+     */
     public MetricInfoListResult query(MetricInfoQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException,
@@ -301,6 +404,14 @@ public class EsMetricInfoDAO
         return result;
     }
 
+    /**
+     * Query count action (return the count of the objects matching the given query)
+     * 
+     * @param query
+     * @return
+     * @throws EsQueryConversionException
+     * @throws EsClientUnavailableException
+     */
     public long count(MetricInfoQuery query)
         throws EsQueryConversionException,
         EsClientUnavailableException
