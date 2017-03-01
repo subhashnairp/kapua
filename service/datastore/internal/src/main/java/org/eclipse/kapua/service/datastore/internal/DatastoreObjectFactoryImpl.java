@@ -32,6 +32,11 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory
 {
 
+    public DatastoreObjectFactoryImpl()
+    {
+
+    }
+
     @Override
     public ClientInfoQuery newClientInfoQuery()
     {
