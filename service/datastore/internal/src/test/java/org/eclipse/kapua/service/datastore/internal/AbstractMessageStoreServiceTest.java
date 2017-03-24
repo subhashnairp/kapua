@@ -21,8 +21,8 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractMessageStoreServiceTest extends KapuaTest
-{
+public abstract class AbstractMessageStoreServiceTest extends KapuaTest {
+
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(AbstractMessageStoreServiceTest.class);
 
@@ -30,15 +30,13 @@ public abstract class AbstractMessageStoreServiceTest extends KapuaTest
 
     @BeforeClass
     public static void tearUp()
-        throws KapuaException
-    {
+            throws KapuaException {
         KapuaConfigurableServiceSchemaUtils.createSchemaObjects(DEFAULT_COMMONS_PATH);
         XmlUtil.setContextProvider(new DatastoreJAXBContextProvider());
     }
 
     @AfterClass
-    public static void tearDown()
-    {
+    public static void tearDown() {
         KapuaConfigurableServiceSchemaUtils.dropSchemaObjects(DEFAULT_COMMONS_PATH);
     }
 }

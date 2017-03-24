@@ -29,30 +29,25 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
  * @since 1.0
  */
 @KapuaProvider
-public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory
-{
+public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory {
 
     @Override
-    public ClientInfoQuery newClientInfoQuery()
-    {
+    public ClientInfoQuery newClientInfoQuery() {
         return new ClientInfoQueryImpl();
     }
 
     @Override
-    public ChannelInfoQuery newChannelInfoQuery()
-    {
+    public ChannelInfoQuery newChannelInfoQuery() {
         return new ChannelInfoQueryImpl();
     }
 
     @Override
-    public MetricInfoQuery newMetricInfoQuery()
-    {
+    public MetricInfoQuery newMetricInfoQuery() {
         return new MetricInfoQueryImpl();
     }
 
     @Override
-    public <V> TermPredicate newTermPredicate(StorableField field, V value)
-    {
+    public <V> TermPredicate newTermPredicate(StorableField field, V value) {
         return new TermPredicateImpl(field, value);
     }
 }

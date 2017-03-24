@@ -12,7 +12,11 @@
 package org.eclipse.kapua.service.datastore.internal;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.cache.LocalCache;
@@ -20,35 +24,42 @@ import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreChannel;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsClientUnavailableException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsConfigurationException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsDocumentBuilderException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsMetric;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsObjectBuilderException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsQueryConversionException;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreConfiguration;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageInfo;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageStoreMediator;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageXContentBuilder;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.dao.EsChannelInfoDAO;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.dao.EsClientInfoDAO;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.dao.EsMessageDAO;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.dao.EsMetricInfoDAO;
+import org.eclipse.kapua.service.datastore.client.ClientException;
+import org.eclipse.kapua.service.datastore.client.ClientUnavailableException;
+import org.eclipse.kapua.service.datastore.client.Client;
+import org.eclipse.kapua.service.datastore.client.InsertRequest;
+import org.eclipse.kapua.service.datastore.client.InsertResponse;
+import org.eclipse.kapua.service.datastore.client.QueryMappingException;
+import org.eclipse.kapua.service.datastore.client.TypeDescriptor;
+import org.eclipse.kapua.service.datastore.internal.client.ClientFactory;
+import org.eclipse.kapua.service.datastore.internal.mediator.ConfigurationException;
+import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreChannel;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageField;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageInfo;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageStoreConfiguration;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageStoreMediator;
+import org.eclipse.kapua.service.datastore.internal.mediator.Metric;
 import org.eclipse.kapua.service.datastore.internal.model.DataIndexBy;
+import org.eclipse.kapua.service.datastore.internal.model.DatastoreMessageImpl;
 import org.eclipse.kapua.service.datastore.internal.model.MessageListResultImpl;
+import org.eclipse.kapua.service.datastore.internal.model.StorableIdImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ChannelInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ChannelMatchPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ClientInfoQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MetricInfoQueryImpl;
-import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
-import org.eclipse.kapua.service.datastore.model.ClientInfoListResult;
+import org.eclipse.kapua.service.datastore.internal.schema.ChannelInfoSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.ClientInfoSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.MessageSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.Metadata;
+import org.eclipse.kapua.service.datastore.internal.schema.MetricInfoSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.SchemaUtil;
+import org.eclipse.kapua.service.datastore.model.ChannelInfo;
+import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.MessageListResult;
-import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
+import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
@@ -61,24 +72,25 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  *
  */
-public final class MessageStoreFacade
-{
+public final class MessageStoreFacade {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageStoreFacade.class);
 
-    private final MessageStoreMediator  mediator;
+    private final MessageStoreMediator mediator;
     private final ConfigurationProvider configProvider;
+    private Client client = null;
 
     /**
      * Constructs the message store facade
      * 
      * @param confProvider
      * @param mediator
+     * @throws ClientUnavailableException
      */
-    public MessageStoreFacade(ConfigurationProvider confProvider, MessageStoreMediator mediator)
-    {
+    public MessageStoreFacade(ConfigurationProvider confProvider, MessageStoreMediator mediator) throws ClientUnavailableException {
         this.configProvider = confProvider;
         this.mediator = mediator;
+        client = ClientFactory.getInstance();
     }
 
     /**
@@ -87,16 +99,13 @@ public final class MessageStoreFacade
      * @param message
      * @return
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsClientUnavailableException
-     * @throws EsDocumentBuilderException
+     * @throws ConfigurationException
+     * @throws ClientException
      */
-    public StorableId store(KapuaMessage<?, ?> message)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsClientUnavailableException,
-        EsDocumentBuilderException
-    {
+    public InsertResponse store(KapuaMessage<?, ?> message)
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(message.getScopeId(), "scopeId");
@@ -104,15 +113,15 @@ public final class MessageStoreFacade
         ArgumentValidator.notNull(message.getReceivedOn(), "receivedOn");
 
         // Collect context data
-        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(message.getScopeId());
-        MessageInfo accountInfo = this.configProvider.getInfo(message.getScopeId());
+        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(message.getScopeId());
+        MessageInfo messageInfo = configProvider.getInfo(message.getScopeId());
 
         // Define data TTL
         long ttlSecs = accountServicePlan.getDataTimeToLiveMilliseconds();
         if (!accountServicePlan.getDataStorageEnabled() || ttlSecs == MessageStoreConfiguration.DISABLED) {
-            String msg = String.format("Message Store not enabled for account %s", accountInfo.getAccount().getName());
+            String msg = String.format("Message Store not enabled for account %s", messageInfo.getAccount().getName());
             logger.debug(msg);
-            throw new EsConfigurationException(msg);
+            throw new ConfigurationException(msg);
         }
 
         Date capturedOn = message.getCapturedOn();
@@ -125,37 +134,35 @@ public final class MessageStoreFacade
         if (DataIndexBy.DEVICE_TIMESTAMP.equals(accountServicePlan.getDataIndexBy())) {
             if (capturedOn != null) {
                 indexedOn = capturedOn.getTime();
-            }
-            else {
+            } else {
                 logger.warn("The account is set to use, as date indexing, the device timestamp but the device timestamp is null! Current system date will be used to indexing the message by date!");
             }
         }
-
         // Extract schema metadata
-        EsSchema.Metadata schemaMetadata = this.mediator.getMetadata(message.getScopeId(), indexedOn);
+        Metadata schemaMetadata = mediator.getMetadata(message.getScopeId(), indexedOn);
 
-        Date indexedOnDt = new Date(indexedOn);
-
-        // Parse document
-        MessageInfo messageInfo = this.configProvider.getInfo(message.getScopeId());
-        MessageXContentBuilder docBuilder = new MessageXContentBuilder();
-        docBuilder.build(messageInfo.getAccount().getName(), message, indexedOnDt, message.getReceivedOn());
-
-        // Possibly update the schema with new metric mappings
-        Map<String, EsMetric> esMetrics = docBuilder.getMetricMappings();
-        this.mediator.onUpdatedMappings(message.getScopeId(), indexedOn, esMetrics);
-
+        Date indexedOnDate = new Date(indexedOn);// TODO CHECK INDEX ON!!!!
         String indexName = schemaMetadata.getDataIndexName();
-
+        TypeDescriptor typeDescriptor = new TypeDescriptor(indexName, MessageSchema.MESSAGE_TYPE_NAME);
         // Save message (the big one)
-        // TODO check response
-        EsMessageDAO.getInstance()
-                    .index(indexName)
-                    .upsert(docBuilder.getMessageId().toString(), docBuilder.getBuilder());
-
-        this.mediator.onAfterMessageStore(message.getScopeId(), docBuilder, message);
-
-        return docBuilder.getMessageId();
+        DatastoreMessage messageToStore = convertTo(message);
+        messageToStore.setTimestamp(indexedOnDate);
+        InsertRequest insertRequest = new InsertRequest(typeDescriptor, messageToStore);
+        InsertResponse insertResponse = client.insert(insertRequest);
+        messageToStore.setDatastoreId(new StorableIdImpl(insertResponse.getId()));
+        // Possibly update the schema with new metric mappings
+        Map<String, Metric> metrics = new HashMap<>();
+        if (message.getPayload()!=null && message.getPayload().getProperties()!=null && message.getPayload().getProperties().size()>0) {
+            Map<String, Object> messageMetrics = message.getPayload().getProperties();
+            Iterator<String> metricsIterator = messageMetrics.keySet().iterator();
+            while (metricsIterator.hasNext()) {
+                String key = metricsIterator.next();
+                // TODO map metrics!!!!
+            }
+        }
+        mediator.onUpdatedMappings(message.getScopeId(), indexedOn, metrics);
+        mediator.onAfterMessageStore(message.getScopeId(), messageInfo, messageToStore);
+        return insertResponse;
     }
 
     /**
@@ -164,14 +171,13 @@ public final class MessageStoreFacade
      * @param scopeId
      * @param id
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsClientUnavailableException
+     * @throws ConfigurationException
+     * @throws ClientException
      */
     public void delete(KapuaId scopeId, StorableId id)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsClientUnavailableException
-    {
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
@@ -179,7 +185,7 @@ public final class MessageStoreFacade
 
         //
         // Do the find
-        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -187,9 +193,9 @@ public final class MessageStoreFacade
             return;
         }
 
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        EsMessageDAO.getInstance().index(dataIndexName)
-                    .deleteById(id.toString());
+        String indexName = SchemaUtil.getDataIndexName(scopeId);
+        TypeDescriptor typeDescriptor = new TypeDescriptor(indexName, MessageSchema.MESSAGE_TYPE_NAME);
+        client.delete(typeDescriptor, id.toString());
     }
 
     /**
@@ -200,41 +206,30 @@ public final class MessageStoreFacade
      * @param fetchStyle
      * @return
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsClientUnavailableException
-     * @throws EsQueryConversionException
-     * @throws EsObjectBuilderException
+     * @throws ConfigurationException
+     * @throws QueryMappingException
+     * @throws ClientException
      */
     public DatastoreMessage find(KapuaId scopeId, StorableId id, StorableFetchStyle fetchStyle)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsClientUnavailableException,
-        EsQueryConversionException, EsObjectBuilderException
-    {
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            QueryMappingException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(id, "id");
         ArgumentValidator.notNull(fetchStyle, "fetchStyle");
 
-        DatastoreMessage message = null;
-
         // Query by Id
-        IdsPredicateImpl idsPredicate = new IdsPredicateImpl(EsSchema.MESSAGE_TYPE_NAME);
+        IdsPredicateImpl idsPredicate = new IdsPredicateImpl(MessageSchema.MESSAGE_TYPE_NAME);
         idsPredicate.addValue(id);
         MessageQueryImpl idsQuery = new MessageQueryImpl();
         idsQuery.setPredicate(idsPredicate);
 
-        MessageListResult result = null;
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        result = EsMessageDAO.getInstance()
-                             .index(dataIndexName)
-                             .query(idsQuery);
-
-        if (result != null && result.size() > 0)
-            message = result.get(0);
-
-        return message;
+        String indexName = SchemaUtil.getDataIndexName(scopeId);
+        TypeDescriptor typeDescriptor = new TypeDescriptor(indexName, MessageSchema.MESSAGE_TYPE_NAME);
+        return client.find(typeDescriptor, idsQuery, DatastoreMessage.class);
     }
 
     /**
@@ -244,17 +239,14 @@ public final class MessageStoreFacade
      * @param query
      * @return
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsClientUnavailableException
-     * @throws EsQueryConversionException
-     * @throws EsObjectBuilderException
+     * @throws ConfigurationException
+     * @throws QueryMappingException
+     * @throws ClientException
      */
     public MessageListResult query(KapuaId scopeId, MessageQuery query)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsClientUnavailableException,
-        EsQueryConversionException, EsObjectBuilderException
-    {
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
@@ -262,7 +254,7 @@ public final class MessageStoreFacade
 
         //
         // Do the find
-        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -270,13 +262,13 @@ public final class MessageStoreFacade
             return new MessageListResultImpl();
         }
 
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        MessageListResult result = null;
-        result = EsMessageDAO.getInstance()
-                             .index(dataIndexName)
-                             .query(query);
+        String dataIndexName = SchemaUtil.getDataIndexName(scopeId);
+        MessageListResult listResult = new MessageListResultImpl();
+        TypeDescriptor typeDescriptor = new TypeDescriptor(dataIndexName, MessageSchema.MESSAGE_TYPE_NAME);
+        List<DatastoreMessage> result = client.query(typeDescriptor, query, DatastoreMessage.class);
 
-        return result;
+        listResult.addAll(result);
+        return listResult;
     }
 
     /**
@@ -286,16 +278,15 @@ public final class MessageStoreFacade
      * @param query
      * @return
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsQueryConversionException
-     * @throws EsClientUnavailableException
+     * @throws ConfigurationException
+     * @throws QueryMappingException
+     * @throws ClientException
      */
     public long count(KapuaId scopeId, MessageQuery query)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsQueryConversionException,
-        EsClientUnavailableException
-    {
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            QueryMappingException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
@@ -303,7 +294,7 @@ public final class MessageStoreFacade
 
         //
         // Do the find
-        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -311,13 +302,9 @@ public final class MessageStoreFacade
             return 0;
         }
 
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        long result;
-        result = EsMessageDAO.getInstance()
-                             .index(dataIndexName)
-                             .count(query);
-
-        return result;
+        String indexName = SchemaUtil.getDataIndexName(scopeId);
+        TypeDescriptor typeDescriptor = new TypeDescriptor(indexName, MessageSchema.MESSAGE_TYPE_NAME);
+        return client.count(typeDescriptor, query);
     }
 
     /**
@@ -326,16 +313,15 @@ public final class MessageStoreFacade
      * @param scopeId
      * @param query
      * @throws KapuaIllegalArgumentException
-     * @throws EsConfigurationException
-     * @throws EsQueryConversionException
-     * @throws EsClientUnavailableException
+     * @throws ConfigurationException
+     * @throws QueryMappingException
+     * @throws ClientException
      */
     public void delete(KapuaId scopeId, MessageQuery query)
-        throws KapuaIllegalArgumentException,
-        EsConfigurationException,
-        EsQueryConversionException,
-        EsClientUnavailableException
-    {
+            throws KapuaIllegalArgumentException,
+            ConfigurationException,
+            QueryMappingException,
+            ClientException {
         //
         // Argument Validation
         ArgumentValidator.notNull(scopeId, "scopeId");
@@ -343,7 +329,7 @@ public final class MessageStoreFacade
 
         //
         // Do the find
-        MessageStoreConfiguration accountServicePlan = this.configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(scopeId);
         long ttl = accountServicePlan.getDataTimeToLiveMilliseconds();
 
         if (!accountServicePlan.getDataStorageEnabled() || ttl == MessageStoreConfiguration.DISABLED) {
@@ -351,19 +337,15 @@ public final class MessageStoreFacade
             return;
         }
 
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
-        EsMessageDAO.getInstance()
-                    .index(dataIndexName)
-                    .deleteByQuery(query);
-
-        return;
+        String indexName = SchemaUtil.getDataIndexName(scopeId);
+        TypeDescriptor typeDescriptor = new TypeDescriptor(indexName, MessageSchema.MESSAGE_TYPE_NAME);
+        client.deleteByQuery(typeDescriptor, query);
     }
 
     // TODO cache will not be reset from the client code it should be automatically reset
     // after some time.
     private void resetCache(KapuaId scopeId, KapuaId deviceId, String channel, String clientId)
-        throws Exception
-    {
+            throws Exception {
 
         boolean isAnyClientId;
         boolean isClientToDelete = false;
@@ -377,15 +359,14 @@ public final class MessageStoreFacade
 
             if (semTopic.isEmpty() && !isAnyClientId)
                 isClientToDelete = true;
-        }
-        else {
+        } else {
             isAnyClientId = true;
             semTopic = "";
             isClientToDelete = true;
         }
 
         // Find all topics
-        String dataIndexName = EsSchema.getDataIndexName(scopeId);
+        String dataIndexName = SchemaUtil.getDataIndexName(scopeId);
 
         int pageSize = 1000;
         int offset = 0;
@@ -395,14 +376,13 @@ public final class MessageStoreFacade
         metricQuery.setLimit(pageSize + 1);
         metricQuery.setOffset(offset);
 
-        ChannelMatchPredicateImpl channelPredicate = new ChannelMatchPredicateImpl();
-        channelPredicate.setExpression(channel);
+        ChannelMatchPredicateImpl channelPredicate = new ChannelMatchPredicateImpl(MessageField.CHANNEL.field(), channel);
         metricQuery.setPredicate(channelPredicate);
 
         // Remove metrics
         while (totalHits > 0) {
-            MetricInfoListResult metrics = EsMetricInfoDAO.getInstance()
-                                                          .index(dataIndexName).query(metricQuery);
+            TypeDescriptor typeDescriptor = new TypeDescriptor(dataIndexName, MetricInfoSchema.METRIC_TYPE_NAME);
+            List<MetricInfo> metrics = client.query(typeDescriptor, metricQuery, MetricInfo.class);
 
             totalHits = metrics.size();
             LocalCache<String, Boolean> metricsCache = DatastoreCacheManager.getInstance().getMetricsCache();
@@ -417,29 +397,23 @@ public final class MessageStoreFacade
             if (totalHits > pageSize)
                 offset += (pageSize + 1);
         }
-
         logger.debug(String.format("Removed cached channel metrics for [%s]", channel));
-
-        EsMetricInfoDAO.getInstance().index(dataIndexName)
-                       .deleteByQuery(metricQuery);
-
+        TypeDescriptor typeMetricDescriptor = new TypeDescriptor(dataIndexName, MetricInfoSchema.METRIC_TYPE_NAME);
+        client.deleteByQuery(typeMetricDescriptor, metricQuery);
         logger.debug(String.format("Removed channel metrics for [%s]", channel));
-        //
-
         ChannelInfoQueryImpl channelQuery = new ChannelInfoQueryImpl();
         channelQuery.setLimit(pageSize + 1);
         channelQuery.setOffset(offset);
 
-        channelPredicate = new ChannelMatchPredicateImpl();
-        channelPredicate.setExpression(channel);
+        channelPredicate = new ChannelMatchPredicateImpl(MessageField.CHANNEL.field(), channel);
         channelQuery.setPredicate(channelPredicate);
 
         // Remove channel
         offset = 0;
         totalHits = 1;
         while (totalHits > 0) {
-            ChannelInfoListResult channels = EsChannelInfoDAO.getInstance()
-                                                             .index(dataIndexName).query(channelQuery);
+            TypeDescriptor typeDescriptor = new TypeDescriptor(dataIndexName, ChannelInfoSchema.CHANNEL_TYPE_NAME);
+            List<ChannelInfo> channels = client.query(typeDescriptor, channelQuery, ChannelInfo.class);
 
             totalHits = channels.size();
             LocalCache<String, Boolean> channelsCache = DatastoreCacheManager.getInstance().getChannelsCache();
@@ -455,29 +429,23 @@ public final class MessageStoreFacade
         }
 
         logger.debug(String.format("Removed cached channels for [%s]", channel));
-
-        EsChannelInfoDAO.getInstance().index(dataIndexName)
-                        .deleteByQuery(channelQuery);
+        TypeDescriptor typeChannelDescriptor = new TypeDescriptor(dataIndexName, ChannelInfoSchema.CHANNEL_TYPE_NAME);
+        client.deleteByQuery(typeChannelDescriptor, channelQuery);
 
         logger.debug(String.format("Removed channels for [%s]", channel));
-        //
-
         // Remove client
         if (isClientToDelete) {
-
             ClientInfoQueryImpl clientInfoQuery = new ClientInfoQueryImpl();
             clientInfoQuery.setLimit(pageSize + 1);
             clientInfoQuery.setOffset(offset);
 
-            channelPredicate = new ChannelMatchPredicateImpl();
-            channelPredicate.setExpression(channel);
+            channelPredicate = new ChannelMatchPredicateImpl(MessageField.CHANNEL.field(), channel);
             clientInfoQuery.setPredicate(channelPredicate);
-
             offset = 0;
             totalHits = 1;
             while (totalHits > 0) {
-                ClientInfoListResult clients = EsClientInfoDAO.getInstance()
-                                                              .index(dataIndexName).query(clientInfoQuery);
+                TypeDescriptor typeDescriptor = new TypeDescriptor(dataIndexName, ClientInfoSchema.CLIENT_TYPE_NAME);
+                List<ClientInfo> clients = client.query(typeDescriptor, clientInfoQuery, ClientInfo.class);
 
                 totalHits = clients.size();
                 LocalCache<String, Boolean> clientsCache = DatastoreCacheManager.getInstance().getClientsCache();
@@ -493,11 +461,32 @@ public final class MessageStoreFacade
             }
 
             logger.debug(String.format("Removed cached clients for [%s]", channel));
-
-            EsClientInfoDAO.getInstance().index(dataIndexName)
-                           .deleteByQuery(clientInfoQuery);
+            TypeDescriptor typeClientDescriptor = new TypeDescriptor(dataIndexName, ClientInfoSchema.CLIENT_TYPE_NAME);
+            client.deleteByQuery(typeClientDescriptor, clientInfoQuery);
 
             logger.debug(String.format("Removed clients for [%s]", channel));
         }
+    }
+
+    // Utility methods
+
+    /**
+     * This constructor should be used for wrapping Kapua message into datastore message for insert purpose
+     * 
+     * @param message
+     */
+    private DatastoreMessage convertTo(KapuaMessage<?, ?> message) {
+        DatastoreMessage datastoreMessage = new DatastoreMessageImpl();
+        datastoreMessage.setCapturedOn(message.getCapturedOn());
+        datastoreMessage.setChannel(message.getChannel());
+        datastoreMessage.setClientId(message.getClientId());
+        datastoreMessage.setDeviceId(message.getDeviceId());
+        datastoreMessage.setId(message.getId());
+        datastoreMessage.setPayload(message.getPayload());
+        datastoreMessage.setPosition(message.getPosition());
+        datastoreMessage.setReceivedOn(message.getReceivedOn());
+        datastoreMessage.setScopeId(message.getScopeId());
+        datastoreMessage.setSentOn(message.getSentOn());
+        return datastoreMessage;
     }
 }

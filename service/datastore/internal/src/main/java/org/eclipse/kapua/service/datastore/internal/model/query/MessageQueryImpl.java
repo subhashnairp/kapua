@@ -12,8 +12,11 @@
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
 import org.eclipse.kapua.service.datastore.internal.AbstractStorableQuery;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageField;
+import org.eclipse.kapua.service.datastore.internal.schema.MessageSchema;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
+import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 
 /**
  * Message query implementation
@@ -21,16 +24,56 @@ import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
  * @since 1.0
  *
  */
-public class MessageQueryImpl extends AbstractStorableQuery<DatastoreMessage> implements MessageQuery
-{
+public class MessageQueryImpl extends AbstractStorableQuery<DatastoreMessage> implements MessageQuery {
 
-    /**
-     * Create and keep a copy of the given query
-     * 
-     * @param query
-     */
-    public void copy(MessageQuery query)
-    {
-        super.copy(query);
+    @Override
+    public String[] getIncludes(StorableFetchStyle fetchStyle) {
+
+        // Fetch mode
+        String[] includeSource = null;
+
+        switch (fetchStyle) {
+        case FIELDS:
+            includeSource = new String[] { "" };
+            break;
+        case SOURCE_SELECT:
+            includeSource = new String[] { MessageSchema.MESSAGE_CAPTURED_ON, MessageSchema.MESSAGE_POSITION + ".*", MessageSchema.MESSAGE_METRICS + ".*" };
+            break;
+        case SOURCE_FULL:
+            includeSource = new String[] { "*" };
+        }
+
+        return includeSource;
     }
+
+    @Override
+    public String[] getExcludes(StorableFetchStyle fetchStyle) {
+
+        // Fetch mode
+        String[] excludeSource = null;
+
+        switch (fetchStyle) {
+        case FIELDS:
+            excludeSource = new String[] { "*" };
+            break;
+        case SOURCE_SELECT:
+            excludeSource = new String[] { MessageSchema.MESSAGE_BODY };
+            break;
+        case SOURCE_FULL:
+            excludeSource = new String[] { "" };
+        }
+
+        return excludeSource;
+    }
+
+    @Override
+    public String[] getFields() {
+        return new String[] { MessageField.ACCOUNT_ID.field(),
+                MessageField.ACCOUNT.field(),
+                MessageField.DEVICE_ID.field(),
+                MessageField.CLIENT_ID.field(),
+                MessageField.CHANNEL.field(),
+                MessageField.TIMESTAMP.field() };
+    }
+
 }

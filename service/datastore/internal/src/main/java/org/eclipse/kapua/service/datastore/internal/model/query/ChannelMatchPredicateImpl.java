@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
 
 /**
@@ -19,41 +22,68 @@ import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
  * @since 1.0
  *
  */
-public class ChannelMatchPredicateImpl implements ChannelMatchPredicate
-{
-    private String expression;
+public class ChannelMatchPredicateImpl implements ChannelMatchPredicate {
 
-    /**
-     * Default constructor
-     */
-    public ChannelMatchPredicateImpl()
-    {}
+    private final static String PREDICATE_KEY = "bool";
+    private final static String MUST_KEY = "must";
+
+    private String field;
+    private String expression;
 
     /**
      * Construct a channel match predicate for the given expression
      * 
+     * @param field
+     *            the field name
      * @param expression
+     *            the channel expression (may use wildcard)
      */
-    public ChannelMatchPredicateImpl(String expression)
-    {
+    public ChannelMatchPredicateImpl(String field, String expression) {
+        this.field = field;
         this.expression = expression;
     }
 
     @Override
-    public String getExpression()
-    {
+    public String getExpression() {
         return this.expression;
     }
 
+    @Override
     /**
-     * Set the channel expression (may use wildcard)
-     * 
-     * @param expression
-     * @return
+     * <pre>
+     * {
+     *  "query": {
+     *      "bool" : {
+     *        "must" : {
+     *          "term" : { "user" : "kimchy" }
+     *        },
+     *        "filter": {
+     *          "term" : { "tag" : "tech" }
+     *        },
+     *        "must_not" : {
+     *          "range" : {
+     *            "age" : { "from" : 10, "to" : 20 }
+     *          }
+     *        },
+     *        "should" : [
+     *          { "term" : { "tag" : "wow" } },
+     *          { "term" : { "tag" : "elasticsearch" } }
+     *        ],
+     *        "minimum_should_match" : 1,
+     *        "boost" : 1.0
+     *      }
+     *  }
+     *}
+     * </pre>
      */
-    public ChannelMatchPredicate setExpression(String expression)
-    {
-        this.expression = expression;
-        return this;
+    public Map<String, Object> toSerializedMap() {
+        Map<String, Object> outputMap = new HashMap<>();
+        Map<String, Object> expressionMap = new HashMap<>();
+        expressionMap.put(field, expression);
+        Map<String, Object> boolMap = new HashMap<>();
+        boolMap.put(MUST_KEY, expressionMap);
+        outputMap.put(PREDICATE_KEY, boolMap);
+        return outputMap;
     }
+
 }

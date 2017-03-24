@@ -28,17 +28,19 @@ import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.datastore.MessageStoreService;
+import org.eclipse.kapua.service.datastore.client.ClientUnavailableException;
 import org.eclipse.kapua.service.datastore.ChannelInfoRegistryService;
 import org.eclipse.kapua.service.datastore.DatastoreDomain;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreMediator;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageField;
+import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreMediator;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageField;
 import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.RangePredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.SortFieldImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.StorableFieldImpl;
+import org.eclipse.kapua.service.datastore.internal.schema.ChannelInfoSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.MessageSchema;
 import org.eclipse.kapua.service.datastore.model.StorableId;
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
@@ -61,23 +63,20 @@ import org.slf4j.LoggerFactory;
  *
  */
 @KapuaProvider
-public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements ChannelInfoRegistryService
-{
-    private static final long serialVersionUID = 7839070776817998600L;
+public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements ChannelInfoRegistryService {
 
     private static final Domain datastoreDomain = new DatastoreDomain();
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelInfoRegistryServiceImpl.class);
 
-    private final AccountService            accountService;
-    private final AuthorizationService      authorizationService;
-    private final PermissionFactory         permissionFactory;
+    private final AccountService accountService;
+    private final AuthorizationService authorizationService;
+    private final PermissionFactory permissionFactory;
     private final ChannelInfoRegistryFacade channelInfoStoreFacade;
-    private final MessageStoreService       messageStoreService;
-    private final DatastoreObjectFactory    datastoreObjectFactory;
+    private final MessageStoreService messageStoreService;
+    private final DatastoreObjectFactory datastoreObjectFactory;
 
-    public ChannelInfoRegistryServiceImpl()
-    {
+    public ChannelInfoRegistryServiceImpl() throws ClientUnavailableException {
         super(ChannelInfoRegistryService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
 
         KapuaLocator locator = KapuaLocator.getInstance();
@@ -95,24 +94,21 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
 
     @Override
     public void delete(KapuaId scopeId, StorableId id)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             ArgumentValidator.notNull(scopeId, "scopeId");
 
             this.checkDataAccess(scopeId, Actions.delete);
 
             this.channelInfoStoreFacade.delete(scopeId, id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public ChannelInfo find(KapuaId scopeId, StorableId id)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             ArgumentValidator.notNull(scopeId, "scopeId");
 
@@ -124,16 +120,14 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
             updateLastPublishedFields(scopeId, channelInfo);
 
             return channelInfo;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public ChannelInfoListResult query(KapuaId scopeId, ChannelInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             ArgumentValidator.notNull(scopeId, "scopeId");
 
@@ -147,47 +141,41 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
             }
 
             return result;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public long count(KapuaId scopeId, ChannelInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             ArgumentValidator.notNull(scopeId, "scopeId");
 
             this.checkDataAccess(scopeId, Actions.read);
 
             return this.channelInfoStoreFacade.count(scopeId, query);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public void delete(KapuaId scopeId, ChannelInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             ArgumentValidator.notNull(scopeId, "scopeId");
 
             this.checkDataAccess(scopeId, Actions.delete);
 
             this.delete(scopeId, query);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     private void checkDataAccess(KapuaId scopeId, Actions action)
-        throws KapuaException
-    {
+            throws KapuaException {
         //
         // Check Access
         Permission permission = permissionFactory.newPermission(datastoreDomain, action, scopeId);
@@ -204,8 +192,7 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
      * 
      * @throws KapuaException
      */
-    private void updateLastPublishedFields(KapuaId scopeId, ChannelInfo channelInfo) throws KapuaException
-    {
+    private void updateLastPublishedFields(KapuaId scopeId, ChannelInfo channelInfo) throws KapuaException {
         StorableId lastPublishedMessageId = null;
         Date lastPublishedMessageTimestamp = null;
         MessageQuery messageQuery = new MessageQueryImpl();
@@ -215,12 +202,12 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
         messageQuery.setOffset(0);
         List<SortField> sort = new ArrayList<SortField>();
         SortField sortTimestamp = new SortFieldImpl();
-        sortTimestamp.setField(EsSchema.MESSAGE_TIMESTAMP);
+        sortTimestamp.setField(MessageSchema.MESSAGE_TIMESTAMP);
         sortTimestamp.setSortDirection(SortDirection.DESC);
         sort.add(sortTimestamp);
         messageQuery.setSortFields(sort);
         AndPredicate andPredicate = new AndPredicateImpl();
-        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CHANNEL_TIMESTAMP), channelInfo.getFirstPublishedMessageTimestamp(), null);
+        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(ChannelInfoSchema.CHANNEL_TIMESTAMP), channelInfo.getFirstPublishedMessageTimestamp(), null);
         andPredicate.getPredicates().add(messageIdPredicate);
         TermPredicate accountNamePredicate = datastoreObjectFactory.newTermPredicate(MessageField.ACCOUNT, channelInfo.getAccount());
         andPredicate.getPredicates().add(accountNamePredicate);
@@ -233,15 +220,14 @@ public class ChannelInfoRegistryServiceImpl extends AbstractKapuaConfigurableSer
         if (messageList.size() == 1) {
             lastPublishedMessageId = messageList.get(0).getDatastoreId();
             lastPublishedMessageTimestamp = messageList.get(0).getTimestamp();
-        }
-        else if (messageList.size() == 0) {
+        } else if (messageList.size() == 0) {
             // this condition could happens due to the ttl of the messages (so if it happens, it does not necessarily mean there has been an error!)
             logger.warn("Cannot find last timestamp for the specified client id '{}' - account '{}'", new Object[] { channelInfo.getAccount(), channelInfo.getClientId() });
-        }
-        else {
+        } else {
             // this condition shouldn't never happens since the query has a limit 1
-            // if happens it means than an elasticsearch internal error happens and/or our driver didn't set it correctly!
-            logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!", new Object[] { channelInfo.getAccount(), channelInfo.getClientId() });
+            // if happens it means than an elasticsearch internal error happens and/or our client datastore client didn't set it correctly!
+            logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!",
+                    new Object[] { channelInfo.getAccount(), channelInfo.getClientId() });
         }
         channelInfo.setLastPublishedMessageId(lastPublishedMessageId);
         channelInfo.setLastPublishedMessageTimestamp(lastPublishedMessageTimestamp);

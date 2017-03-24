@@ -29,6 +29,12 @@ public interface ClientInfo extends Storable
     public StorableId getId();
 
     /**
+     * Set the record identifier
+     * 
+     */
+    public void setId(StorableId storableId);
+
+    /**
      * Get the account
      * 
      * @return

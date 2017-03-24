@@ -22,62 +22,54 @@ import org.eclipse.kapua.service.datastore.model.StorableId;
  * @since 1.0
  *
  */
-public class ClientInfoCreatorImpl implements ClientInfoCreator
-{
-    private String     account;
-    private String     clientId;
+public class ClientInfoCreatorImpl implements ClientInfoCreator {
+
+    private String account;
+    private String clientId;
     private StorableId messageId;
-    private Date       messageTimestamp;
+    private Date messageTimestamp;
 
     /**
      * Construct a client information creator for the given account
      * 
      * @param account
      */
-    public ClientInfoCreatorImpl(String account)
-    {
+    public ClientInfoCreatorImpl(String account) {
         this.account = account;
     }
 
     @Override
-    public String getAccount()
-    {
+    public String getAccount() {
         return account;
     }
 
     @Override
-    public String getClientId()
-    {
+    public String getClientId() {
         return clientId;
     }
 
     @Override
-    public void setClientId(String clientId)
-    {
+    public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
     @Override
-    public StorableId getMessageId()
-    {
+    public StorableId getMessageId() {
         return messageId;
     }
 
     @Override
-    public void setMessageId(StorableId messageId)
-    {
+    public void setMessageId(StorableId messageId) {
         this.messageId = messageId;
     }
 
     @Override
-    public Date getMessageTimestamp()
-    {
+    public Date getMessageTimestamp() {
         return messageTimestamp;
     }
 
     @Override
-    public void setMessageTimestamp(Date messageTimestamp)
-    {
+    public void setMessageTimestamp(Date messageTimestamp) {
         this.messageTimestamp = messageTimestamp;
     }
 }

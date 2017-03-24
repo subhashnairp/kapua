@@ -22,36 +22,33 @@ import org.eclipse.kapua.service.datastore.model.StorableId;
  * @since 1.0
  *
  */
-public class MetricInfoCreatorImpl implements MetricInfoCreator
-{
-    private String     account;
-    private String     clientId;
-    private String     channel;
+public class MetricInfoCreatorImpl implements MetricInfoCreator {
+
+    private String account;
+    private String clientId;
+    private String channel;
     private StorableId messageId;
-    private Date       messageTimestamp;
-    private String     name;
-    private String     type;
-    private Object     value;
+    private Date messageTimestamp;
+    private String name;
+    private String type;
+    private Object value;
 
     /**
      * Construct a metric information creator for the given account
      * 
      * @param account
      */
-    public MetricInfoCreatorImpl(String account)
-    {
+    public MetricInfoCreatorImpl(String account) {
         this.account = account;
     }
 
     @Override
-    public String getAccount()
-    {
+    public String getAccount() {
         return account;
     }
 
     @Override
-    public String getClientId()
-    {
+    public String getClientId() {
         return this.clientId;
     }
 
@@ -60,80 +57,67 @@ public class MetricInfoCreatorImpl implements MetricInfoCreator
      * 
      * @param clientId
      */
-    public void setDevice(String clientId)
-    {
+    public void setDevice(String clientId) {
         this.clientId = clientId;
     }
 
     @Override
-    public String getChannel()
-    {
+    public String getChannel() {
         return channel;
     }
 
     @Override
-    public void setChannel(String channel)
-    {
+    public void setChannel(String channel) {
         this.channel = channel;
     }
 
     @Override
-    public StorableId getMessageId()
-    {
+    public StorableId getMessageId() {
         return messageId;
     }
 
     @Override
-    public void setMessageId(StorableId messageId)
-    {
+    public void setMessageId(StorableId messageId) {
         this.messageId = messageId;
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     @Override
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     @Override
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
     @Override
-    public <T> T getValue(Class<T> clazz)
-    {
+    public <T> T getValue(Class<T> clazz) {
         return clazz.cast(value);
     }
 
     @Override
-    public <T> void setValue(T value)
-    {
+    public <T> void setValue(T value) {
         this.value = value;
     }
 
     @Override
-    public Date getMessageTimestamp()
-    {
+    public Date getMessageTimestamp() {
         return messageTimestamp;
     }
 
     @Override
-    public void setMessageTimestamp(Date messageTimestamp)
-    {
+    public void setMessageTimestamp(Date messageTimestamp) {
         this.messageTimestamp = messageTimestamp;
     }
 }

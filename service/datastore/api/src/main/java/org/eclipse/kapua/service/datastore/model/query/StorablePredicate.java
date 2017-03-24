@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.model.query;
 
+import java.util.Map;
+
 /**
  * Storable query predicate definition
  * 
@@ -18,4 +20,8 @@ package org.eclipse.kapua.service.datastore.model.query;
  *
  */
 public interface StorablePredicate
-{}
+{
+
+    public Map<String, Object> toSerializedMap();
+
+}

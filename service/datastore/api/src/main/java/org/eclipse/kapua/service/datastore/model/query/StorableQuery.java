@@ -109,10 +109,4 @@ public interface StorableQuery<S extends Storable>
      */
     public void setSortFields(List<SortField> sortFields);
 
-    /**
-     * Create (and keep it internally) a copy of the given query
-     * 
-     * @param query
-     */
-    public void copy(StorableQuery<S> query);
 }

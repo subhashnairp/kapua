@@ -22,24 +22,23 @@ import org.eclipse.kapua.service.datastore.model.ChannelInfo;
  * @since 1.0
  *
  */
-public class ChannelInfoImpl implements ChannelInfo
-{
+public class ChannelInfoImpl implements ChannelInfo {
+
     private StorableId id;
-    private String     account;
-    private String     clientId;
-    private String     channel;
+    private String account;
+    private String clientId;
+    private String channel;
     private StorableId firstPublishedMessageId;
-    private Date       firstPublishedMessageTimestamp;
+    private Date firstPublishedMessageTimestamp;
     private StorableId lastPublishedMessageId;
-    private Date       lastPublishedMessageTimestamp;
+    private Date lastPublishedMessageTimestamp;
 
     /**
      * Construct a channel information for the given scope
      * 
      * @param scope
      */
-    public ChannelInfoImpl(String scope)
-    {
+    public ChannelInfoImpl(String scope) {
         this.account = scope;
     }
 
@@ -49,15 +48,13 @@ public class ChannelInfoImpl implements ChannelInfo
      * @param scope
      * @param id
      */
-    public ChannelInfoImpl(String scope, StorableId id)
-    {
+    public ChannelInfoImpl(String scope, StorableId id) {
         this(scope);
         this.id = id;
     }
 
     @Override
-    public StorableId getId()
-    {
+    public StorableId getId() {
         return id;
     }
 
@@ -66,20 +63,17 @@ public class ChannelInfoImpl implements ChannelInfo
      * 
      * @param id
      */
-    public void setId(StorableId id)
-    {
+    public void setId(StorableId id) {
         this.id = id;
     }
 
     @Override
-    public String getAccount()
-    {
+    public String getAccount() {
         return account;
     }
 
     @Override
-    public String getClientId()
-    {
+    public String getClientId() {
         return clientId;
     }
 
@@ -88,68 +82,57 @@ public class ChannelInfoImpl implements ChannelInfo
      * 
      * @param clientId
      */
-    public void setClientId(String clientId)
-    {
+    public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
     @Override
-    public String getChannel()
-    {
+    public String getChannel() {
         return channel;
     }
 
     @Override
-    public void setChannel(String channel)
-    {
+    public void setChannel(String channel) {
         this.channel = channel;
     }
 
     @Override
-    public StorableId getFirstPublishedMessageId()
-    {
+    public StorableId getFirstPublishedMessageId() {
         return this.firstPublishedMessageId;
     }
 
     @Override
-    public void setFirstPublishedMessageId(StorableId firstPublishedMessageId)
-    {
+    public void setFirstPublishedMessageId(StorableId firstPublishedMessageId) {
         this.firstPublishedMessageId = firstPublishedMessageId;
     }
 
     @Override
-    public Date getFirstPublishedMessageTimestamp()
-    {
+    public Date getFirstPublishedMessageTimestamp() {
         return firstPublishedMessageTimestamp;
     }
 
     @Override
-    public void setFirstPublishedMessageTimestamp(Date firstPublishedMessageTimestamp)
-    {
+    public void setFirstPublishedMessageTimestamp(Date firstPublishedMessageTimestamp) {
         this.firstPublishedMessageTimestamp = firstPublishedMessageTimestamp;
     }
 
     @Override
-    public StorableId getLastPublishedMessageId()
-    {
+    public StorableId getLastPublishedMessageId() {
         return this.lastPublishedMessageId;
     }
 
     @Override
-    public void setLastPublishedMessageId(StorableId lastPublishedMessageId)
-    {
+    public void setLastPublishedMessageId(StorableId lastPublishedMessageId) {
         this.lastPublishedMessageId = lastPublishedMessageId;
     }
 
     @Override
-    public Date getLastPublishedMessageTimestamp()
-    {
+    public Date getLastPublishedMessageTimestamp() {
         return lastPublishedMessageTimestamp;
     }
 
     @Override
-    public void setLastPublishedMessageTimestamp(Date lastPublishedMessageTimestamp)
-    {
+    public void setLastPublishedMessageTimestamp(Date lastPublishedMessageTimestamp) {
         this.lastPublishedMessageTimestamp = lastPublishedMessageTimestamp;
     }
 

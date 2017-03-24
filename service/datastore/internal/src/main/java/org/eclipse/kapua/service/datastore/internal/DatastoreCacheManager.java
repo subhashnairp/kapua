@@ -22,16 +22,15 @@ import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettings;
  * @since 1.0
  *
  */
-public class DatastoreCacheManager
-{
+public class DatastoreCacheManager {
+
     private static final DatastoreCacheManager instance = new DatastoreCacheManager();
 
     private final LocalCache<String, Boolean> channelsCache;
     private final LocalCache<String, Boolean> metricsCache;
     private final LocalCache<String, Boolean> clientsCache;
 
-    private DatastoreCacheManager()
-    {
+    private DatastoreCacheManager() {
         DatastoreSettings config = DatastoreSettings.getInstance();
         int expireAfter = config.getInt(DatastoreSettingKey.CONFIG_CACHE_LOCAL_EXPIRE_AFTER);
         int sizeMax = config.getInt(DatastoreSettingKey.CONFIG_CACHE_LOCAL_SIZE_MAXIMUM);
@@ -49,8 +48,7 @@ public class DatastoreCacheManager
      * 
      * @return
      */
-    public static DatastoreCacheManager getInstance()
-    {
+    public static DatastoreCacheManager getInstance() {
         return instance;
     }
 
@@ -59,8 +57,7 @@ public class DatastoreCacheManager
      * 
      * @return
      */
-    public LocalCache<String, Boolean> getChannelsCache()
-    {
+    public LocalCache<String, Boolean> getChannelsCache() {
         return channelsCache;
     }
 
@@ -69,8 +66,7 @@ public class DatastoreCacheManager
      * 
      * @return
      */
-    public LocalCache<String, Boolean> getMetricsCache()
-    {
+    public LocalCache<String, Boolean> getMetricsCache() {
         return metricsCache;
     }
 
@@ -79,8 +75,7 @@ public class DatastoreCacheManager
      * 
      * @return
      */
-    public LocalCache<String, Boolean> getClientsCache()
-    {
+    public LocalCache<String, Boolean> getClientsCache() {
         return clientsCache;
     }
 }

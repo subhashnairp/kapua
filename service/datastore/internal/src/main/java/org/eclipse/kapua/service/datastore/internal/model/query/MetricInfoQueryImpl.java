@@ -12,8 +12,10 @@
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
 import org.eclipse.kapua.service.datastore.internal.AbstractStorableQuery;
+import org.eclipse.kapua.service.datastore.internal.mediator.MetricInfoField;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
+import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
 
 /**
  * Metric information query implementation
@@ -21,17 +23,28 @@ import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
  * @since 1.0
  *
  */
-public class MetricInfoQueryImpl extends AbstractStorableQuery<MetricInfo> implements MetricInfoQuery
-{
+public class MetricInfoQueryImpl extends AbstractStorableQuery<MetricInfo> implements MetricInfoQuery {
 
-    /**
-     * Create and keep a copy of the given query
-     * 
-     * @param query
-     */
-    public void copy(MetricInfoQuery query)
-    {
-        super.copy(query);
-        // Add copy for local members
+    @Override
+    public String[] getIncludes(StorableFetchStyle fetchStyle) {
+        return new String[] { "" };
     }
+
+    @Override
+    public String[] getExcludes(StorableFetchStyle fetchStyle) {
+        return new String[] { "*" };
+    }
+
+    @Override
+    public String[] getFields() {
+        return new String[] { MetricInfoField.ACCOUNT.field(),
+                MetricInfoField.CLIENT_ID.field(),
+                MetricInfoField.CHANNEL.field(),
+                MetricInfoField.NAME_FULL.field(),
+                MetricInfoField.TYPE_FULL.field(),
+                MetricInfoField.VALUE_FULL.field(),
+                MetricInfoField.TIMESTAMP_FULL.field(),
+                MetricInfoField.MESSAGE_ID_FULL.field() };
+    }
+
 }

@@ -24,16 +24,15 @@ import org.eclipse.kapua.service.datastore.model.StorableListResult;
  * @param <E>
  */
 @SuppressWarnings("serial")
-public class AbstractStorableListResult<E extends Storable> extends ArrayList<E> implements StorableListResult<E>
-{
+public class AbstractStorableListResult<E extends Storable> extends ArrayList<E> implements StorableListResult<E> {
+
     private Object nextKey;
-    private Long   totalCount;
+    private Long totalCount;
 
     /**
      * Default constructor
      */
-    public AbstractStorableListResult()
-    {
+    public AbstractStorableListResult() {
         nextKey = null;
         totalCount = null;
     }
@@ -43,8 +42,7 @@ public class AbstractStorableListResult<E extends Storable> extends ArrayList<E>
      * 
      * @param nextKey
      */
-    public AbstractStorableListResult(Object nextKey)
-    {
+    public AbstractStorableListResult(Object nextKey) {
         this.nextKey = nextKey;
         this.totalCount = null;
     }
@@ -55,21 +53,18 @@ public class AbstractStorableListResult<E extends Storable> extends ArrayList<E>
      * @param nextKeyOffset
      * @param totalCount
      */
-    public AbstractStorableListResult(Object nextKeyOffset, Long totalCount)
-    {
+    public AbstractStorableListResult(Object nextKeyOffset, Long totalCount) {
         this(nextKeyOffset);
         this.totalCount = totalCount;
     }
 
     @Override
-    public Object getNextKey()
-    {
+    public Object getNextKey() {
         return nextKey;
     }
 
     @Override
-    public Long getTotalCount()
-    {
+    public Long getTotalCount() {
         return totalCount;
     }
 }

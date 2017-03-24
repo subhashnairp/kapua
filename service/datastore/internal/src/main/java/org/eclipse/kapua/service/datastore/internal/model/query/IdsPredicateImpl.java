@@ -11,8 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal.model.query;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.kapua.service.datastore.model.StorableId;
@@ -24,24 +28,27 @@ import org.eclipse.kapua.service.datastore.model.query.IdsPredicate;
  * @since 1.0
  *
  */
-public class IdsPredicateImpl implements IdsPredicate
-{
-    private String          type;
+public class IdsPredicateImpl implements IdsPredicate {
+
+    private final static String PREDICATE_KEY = "ids";
+    private final static String TYPE_KEY = "type";
+    private final static String VALUES_KEY = "values";
+
+    private String type;
     private Set<StorableId> idSet = new HashSet<StorableId>();
 
     /**
      * Default constructor
      */
-    public IdsPredicateImpl()
-    {}
+    public IdsPredicateImpl() {
+    }
 
     /**
      * Construct an identifier predicate given the type
      * 
      * @param type
      */
-    public IdsPredicateImpl(String type)
-    {
+    public IdsPredicateImpl(String type) {
         this();
         this.type = type;
     }
@@ -52,15 +59,13 @@ public class IdsPredicateImpl implements IdsPredicate
      * @param type
      * @param ids
      */
-    public IdsPredicateImpl(String type, Collection<StorableId> ids)
-    {
+    public IdsPredicateImpl(String type, Collection<StorableId> ids) {
         this(type);
         this.idSet.addAll(ids);
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return this.type;
     }
 
@@ -70,15 +75,13 @@ public class IdsPredicateImpl implements IdsPredicate
      * @param type
      * @return
      */
-    public IdsPredicate setType(String type)
-    {
+    public IdsPredicate setType(String type) {
         this.type = type;
         return this;
     }
 
     @Override
-    public Set<StorableId> getIdSet()
-    {
+    public Set<StorableId> getIdSet() {
         return this.idSet;
     }
 
@@ -88,8 +91,7 @@ public class IdsPredicateImpl implements IdsPredicate
      * @param id
      * @return
      */
-    public IdsPredicate addValue(StorableId id)
-    {
+    public IdsPredicate addValue(StorableId id) {
         this.idSet.add(id);
         return this;
     }
@@ -100,8 +102,7 @@ public class IdsPredicateImpl implements IdsPredicate
      * @param ids
      * @return
      */
-    public IdsPredicate addValues(Collection<StorableId> ids)
-    {
+    public IdsPredicate addValues(Collection<StorableId> ids) {
         this.idSet.addAll(ids);
         return this;
     }
@@ -111,9 +112,36 @@ public class IdsPredicateImpl implements IdsPredicate
      * 
      * @return
      */
-    public IdsPredicate clearValues()
-    {
+    public IdsPredicate clearValues() {
         this.idSet.clear();
         return this;
     }
+
+    @Override
+    /**
+     * <pre>
+     * GET /_search
+     *  {
+     *      "query": {
+     *          "ids" : {
+     *              "type" : "my_type",
+     *              "values" : ["1", "4", "100"]
+     *          }
+     *      }
+     *  }
+     * </pre>
+     */
+    public Map<String, Object> toSerializedMap() {
+        Map<String, Object> outputMap = new HashMap<>();
+        Map<String, Object> idsMap = new HashMap<>();
+        List<String> idsList = new ArrayList<>();
+        for (StorableId id : idSet) {
+            idsList.add(id.toString());
+        }
+        idsMap.put(TYPE_KEY, type);
+        idsMap.put(VALUES_KEY, idsList);
+        outputMap.put(PREDICATE_KEY, idsMap);
+        return outputMap;
+    }
+
 }

@@ -43,6 +43,13 @@ public interface MetricInfo extends Storable
     public String getClientId();
 
     /**
+     * Set the client identifier
+     * 
+     * @param clientId
+     */
+    public void setClientId(String clientId);
+
+    /**
      * Get the channel
      * 
      * @return

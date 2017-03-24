@@ -31,15 +31,17 @@ import org.eclipse.kapua.service.datastore.DatastoreDomain;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
 import org.eclipse.kapua.service.datastore.MessageStoreService;
 import org.eclipse.kapua.service.datastore.MetricInfoRegistryService;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreMediator;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.EsSchema;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageField;
+import org.eclipse.kapua.service.datastore.client.ClientUnavailableException;
+import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreMediator;
+import org.eclipse.kapua.service.datastore.internal.mediator.MessageField;
 import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.ExistsPredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.MessageQueryImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.RangePredicateImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.SortFieldImpl;
 import org.eclipse.kapua.service.datastore.internal.model.query.StorableFieldImpl;
+import org.eclipse.kapua.service.datastore.internal.schema.MessageSchema;
+import org.eclipse.kapua.service.datastore.internal.schema.MetricInfoSchema;
 import org.eclipse.kapua.service.datastore.model.MessageListResult;
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
@@ -63,23 +65,20 @@ import org.slf4j.LoggerFactory;
  *
  */
 @KapuaProvider
-public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements MetricInfoRegistryService
-{
-    private static final long serialVersionUID = 7490084233555473342L;
+public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableService implements MetricInfoRegistryService {
 
     private static final Domain datastoreDomain = new DatastoreDomain();
 
     private static final Logger logger = LoggerFactory.getLogger(MetricInfoRegistryServiceImpl.class);
 
-    private final AccountService           accountService;
-    private final AuthorizationService     authorizationService;
-    private final PermissionFactory        permissionFactory;
+    private final AccountService accountService;
+    private final AuthorizationService authorizationService;
+    private final PermissionFactory permissionFactory;
     private final MetricInfoRegistryFacade metricInfoStoreFacade;
-    private final MessageStoreService      messageStoreService;
-    private final DatastoreObjectFactory   datastoreObjectFactory;
+    private final MessageStoreService messageStoreService;
+    private final DatastoreObjectFactory datastoreObjectFactory;
 
-    public MetricInfoRegistryServiceImpl()
-    {
+    public MetricInfoRegistryServiceImpl() throws ClientUnavailableException {
         super(MetricInfoRegistryService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
 
         KapuaLocator locator = KapuaLocator.getInstance();
@@ -97,8 +96,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
 
     @Override
     public void delete(KapuaId scopeId, StorableId id)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             //
             // Argument Validation
@@ -108,16 +106,14 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             this.checkDataAccess(scopeId, Actions.delete);
 
             this.metricInfoStoreFacade.delete(scopeId, id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public MetricInfo find(KapuaId scopeId, StorableId id)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             //
             // Argument Validation
@@ -132,16 +128,14 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             updateLastPublishedFields(scopeId, metricInfo);
 
             return metricInfo;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public MetricInfoListResult query(KapuaId scopeId, MetricInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             //
             // Argument Validation
@@ -158,16 +152,14 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             }
 
             return result;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public long count(KapuaId scopeId, MetricInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             //
             // Argument Validation
@@ -177,16 +169,14 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             this.checkDataAccess(scopeId, Actions.read);
 
             return this.metricInfoStoreFacade.count(scopeId, query);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     @Override
     public void delete(KapuaId scopeId, MetricInfoQuery query)
-        throws KapuaException
-    {
+            throws KapuaException {
         try {
             //
             // Argument Validation
@@ -197,15 +187,13 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
             this.checkDataAccess(scopeId, Actions.read);
 
             this.metricInfoStoreFacade.delete(scopeId, query);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
     }
 
     private void checkDataAccess(KapuaId scopeId, Actions action)
-        throws KapuaException
-    {
+            throws KapuaException {
         //
         // Check Access
         Permission permission = permissionFactory.newPermission(datastoreDomain, action, scopeId);
@@ -221,8 +209,7 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
      * 
      * @throws KapuaException
      */
-    private void updateLastPublishedFields(KapuaId scopeId, MetricInfo metricInfo) throws KapuaException
-    {
+    private void updateLastPublishedFields(KapuaId scopeId, MetricInfo metricInfo) throws KapuaException {
         StorableId lastPublishedMessageId = null;
         Date lastPublishedMessageTimestamp = null;
         MessageQuery messageQuery = new MessageQueryImpl();
@@ -232,13 +219,13 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         messageQuery.setOffset(0);
         List<SortField> sort = new ArrayList<SortField>();
         SortField sortTimestamp = new SortFieldImpl();
-        sortTimestamp.setField(EsSchema.MESSAGE_TIMESTAMP);
+        sortTimestamp.setField(MessageSchema.MESSAGE_TIMESTAMP);
         sortTimestamp.setSortDirection(SortDirection.DESC);
         sort.add(sortTimestamp);
         messageQuery.setSortFields(sort);
         AndPredicate andPredicate = new AndPredicateImpl();
-        // TODO check if this field is correct (EsSchema.METRIC_MTR_TIMESTAMP)!
-        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.METRIC_MTR_TIMESTAMP), metricInfo.getFirstPublishedMessageTimestamp(), null);
+        // TODO check if this field is correct (Schema.METRIC_MTR_TIMESTAMP)!
+        RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(MetricInfoSchema.METRIC_MTR_TIMESTAMP), metricInfo.getFirstPublishedMessageTimestamp(), null);
         andPredicate.getPredicates().add(messageIdPredicate);
         TermPredicate accountNamePredicate = datastoreObjectFactory.newTermPredicate(MessageField.ACCOUNT, metricInfo.getAccount());
         andPredicate.getPredicates().add(accountNamePredicate);
@@ -251,15 +238,14 @@ public class MetricInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         if (messageList.size() == 1) {
             lastPublishedMessageId = messageList.get(0).getDatastoreId();
             lastPublishedMessageTimestamp = messageList.get(0).getTimestamp();
-        }
-        else if (messageList.size() == 0) {
+        } else if (messageList.size() == 0) {
             // this condition could happens due to the ttl of the messages (so if it happens, it does not necessarily mean there has been an error!)
             logger.warn("Cannot find last timestamp for the specified client id '{}' - account '{}'", new Object[] { metricInfo.getAccount(), metricInfo.getClientId() });
-        }
-        else {
+        } else {
             // this condition shouldn't never happens since the query has a limit 1
-            // if happens it means than an elasticsearch internal error happens and/or our driver didn't set it correctly!
-            logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!", new Object[] { metricInfo.getAccount(), metricInfo.getClientId() });
+            // if happens it means than an elasticsearch internal error happens and/or our datastore client didn't set it correctly!
+            logger.error("Cannot find last timestamp for the specified client id '{}' - account '{}'. More than one result returned by the query!",
+                    new Object[] { metricInfo.getAccount(), metricInfo.getClientId() });
         }
         metricInfo.setLastPublishedMessageId(lastPublishedMessageId);
         metricInfo.setLastPublishedMessageTimestamp(lastPublishedMessageTimestamp);
